@@ -176,8 +176,13 @@
             grid-template-columns: repeat(auto-fill, minmax(min(220px, 44vw), 1fr));
             gap: clamp(10px, 1.8vw, 18px);
             padding: 10px 16px 28px;
-            align-items: start;
-            align-content: start;
+            flex: 1;
+            min-height: 0;
+            align-content: stretch;
+        }
+
+        .animal-card {
+            max-height: 260px;
         }
 
         .animal-card {
