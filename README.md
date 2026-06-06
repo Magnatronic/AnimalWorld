@@ -21,3 +21,7 @@ Place your sound files in a `sounds/` folder alongside `index.html`.
 
 ## Hosting
 Live at: [https://Magnatronic.github.io/AnimalWorld](https://Magnatronic.github.io/AnimalWorld)
+
+## Credits
+Animal images: [OpenMoji](https://openmoji.org/) — the open-source emoji and icon project.  
+License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
