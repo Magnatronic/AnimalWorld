@@ -120,9 +120,11 @@
         }
         .theme-btn:active { transform: scale(0.96); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 
-        .btn-forest { background: linear-gradient(135deg, #1b5e3b, #43a06b); }
-        .btn-safari { background: linear-gradient(135deg, #b34700, #f4813a); }
-        .btn-ocean  { background: linear-gradient(135deg, #005f8e, #00b4d8); }
+        .btn-forest  { background: linear-gradient(135deg, #1b5e3b, #43a06b); }
+        .btn-safari  { background: linear-gradient(135deg, #b34700, #f4813a); }
+        .btn-ocean   { background: linear-gradient(135deg, #005f8e, #00b4d8); }
+        .btn-arctic     { background: linear-gradient(135deg, #023e8a, #48cae4); }
+        .btn-minibeasts { background: linear-gradient(135deg, #4a148c, #ab47bc); }
 
         .btn-icon  { font-size: clamp(2rem, 6vw, 3rem); flex-shrink: 0; }
         .btn-label { flex: 1; text-align: left; }
@@ -874,6 +876,18 @@
         .theme-ocean { background: linear-gradient(170deg, #005f8e 0%, #00b4d8 40%, #caf0f8 100%); }
         .theme-ocean .animal-name { color: #004e74; }
         .theme-ocean .mem-front .mem-name { color: #004e74; }
+
+        .theme-minibeasts .screen-header { background: linear-gradient(135deg, #4a148c, #ab47bc); }
+        .theme-minibeasts { background: linear-gradient(170deg, #4a148c 0%, #ab47bc 40%, #f3e5f5 100%); }
+        .theme-minibeasts .animal-name { color: #4a148c; }
+        .theme-minibeasts .mem-front .mem-name { color: #4a148c; }
+        .theme-minibeasts .fta-card-name { color: #4a148c; }
+
+        .theme-arctic .screen-header { background: linear-gradient(135deg, #023e8a, #48cae4); }
+        .theme-arctic { background: linear-gradient(170deg, #023e8a 0%, #48cae4 40%, #e0f7fa 100%); }
+        .theme-arctic .animal-name { color: #023e8a; }
+        .theme-arctic .mem-front .mem-name { color: #023e8a; }
+        .theme-arctic .fta-card-name { color: #023e8a; }
     </style>
 </head>
 <body>
@@ -896,6 +910,16 @@
         <button class="theme-btn btn-ocean" onclick="pickTheme('ocean')">
             <span class="btn-icon">🌊</span>
             <span class="btn-label">Ocean Animals</span>
+            <span class="btn-arrow">▶</span>
+        </button>
+        <button class="theme-btn btn-minibeasts" onclick="pickTheme('minibeasts')">
+            <span class="btn-icon">🐛</span>
+            <span class="btn-label">Mini Beasts</span>
+            <span class="btn-arrow">▶</span>
+        </button>
+        <button class="theme-btn btn-arctic" onclick="pickTheme('arctic')">
+            <span class="btn-icon">❄️</span>
+            <span class="btn-label">Polar Animals</span>
             <span class="btn-arrow">▶</span>
         </button>
     </div>
@@ -1433,6 +1457,43 @@
                 { name: 'Coral',      code: '1FAB8', sound: 'coral' },
                 { name: 'Shrimp',     code: '1F990', sound: 'shrimp' },
                 { name: 'Pufferfish', code: '1F421', sound: 'pufferfish' },
+            ]
+        },
+        arctic: {
+            label: '❄️ Polar Animals',
+            css: 'theme-arctic',
+            icon: '⭐',
+            animals: [
+                { name: 'Polar Bear',  code: '1F43B-200D-2744-FE0F', sound: 'polar-bear' },
+                { name: 'Penguin',     code: '1F427', sound: 'penguin' },
+                { name: 'Seal',        code: '1F9AD', sound: 'seal' },
+                { name: 'Whale',       code: '1F40B', sound: 'whale' },
+                { name: 'Moose',       code: '1FACE', sound: 'moose' },
+                { name: 'Reindeer',    code: '1F98C', sound: 'reindeer' },
+                { name: 'Arctic Fox',  code: '1F98A', sound: 'arctic-fox' },
+                { name: 'Snowy Owl',   code: '1F989', sound: 'snowy-owl' },
+                { name: 'Arctic Hare', code: '1F407', sound: 'arctic-hare' },
+            ]
+        },
+        minibeasts: {
+            label: '🐛 Mini Beasts',
+            css: 'theme-minibeasts',
+            icon: '⭐',
+            animals: [
+                { name: 'Bee',         code: '1F41D', sound: 'bee' },
+                { name: 'Butterfly',   code: '1F98B', sound: 'butterfly' },
+                { name: 'Caterpillar', code: '1F41B', sound: 'caterpillar' },
+                { name: 'Snail',       code: '1F40C', sound: 'snail' },
+                { name: 'Ant',         code: '1F41C', sound: 'ant' },
+                { name: 'Cricket',     code: '1F997', sound: 'cricket' },
+                { name: 'Spider',      code: '1F577', sound: 'spider' },
+                { name: 'Mosquito',    code: '1F99F', sound: 'mosquito' },
+                { name: 'Ladybird',    code: '1F41E', sound: 'ladybird' },
+                { name: 'Beetle',      code: '1FAB2', sound: 'beetle' },
+                { name: 'Cockroach',   code: '1FAB3', sound: 'cockroach' },
+                { name: 'Fly',         code: '1FAB0', sound: 'fly' },
+                { name: 'Worm',        code: '1FAB1', sound: 'worm' },
+                { name: 'Scorpion',    code: '1F982', sound: 'scorpion' },
             ]
         }
     };
