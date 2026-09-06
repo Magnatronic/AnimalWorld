@@ -69,7 +69,9 @@
         /* ── HOME ── */
         #home {
             align-items: center;
-            justify-content: center;
+            /* "safe" keeps the first button reachable when the theme list is
+               taller than the screen; plain centring clips it out of scroll range. */
+            justify-content: safe center;
             gap: 32px;
             padding: 30px 20px;
             background: linear-gradient(150deg, #0f0c29, #302b63, #24243e);
@@ -93,28 +95,28 @@
         }
 
         .theme-buttons {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
             gap: 18px;
             width: 100%;
-            max-width: 520px;
+            max-width: 900px;
         }
 
         .theme-btn {
             display: flex;
             align-items: center;
-            gap: 18px;
-            padding: 22px 30px;
+            gap: 16px;
+            padding: 20px 24px;
             border: none;
             border-radius: 28px;
             font-family: inherit;
-            font-size: clamp(1.5rem, 4.5vw, 2.2rem);
+            font-size: clamp(1.3rem, 3.4vw, 1.9rem);
             font-weight: 900;
             color: #fff;
             cursor: pointer;
             box-shadow: 0 10px 30px rgba(0,0,0,0.35);
             transition: transform 0.12s ease, box-shadow 0.12s ease;
-            min-height: 110px;
+            min-height: 100px;
             text-shadow: 1px 2px 6px rgba(0,0,0,0.25);
             border-bottom: 6px solid rgba(0,0,0,0.2);
         }
@@ -125,8 +127,9 @@
         .btn-ocean   { background: linear-gradient(135deg, #005f8e, #00b4d8); }
         .btn-arctic     { background: linear-gradient(135deg, #023e8a, #48cae4); }
         .btn-minibeasts { background: linear-gradient(135deg, #4a148c, #ab47bc); }
+        .btn-fish       { background: linear-gradient(135deg, #00695c, #26a69a); }
 
-        .btn-icon  { font-size: clamp(2rem, 6vw, 3rem); flex-shrink: 0; }
+        .btn-icon  { font-size: clamp(1.8rem, 4.6vw, 2.5rem); flex-shrink: 0; }
         .btn-label { flex: 1; text-align: left; }
         .btn-arrow { opacity: 0.7; font-size: 1.5rem; }
 
@@ -888,6 +891,12 @@
         .theme-arctic .animal-name { color: #023e8a; }
         .theme-arctic .mem-front .mem-name { color: #023e8a; }
         .theme-arctic .fta-card-name { color: #023e8a; }
+
+        .theme-fish .screen-header { background: linear-gradient(135deg, #00695c, #26a69a); }
+        .theme-fish { background: linear-gradient(170deg, #00695c 0%, #26a69a 40%, #d7f2ee 100%); }
+        .theme-fish .animal-name { color: #00564b; }
+        .theme-fish .mem-front .mem-name { color: #00564b; }
+        .theme-fish .fta-card-name { color: #00564b; }
     </style>
 </head>
 <body>
@@ -920,6 +929,11 @@
         <button class="theme-btn btn-arctic" onclick="pickTheme('arctic')">
             <span class="btn-icon">❄️</span>
             <span class="btn-label">Polar Animals</span>
+            <span class="btn-arrow">▶</span>
+        </button>
+        <button class="theme-btn btn-fish" onclick="pickTheme('fish')">
+            <span class="btn-icon">🐠</span>
+            <span class="btn-label">Fish</span>
             <span class="btn-arrow">▶</span>
         </button>
     </div>
@@ -1242,7 +1256,7 @@
 
 <!-- ══ CREDIT ══ -->
 <div style="position:fixed;bottom:6px;left:12px;font-size:0.65rem;color:rgba(255,255,255,0.4);font-family:sans-serif;z-index:200;pointer-events:none;">
-    Animal images: <a href="https://openmoji.org" target="_blank" style="color:rgba(255,255,255,0.4);pointer-events:all;">OpenMoji</a> CC BY 4.0
+    Animal images: <a href="https://openmoji.org" target="_blank" style="color:rgba(255,255,255,0.4);pointer-events:all;">OpenMoji</a> CC BY-SA 4.0
 </div>
 
 <!-- ══ SWITCH ACCESS BAR ══ -->
@@ -1389,6 +1403,12 @@
 
     const CDN = 'https://cdn.jsdelivr.net/npm/openmoji@15.0.0/color/svg/';
 
+    // Most animals are OpenMoji glyphs fetched by hexcode. The fish theme also
+    // uses artwork in fish/ that we derived from those glyphs, named by `src`.
+    function imgSrc(animal) {
+        return animal.src || CDN + animal.code + '.svg';
+    }
+
     const themes = {
         forest: {
             label: '🌲 Forest Animals',
@@ -1495,6 +1515,29 @@
                 { name: 'Worm',        code: '1FAB1', sound: 'worm' },
                 { name: 'Scorpion',    code: '1F982', sound: 'scorpion' },
             ]
+        },
+        // Fish are effectively silent, so this theme speaks each name after the
+        // sound cue (see speakName / playSound). Artwork marked `src` lives in
+        // fish/ and is derived from the OpenMoji glyph named in that file.
+        fish: {
+            label: '🐠 Fish',
+            css: 'theme-fish',
+            icon: '⭐',
+            speakName: true,
+            animals: [
+                { name: 'Clownfish',     src: 'fish/clownfish.svg',     sound: 'bubbles' },
+                { name: 'Blue Tang',     src: 'fish/blue-tang.svg',     sound: 'bubbles' },
+                { name: 'Goldfish',      code: 'E000',                  sound: 'bubbles' },
+                { name: 'Koi',           src: 'fish/koi.svg',           sound: 'bubbles' },
+                { name: 'Angelfish',     code: '1F420',                 sound: 'bubbles' },
+                { name: 'Betta',         src: 'fish/betta.svg',         sound: 'bubbles' },
+                { name: 'Pufferfish',    code: '1F421',                 sound: 'bubbles' },
+                { name: 'Shark',         code: '1F988',                 sound: 'bubbles' },
+                { name: 'Salmon',        src: 'fish/salmon.svg',        sound: 'bubbles' },
+                { name: 'Rainbow Trout', src: 'fish/rainbow-trout.svg', sound: 'bubbles' },
+                { name: 'Catfish',       src: 'fish/catfish.svg',       sound: 'bubbles' },
+                { name: 'Swordfish',     src: 'fish/swordfish.svg',     sound: 'bubbles' },
+            ]
         }
     };
 
@@ -1527,6 +1570,7 @@
             currentCard.classList.remove('playing');
             currentCard = null;
         }
+        if (window.speechSynthesis) speechSynthesis.cancel();
     }
 
     function shuffle(arr) {
@@ -1538,7 +1582,7 @@
         return a;
     }
 
-    function playSound(soundName, card) {
+    function playSound(soundName, card, spoken) {
         stopAudio();
         const audio = new Audio('sounds/' + soundName + '.mp3');
 
@@ -1553,13 +1597,55 @@
             if (card) card.classList.remove('playing');
             currentAudio = null;
             currentCard  = null;
+            if (spoken) speak(spoken);
         }, { once: true });
 
+        // No recording for this animal. Themes that name their animals still get
+        // a cue — a synthesised bubble — followed by the name, so the fish theme
+        // works even with no sound files installed.
         audio.addEventListener('error', () => {
-            if (card) card.classList.remove('playing');
+            if (!spoken) { if (card) card.classList.remove('playing'); return; }
+            if (card) card.classList.add('has-sound', 'playing');
+            bubbleCue(() => {
+                if (card) card.classList.remove('playing');
+                speak(spoken);
+            });
         }, { once: true });
 
         audio.load();
+    }
+
+    // Three short rising blips - a passable bubble with no file to download.
+    let bubbleCtx = null;
+    function bubbleCue(onDone) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) { onDone(); return; }
+        try {
+            bubbleCtx = bubbleCtx || new Ctx();
+            if (bubbleCtx.state === 'suspended') bubbleCtx.resume();
+            const start = bubbleCtx.currentTime;
+            [0, 0.09, 0.17].forEach((offset, i) => {
+                const t    = start + offset;
+                const osc  = bubbleCtx.createOscillator();
+                const gain = bubbleCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(240 + i * 90, t);
+                osc.frequency.exponentialRampToValueAtTime(700 + i * 220, t + 0.1);
+                gain.gain.setValueAtTime(0.0001, t);
+                gain.gain.exponentialRampToValueAtTime(0.3, t + 0.015);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
+                osc.connect(gain).connect(bubbleCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.14);
+                if (i === 2) osc.addEventListener('ended', onDone, { once: true });
+            });
+        } catch (e) { onDone(); }
+    }
+
+    // The name to speak after a card's sound, or null for themes that don't.
+    function spokenName(name) {
+        const theme = themes[currentThemeKey];
+        return theme && theme.speakName ? name : null;
     }
 
     /* ── NAVIGATION ── */
@@ -1599,10 +1685,10 @@
             card.className = 'animal-card';
             card.innerHTML = `
                 <span class="sound-badge">🔊</span>
-                <img class="animal-img" src="${CDN}${animal.code}.svg" alt="${animal.name}" loading="lazy"${animal.filter ? ` style="filter:${animal.filter}"` : ''}>
+                <img class="animal-img" src="${imgSrc(animal)}" alt="${animal.name}" loading="lazy"${animal.filter ? ` style="filter:${animal.filter}"` : ''}>
                 <div class="animal-name">${animal.name}</div>
             `;
-            card.addEventListener('click', () => playSound(animal.sound, card));
+            card.addEventListener('click', () => playSound(animal.sound, card, spokenName(animal.name)));
             grid.appendChild(card);
         });
 
@@ -1657,7 +1743,7 @@
                 <div class="mem-card-inner">
                     <div class="mem-face mem-back">⭐</div>
                     <div class="mem-face mem-front">
-                        <img src="${CDN}${animal.code}.svg" alt="${animal.name}" loading="lazy"${animal.filter ? ` style="filter:${animal.filter}"` : ''}>
+                        <img src="${imgSrc(animal)}" alt="${animal.name}" loading="lazy"${animal.filter ? ` style="filter:${animal.filter}"` : ''}>
                         <div class="mem-name">${animal.name}</div>
                     </div>
                 </div>
@@ -1681,7 +1767,7 @@
         if (memFlipped.length === 2) return;
 
         card.classList.add('flipped');
-        playSound(card.dataset.sound, null);
+        playSound(card.dataset.sound, null, spokenName(card.dataset.animal));
         memFlipped.push(card);
 
         if (memFlipped.length === 2) {
@@ -1812,11 +1898,12 @@
         const animal = theme.animals[Math.floor(Math.random() * theme.animals.length)];
 
         const wamImg = hole.querySelector('.wam-animal-img');
-        wamImg.src = CDN + animal.code + '.svg';
+        wamImg.src = imgSrc(animal);
         wamImg.alt = animal.name;
         wamImg.style.filter = animal.filter || '';
         hole.querySelector('.wam-animal-name').textContent = animal.name;
         hole.dataset.sound = animal.sound;
+        hole.dataset.name  = animal.name;
         hole.classList.add('active');
 
         // Auto-retract after showMs
@@ -1837,7 +1924,7 @@
         hole.classList.add('whacked');
         wamScore++;
         updateWamHud();
-        playSound(hole.dataset.sound, null);
+        playSound(hole.dataset.sound, null, spokenName(hole.dataset.name));
 
         // Pulse score
         const scoreEl = document.getElementById('wam-score');
@@ -1917,7 +2004,7 @@
             const card = document.createElement('div');
             card.className = 'fta-card';
             card.innerHTML = `
-                <img src="${CDN}${animal.code}.svg" alt="${animal.name}" loading="lazy"${animal.filter ? ` style="filter:${animal.filter}"` : ''}>
+                <img src="${imgSrc(animal)}" alt="${animal.name}" loading="lazy"${animal.filter ? ` style="filter:${animal.filter}"` : ''}>
             `;
             card.addEventListener('click', () => ftaTap(card, animal));
             grid.appendChild(card);

@@ -82,9 +82,28 @@ The site works without any sounds — missing sounds are silently skipped.
 
 ---
 
+## 🐠 Fish
+
+Fish are effectively silent to human ears, so this theme does not try to fake a call
+for each species. Instead every fish plays a **bubble cue** and then **speaks its name**
+using the browser's built-in voice.
+
+That works out of the box with **no downloads at all** — when `bubbles.mp3` is absent the
+app synthesises the bubble itself. If you would rather have a real recording, drop one in:
+
+| Save as | Direct link |
+|---------|-------------|
+| `bubbles.mp3` | https://freesound.org/search/?q=underwater+bubbles&f=license%3A%22Creative+Commons+0%22&s=score+desc |
+
+One file covers all twelve fish. Keep it short — **1–2 seconds** — because the animal's
+name is spoken straight afterwards.
+
+---
+
 ## Tips
 
 - Pick sounds that are **2–8 seconds** long — short enough not to distract
 - Avoid clips with music, commentary or background noise
 - Some searches (scorpion, chameleon, jellyfish, squid) may have few results — skip those, the app works fine without them
+- The Fish theme needs no sound files; `bubbles.mp3` is optional polish
 - After downloading, if the file is `.ogg` or `.wav`, rename it to `.mp3` — most browsers handle all three formats
