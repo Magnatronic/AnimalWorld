@@ -14,6 +14,7 @@ const SCENE_DEFAULTS = {
     pace:          1,          // 1.7 slower, 1 normal, 0.6 faster
     labels:        false,      // show each switch's colour and job on screen
     others:        'anything', // what keys and buttons that aren't numbered switches do: 'anything' (Random) | 'nothing'
+    touchPlaces:   true,       // touching near an empty branch, ground or water brings an animal that lives there
     stay:          0,          // when animals leave: 0 never (unless a newcomer needs the spot), -1 when touched,
                                // or seconds after they were last touched or called
     fade:          5,          // seconds a change of look or weather takes
@@ -194,11 +195,11 @@ function settle(name, spot) {
 
 // An animal comes into the scene, or calls if it's already here. If every spot
 // for its habitat is taken, whoever has been there longest leaves first.
-function arrive(name) {
+function arrive(name, at) {
     const a = cast[name];
     if (!a) return;
     if (a.spot && !a.leaving) { touched(name); return; }
-    let spot = freeSpot(a.def.habitat);
+    let spot = at || freeSpot(a.def.habitat);
     if (!spot) {
         const oldest = spots.filter(s => s.habitat === a.def.habitat && s.animal)
             .map(s => s.animal).sort((x, y) => cast[x].arrivedAt - cast[y].arrivedAt)[0];
@@ -657,6 +658,34 @@ Switches.onAnyPress(binding => {
     return true;
 });
 
+// Touching the scene near an empty place (a branch, the ground, the water) brings an
+// animal that lives there to that very spot. If all of them are here already, the one
+// that has been here longest moves over to it. Returns whether a place was touched.
+const TOUCH_REACH = 9;      // how near a place a touch must be, in % of the scene's width
+function touchPlace(x, y) {
+    const near = spots.filter(p => !p.animal)
+        .map(p => ({ p, d: Math.hypot(p.x - x, (p.y - y) * 9 / 16) }))
+        .filter(o => o.d < TOUCH_REACH)
+        .sort((m, n) => m.d - n.d)[0];
+    if (!near) return false;
+    const spot = near.p;
+    const lives = Object.keys(cast).filter(n => cast[n].def.habitat === spot.habitat);
+    const away = lives.filter(n => !cast[n].spot);
+    if (away.length) { arrive(away[Math.floor(Math.random() * away.length)], spot); return true; }
+    const longest = lives.filter(n => !cast[n].leaving).sort((m, n) => cast[m].arrivedAt - cast[n].arrivedAt)[0];
+    if (longest) moveTo(longest, spot);
+    return !!longest;
+}
+// An animal already here goes to another spot, and calls when it gets there.
+function moveTo(name, spot) {
+    const a = cast[name];
+    a.spot.animal = null;
+    spot.animal = name;
+    a.spot = spot;
+    a.arrivedAt = a.calledAt = Date.now();
+    travel(a, spot, false, () => sing(name));
+}
+
 stage.addEventListener('pointerdown', e => {
     if (!started) return;
     const s = stage.getBoundingClientRect();
@@ -666,8 +695,10 @@ stage.addEventListener('pointerdown', e => {
     r.style.top  = (e.clientY - s.top) + 'px';
     stage.appendChild(r);
     setTimeout(() => r.remove(), 1900);
-    // Building up: touching the sky (not an animal) works like pressing the weather's switch.
-    if (building() && liveWeather !== 'clear' && (e.clientY - s.top) / s.height < 0.5) pressWeather(liveWeather);
+    const x = (e.clientX - s.left) / s.width * 100, y = (e.clientY - s.top) / s.height * 100;
+    if (sceneSettings.touchPlaces && touchPlace(x, y)) return;
+    // Building up: touching the sky (not an animal or a place) works like pressing the weather's switch.
+    if (building() && liveWeather !== 'clear' && y < 50) pressWeather(liveWeather);
 });
 
 /* ── Start: the first tap or key press starts the sound and goes full screen ── */

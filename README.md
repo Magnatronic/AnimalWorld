@@ -9,8 +9,9 @@ The front page offers two parts:
 
 ## Animal Scenes
 A full-screen scene drawn in code, so it fills any screen shape and works offline. Tap to start (the
-first tap or key press starts the sound and goes full screen). Touch an animal to hear it, or anywhere
-for a ripple. Animals fly, walk or swim in to the places the scene has for them (branches, ground,
+first tap or key press starts the sound and goes full screen). Touch an animal to hear it. Touch near an
+empty branch, the ground or the water and an animal that lives there comes to that spot (if they're all
+here, the longest-staying one moves over); this can be turned off in set-up. Every touch makes a ripple. Animals fly, walk or swim in to the places the scene has for them (branches, ground,
 water); when every place of that kind is taken, the one that has been there longest leaves. A quiet
 background track plays under the calls.
 
@@ -34,7 +35,8 @@ screen too):
   garden, 🌦️ Weather play, 🦉 Night owls and 🏞️ Busy lake. Use one, save the set-up as a new preset,
   save changes into a preset, rename or delete (deleted ready-made ones can be brought back). Each has
   a link, `scenes.html#preset=<name>`, that opens straight into it — handy as a desktop shortcut.
-- **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, when animals leave (never,
+- **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, whether touching an
+  empty place brings an animal, when animals leave (never,
   when touched, or after 30 seconds to 2 minutes without being touched or called), and how long look
   and weather changes take to fade (2 to 20 seconds).
 - **Weather** — the scene's own weather (Clear by default), whether weather switches build up (the

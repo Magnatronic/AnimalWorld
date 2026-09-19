@@ -128,7 +128,7 @@ function renderSetup() {
                 Give switches weather jobs (Switches tab) to change it while playing.</p>
             ${optRow('Weather switches', 'weatherPress', [['build', 'Build up'], ['toggle', 'On / off']])}
             <p class="setup-note">${building()
-                ? "Each press makes the weather stronger, in five steps (a new weather starts at the lightest), and touching the sky does the same. Left alone, it eases back a step at a time to the scene's own weather, which sits in the middle."
+                ? "Each press makes the weather stronger, in five steps (a new weather starts at the lightest), and touching open sky (away from the branches) does the same. Left alone, it eases back a step at a time to the scene's own weather, which sits in the middle."
                 : 'A press turns that weather on; another press turns it off.'}</p>
             ${building() ? optRow('Each step lasts', 'weatherEase', [[10, '10 seconds'], [20, '20 seconds'], [60, '1 minute']]) +
                 '<p class="setup-note">How long before the weather eases off a step, once nobody is pressing or touching the sky.</p>' : ''}
@@ -141,6 +141,10 @@ function renderSetup() {
             <p class="setup-note">${roomText()}</p>
             ${optRow('Look', 'look', [['soft', 'Soft flat'], ['line', 'Matching outlines'], ['night', 'Night-light']])}
             ${optRow('Speed', 'pace', [[1.7, 'Slower'], [1, 'Normal'], [0.6, 'Faster']])}
+            ${optRow('Touching an empty place', 'touchPlaces', [[true, 'Brings an animal'], [false, 'Just a ripple']])}
+            <p class="setup-note">${sceneSettings.touchPlaces
+                ? "Touch near an empty branch, the ground or the water and an animal that lives there comes to that spot (if they're all here, one moves over). Touching an animal makes it call."
+                : 'Touching an animal makes it call; touching anywhere else just makes a ripple. Switches bring animals in.'}</p>
             ${optRow('Animals leave', 'stay', [[0, 'Never'], [-1, 'When touched'], [30, 'After 30 seconds'], [60, 'After 1 minute'], [120, 'After 2 minutes']])}
             <p class="setup-note">${leaveHint()}</p>
             ${optRow('Look changes', 'fade', [[2, 'Quick (2 s)'], [5, 'Gentle (5 s)'], [10, 'Slow (10 s)'], [20, 'Very slow (20 s)']])}
