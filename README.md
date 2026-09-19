@@ -81,6 +81,7 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `scenes/scenes.js`, `scenes/setup.js`, `scenes/scenes.css` | Animal Scenes itself and its set-up screen |
 | `sounds/ambient/` | Background loops for Animal Scenes |
 | `shared/hold.js`, `shared/hold.css` | The hold-to-open ⚙ button, used by both parts |
+| `dev/` | A test server and a walk-through of every theme and activity, for development (see `CLAUDE.md`) |
 | `styles.css` | Animal Activities' styling, including each theme's colours |
 | `shared/themes.js` | The themes and their animals, used by both parts — start here to add or change a theme |
 | `shared/fonts.css` | The Nunito font, used by both parts |
