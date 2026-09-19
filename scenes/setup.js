@@ -2,7 +2,6 @@
 // The adult's screen, opened by holding ⚙ (also from the start screen). Every
 // change is saved at once and shows in the scene behind when set-up closes.
 
-const JOB_WORDS = [['anything', 'Anything happens'], ['nothing', 'Nothing'], ['daynight', 'Day / night']];
 
 function optRow(label, key, options) {
     const buttons = options.map(([value, text]) =>
@@ -13,7 +12,9 @@ function optRow(label, key, options) {
 function switchRow(slot, i) {
     const colour = Switches.PALETTE.find(p => p.name === slot.colour);
     const job = jobFor(slot);
-    const jobs = [...JOB_WORDS, ...Object.keys(art.animals).map(n => [n, n])];
+    const option = (value, text) => `<option value="${value}"${value === job ? ' selected' : ''}>${text}</option>`;
+    // The first few switches are always there: they can be forgotten, not removed.
+    const keep = i < SCENE_SWITCHES_MIN;
     return `
         <div class="sw" data-id="${slot.id}">
             <div class="sw-top">
@@ -21,44 +22,75 @@ function switchRow(slot, i) {
                 <span class="sw-name">Switch ${i + 1}</span>
                 <span class="sw-binding${slot.binding ? '' : ' unset'}">${Switches.describe(slot.binding)}</span>
                 <button class="sw-learn">${slot.binding ? 'Learn again' : 'Learn'}</button>
-                <button class="sw-remove" aria-label="Remove switch ${i + 1}">✕</button>
+                ${keep ? `<button class="sw-forget"${slot.binding ? '' : ' disabled'}>Forget</button>`
+                       : `<button class="sw-remove" aria-label="Remove switch ${i + 1}">✕</button>`}
             </div>
             <div class="sw-palette" hidden>${Switches.PALETTE.map(p =>
                 `<button class="swatch sw-${p.name}${p.name === slot.colour ? ' active' : ''}" data-colour="${p.name}" style="background:${p.hex}" aria-label="${p.label}" title="${p.label}"></button>`).join('')}</div>
             <label class="sw-job">Job in this scene
-                <select>${jobs.map(([value, text]) => `<option value="${value}"${value === job ? ' selected' : ''}>${text}</option>`).join('')}</select>
+                <select>
+                    <optgroup label="Animals">${Object.keys(art.animals).map(n => option(n, n)).join('')}</optgroup>
+                    <optgroup label="Scene">${Object.entries(SCENE_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
+                    ${option('nothing', 'Nothing')}
+                </select>
             </label>
+            <p class="sw-hint">${jobHint(job)}</p>
         </div>`;
 }
 
+function jobHint(job) {
+    if (SCENE_JOBS[job]) return SCENE_JOBS[job].hint;
+    if (job === 'nothing') return 'This switch does nothing in this scene.';
+    return `The ${job.toLowerCase()} comes into the scene, or calls if it's already here.`;
+}
+
+// Set-up has three tabs; it reopens on the one last used.
+let setupTab = 'scene';
+
 function renderSetup() {
     const full = Switches.slots.length >= Switches.MAX;
-    document.getElementById('setup-body').innerHTML = `
+    document.querySelectorAll('#setup-tabs .setup-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === setupTab));
+    const sections = {
+        scene: `
         <section>
-            <h3>🎨 Scene: ${themes[sceneSettings.theme].label}</h3>
+            <h3>${themes[sceneSettings.theme].label}</h3>
             ${optRow('Look', 'look', [['soft', 'Soft flat'], ['line', 'Matching outlines'], ['night', 'Night-light']])}
             ${optRow('Speed', 'pace', [[1.7, 'Slower'], [1, 'Normal'], [0.6, 'Faster']])}
-        </section>
+            ${optRow('Animals stay', 'stay', [[0, 'Until replaced'], [120, '2 minutes'], [60, '1 minute'], [30, '30 seconds']])}
+            <p class="setup-note">The time starts again whenever an animal is touched or called.</p>
+        </section>`,
+        switches: `
         <section>
-            <h3>🎛️ Switches</h3>
             <p class="setup-note">Tap <strong>Learn</strong>, then press the switch. Works with SimplyWorks and Bluetooth
                 switches, keyboards and the Xbox Adaptive Controller (press one of its buttons once first).
                 Choose a colour to match the real switch.</p>
             <div class="sw-list">${Switches.slots.map(switchRow).join('') || '<p class="setup-note">No switches yet.</p>'}</div>
             <button class="sw-add"${full ? ' disabled' : ''}>${full ? `Twelve switches is the most` : '+ Add a switch'}</button>
             ${optRow('Switch labels on screen', 'labels', [[false, 'Hide'], [true, 'Show']])}
-            ${optRow('Other keys and buttons', 'others', [['anything', 'Anything happens'], ['nothing', 'Nothing']])}
-        </section>
+            ${optRow('Other keys and buttons', 'others', [['anything', '🎲 Random'], ['nothing', 'Nothing']])}
+        </section>`,
+        sound: `
         <section>
-            <h3>🔊 Sound</h3>
             ${optRow('Animal sounds', 'animalVolume', [[0, 'Off'], [0.3, 'Quiet'], [0.6, 'Medium'], [1, 'Loud']])}
             ${optRow('Background sound', 'ambientVolume', [[0, 'Off'], [0.25, 'Quiet'], [0.5, 'Medium'], [1, 'Loud']])}
-        </section>`;
+        </section>`,
+    };
+    document.getElementById('setup-body').innerHTML = sections[setupTab];
 }
+
+document.getElementById('setup-tabs').addEventListener('click', e => {
+    const tab = e.target.closest('.setup-tab');
+    if (!tab) return;
+    Switches.cancelLearn();
+    setupTab = tab.dataset.tab;
+    renderSetup();
+    document.getElementById('setup-body').scrollTop = 0;
+});
 
 function setScene(key, value) {
     sceneSettings[key] = value;
     saveSceneSettings();
+    if (key === 'look') liveLook = value;
     if (key === 'look' || key === 'pace') applyLook();
     if (key === 'ambientVolume' && started) Ambient.setLevel(value, art.ambient);
     renderLabels();
@@ -97,6 +129,10 @@ document.getElementById('setup-body').addEventListener('click', e => {
         Switches.setColour(id, e.target.closest('.swatch').dataset.colour);
         renderSetup();
         renderLabels();
+    } else if (e.target.closest('.sw-forget')) {
+        Switches.clear(id);
+        renderSetup();
+        renderLabels();
     } else if (e.target.closest('.sw-learn')) {
         if (row.classList.contains('learning')) Switches.cancelLearn();
         else learnInSetup(row);
@@ -124,5 +160,6 @@ document.getElementById('setup-body').addEventListener('change', e => {
     sceneSettings.jobs[theme] = sceneSettings.jobs[theme] || {};
     sceneSettings.jobs[theme][row.dataset.id] = e.target.value;
     saveSceneSettings();
+    row.querySelector('.sw-hint').textContent = jobHint(e.target.value);
     renderLabels();
 });

@@ -15,12 +15,15 @@ there longest leaves. A quiet background loop (garden birdsong for Birds) plays 
 
 Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
 screen too):
-- **Scene** — the look (Soft flat, Matching outlines, Night-light) and speed.
+- **Scene** — the look (Soft flat, Matching outlines, Night-light), speed, and how long animals stay
+  (until replaced, or they leave after 30 seconds to 2 minutes without being touched or called).
 - **Switches** — add up to twelve switches: tap Learn and press the switch (SimplyWorks, Bluetooth,
   keyboard, Xbox Adaptive Controller), pick a colour to match the real switch, and give each a job:
-  bring in a particular animal, anything happens, day / night, or nothing. Switch labels in those
-  colours can be shown on screen. Keys and buttons that aren't learned make anything happen (or
-  nothing), so any switch works straight away.
+  bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 👋 Goodbye (the longest-
+  staying animal leaves), 🌙 Everyone leaves, or nothing. Five switches are always ready to learn.
+  Switch labels in those colours can be shown along the top of the screen. Keys and buttons that
+  aren't learned do something random (or nothing), so any switch works straight away. Look changes
+  fade gently rather than jump.
 - **Sound** — animal sounds and background sound, each Off, Quiet, Medium or Loud.
 
 

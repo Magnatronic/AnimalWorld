@@ -2,7 +2,7 @@
 // A calm, full-screen animal scene for touch screens and switches. Touch an
 // animal and it calls; touch anywhere for a ripple. Each numbered switch
 // (shared/switches.js) has a job in each theme: bring in a particular animal,
-// make "anything happen", or change day and night.
+// something random, change the look, or send animals away.
 
 /* ── Settings (saved in this browser, like Animal Activities') ── */
 const SCENES_KEY = 'animalScenes.settings';
@@ -11,12 +11,17 @@ const SCENE_DEFAULTS = {
     look:          'soft',     // 'soft' | 'line' (matching outlines) | 'night' (night-light)
     pace:          1,          // 1.7 slower, 1 normal, 0.6 faster
     labels:        false,      // show each switch's colour and job on screen
-    others:        'anything', // what keys and buttons that aren't numbered switches do: 'anything' | 'nothing'
+    others:        'anything', // what keys and buttons that aren't numbered switches do: 'anything' (Random) | 'nothing'
+    stay:          0,          // seconds an animal stays after it last arrived or called; 0 = until replaced
     animalVolume:  1,
     ambientVolume: 0.5,        // the background loop; 0 = off
-    jobs:          {},         // { theme: { switchId: animal name | 'anything' | 'nothing' | 'daynight' } }
+    jobs:          {},         // { theme: { switchId: animal name | a scene job (see SCENE_JOBS) | 'nothing' } }
 };
 const sceneSettings = loadSceneSettings();
+
+// Animal Scenes always has at least five switches ready, so an adult only has to tap Learn.
+const SCENE_SWITCHES_MIN = 5;
+const LOOKS = ['soft', 'line', 'night'];
 
 function loadSceneSettings() {
     const s = JSON.parse(JSON.stringify(SCENE_DEFAULTS));
@@ -84,16 +89,15 @@ const stage  = document.getElementById('stage');
 const layer  = document.getElementById('layer');
 const labels = document.getElementById('labels');
 let art = null;             // SceneArt for the current theme
-let cast = {};              // name → { el, def, sound, spot, arrivedAt, leaving }
+let cast = {};              // name → { el, def, sound, spot, arrivedAt, calledAt, leaving }
 let spots = [];             // art.spots, each with .animal = name or null
-let night = false;          // the day / night job flips this
+let liveLook = null;        // the look on screen: set-up's choice, changed by the Day / night and Next look jobs
 let started = false;
 let calling = null;         // the animal sound playing now; one at a time
 
+// Changing the class fades the scene to the new look (see "look changes" in scenes.css).
 function applyLook() {
-    const base = sceneSettings.look;
-    const look = night ? (base === 'night' ? 'soft' : 'night') : base;
-    stage.className = `stage scene-${sceneSettings.theme} look-${look}`;
+    stage.className = `stage scene-${sceneSettings.theme} look-${liveLook || sceneSettings.look}`;
     stage.style.setProperty('--pace', sceneSettings.pace);
 }
 
@@ -101,7 +105,7 @@ function buildScene() {
     if (calling) { calling.pause(); calling = null; }
     art = SceneArt[sceneSettings.theme] || SceneArt.birds;
     const themeAnimals = themes[sceneSettings.theme].animals;
-    night = false;
+    liveLook = sceneSettings.look;
     applyLook();
     document.getElementById('bg').innerHTML = art.svg();
     layer.innerHTML = '';
@@ -118,7 +122,7 @@ function buildScene() {
         el.querySelector('img').style.animationDelay = (-Math.random() * 3).toFixed(2) + 's';
         el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started) sing(name); });
         layer.appendChild(el);
-        cast[name] = { el, def, sound: animal.sound, spot: null, arrivedAt: 0, leaving: false };
+        cast[name] = { el, def, sound: animal.sound, spot: null, arrivedAt: 0, calledAt: 0, leaving: false };
     });
     art.residents.forEach(name => {
         const spot = freeSpot(cast[name].def.habitat);
@@ -137,7 +141,7 @@ function settle(name, spot) {
     const a = cast[name];
     spot.animal = name;
     a.spot = spot;
-    a.arrivedAt = Date.now();
+    a.arrivedAt = a.calledAt = Date.now();
     a.el.hidden = false;
     a.el.style.left = spot.x + '%';
     a.el.style.top = spot.y + '%';
@@ -159,7 +163,7 @@ function arrive(name) {
     }
     spot.animal = name;
     a.spot = spot;
-    a.arrivedAt = Date.now();
+    a.arrivedAt = a.calledAt = Date.now();
     a.leaving = false;
     travel(a, spot, true, () => sing(name));
 }
@@ -212,6 +216,7 @@ function travel(a, spot, coming, done) {
 function sing(name) {
     const a = cast[name];
     if (!a || a.el.hidden) return;
+    a.calledAt = Date.now();             // attention keeps an animal in the scene longer
     if (calling) calling.pause();
     if (sceneSettings.animalVolume > 0) {
         calling = new Audio('sounds/' + a.sound + '.mp3');
@@ -233,7 +238,7 @@ function sing(name) {
     }
 }
 
-// "Anything happens": someone new arrives (preferring a free spot), or someone here calls.
+// Random: someone new arrives (preferring a free spot), or someone here calls.
 function anything() {
     const away = Object.keys(cast).filter(n => !cast[n].spot);
     const fits = away.filter(n => spots.some(s => s.habitat === cast[n].def.habitat && !s.animal));
@@ -251,14 +256,58 @@ function jobFor(slot) {
     if (saved) return saved;
     return art.switchCast[Switches.slots.indexOf(slot)] || 'anything';
 }
+
+// Jobs that change the scene rather than bring in one animal. Set-up lists these
+// with a line explaining each; labels on screen show the icon and name.
+const SCENE_JOBS = {
+    anything: { label: '🎲 Random',          hint: 'A random animal arrives, or one already here calls.' },
+    daynight: { label: '🌗 Day / night',     hint: 'Fades between the chosen look and Night-light.' },
+    nextlook: { label: '🎨 Next look',       hint: 'Fades to the next look: Soft flat, then Matching outlines, then Night-light.' },
+    goodbye:  { label: '👋 Goodbye',         hint: 'The animal that has been here longest leaves.' },
+    clear:    { label: '🌙 Everyone leaves', hint: 'All the animals leave. Other switches bring them back.' },
+};
 function jobLabel(job) {
-    return { anything: 'Anything', nothing: 'Nothing', daynight: 'Day / night' }[job] || job;
+    return job === 'nothing' ? 'Nothing' : SCENE_JOBS[job] ? SCENE_JOBS[job].label : job;
 }
+
+// The animal that has been here longest leaves.
+function goodbye() {
+    const here = Object.keys(cast).filter(n => cast[n].spot && !cast[n].leaving);
+    if (here.length) leave(here.sort((x, y) => cast[x].arrivedAt - cast[y].arrivedAt)[0]);
+}
+// Everyone leaves, one after another.
+function everyoneLeaves() {
+    Object.keys(cast).filter(n => cast[n].spot).forEach((n, i) => setTimeout(() => leave(n), i * 350));
+}
+
 function doJob(job) {
     if (job === 'anything') anything();
-    else if (job === 'daynight') { night = !night; applyLook(); }
+    else if (job === 'daynight') {
+        const day = sceneSettings.look === 'night' ? 'soft' : sceneSettings.look;
+        liveLook = liveLook === 'night' ? day : 'night';
+        applyLook();
+    } else if (job === 'nextlook') {
+        liveLook = LOOKS[(LOOKS.indexOf(liveLook) + 1) % LOOKS.length];
+        applyLook();
+    } else if (job === 'goodbye') goodbye();
+    else if (job === 'clear') everyoneLeaves();
     else if (job !== 'nothing') arrive(job);
 }
+
+// "Animals stay" in set-up: an animal leaves once it has been left alone that long.
+// The clock only runs while the scene is playing, so it restarts when the scene
+// starts and when set-up closes.
+function restartStayClock() {
+    Object.values(cast).forEach(a => { if (a.spot) a.calledAt = Date.now(); });
+}
+setInterval(() => {
+    if (!started || setupOpen() || !sceneSettings.stay) return;
+    const limit = sceneSettings.stay * 1000;
+    Object.keys(cast).forEach(n => {
+        const a = cast[n];
+        if (a.spot && !a.leaving && Date.now() - a.calledAt > limit) leave(n);
+    });
+}, 1000);
 
 function renderLabels() {
     const learned = Switches.slots.filter(s => s.binding);
@@ -276,7 +325,7 @@ Switches.onPress(slot => {
     if (!started || setupOpen()) return;
     doJob(jobFor(slot));
 });
-// Keys and buttons that aren't numbered switches: start the scene, or make anything happen.
+// Keys and buttons that aren't numbered switches: start the scene, or something random.
 Switches.onAnyPress(binding => {
     if (setupOpen()) return false;
     if (!started) {
@@ -305,6 +354,7 @@ stage.addEventListener('pointerdown', e => {
 function start() {
     if (started) return;
     started = true;
+    restartStayClock();
     document.getElementById('start').hidden = true;
     const root = document.documentElement;
     if (root.requestFullscreen && !document.fullscreenElement) root.requestFullscreen().catch(() => {});
@@ -320,6 +370,7 @@ function openSetup() {
 function closeSetup() {
     Switches.cancelLearn();
     document.getElementById('setup').hidden = true;
+    restartStayClock();
     applyLook();
     renderLabels();
 }
@@ -330,5 +381,6 @@ function leaveScenes() {
 }
 holdToOpen(document.getElementById('settings-btn'), document.getElementById('hold-hint'), openSetup);
 
+while (Switches.slots.length < SCENE_SWITCHES_MIN) Switches.add();
 document.getElementById('start-theme').textContent = themes[sceneSettings.theme].label;
 buildScene();
