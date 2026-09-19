@@ -72,7 +72,7 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
   user's browser); stop the test server by its port.
 
 ## Working with the owner
-- Work on a feature branch; commit and push the branch at each tested stage; **don't merge to
+- Work on a feature branch; commit at each tested stage, but **push only when the owner says so**; **don't merge to
   `main` until asked** (merging publishes to the live site).
 - Explain look-and-feel options before building bigger features; they like mock-ups for visuals.
 - Animal names are spoken only when the Sound setting asks (Fish theme excepted); never add
