@@ -5,46 +5,93 @@
 //   - a controller button, from the Xbox Adaptive Controller (read through the
 //     browser's Gamepad API; Chrome and Edge only see a controller once one of
 //     its buttons has been pressed on the page)
-// Animal Scenes keeps six numbered switches here (slots), each with a colour and
-// jobs. Animal Activities learns its scanning switches with capture() and keeps
-// them in its own settings. Both parts run from the same site, so the numbered
-// switches are shared.
+// Animal Scenes keeps a list of numbered switches here (up to MAX), each with a
+// colour matching the real switch and a stable id its jobs are saved against.
+// Animal Activities learns its scanning switches with capture() and keeps them in
+// its own settings. Both parts run from the same site, so the list is shared.
 const Switches = (() => {
-    const KEY    = 'animalWorld.switches';
-    const COUNT  = 6;
-    const COLOURS = ['red', 'yellow', 'green', 'blue', 'purple', 'orange'];
-    const COLOUR_HEX = { red: '#e53935', yellow: '#fdd835', green: '#43a047', blue: '#1e88e5', purple: '#8e24aa', orange: '#fb8c00' };
+    const KEY = 'animalWorld.switches';
+    const MAX = 12;
+    const POLL_MS = 30;           // about 30 checks a second: quicker than any switch press
 
-    // Each slot: { binding: null | { type: 'key', code } | { type: 'pad', button }, colour }
+    // Colours to match the switches in the room. White and black get an outline where shown.
+    const PALETTE = [
+        { name: 'red',        label: 'Red',         hex: '#e53935' },
+        { name: 'orange',     label: 'Orange',      hex: '#fb8c00' },
+        { name: 'yellow',     label: 'Yellow',      hex: '#fdd835' },
+        { name: 'lightgreen', label: 'Light green', hex: '#9ccc65' },
+        { name: 'green',      label: 'Green',       hex: '#2e9d4a' },
+        { name: 'turquoise',  label: 'Turquoise',   hex: '#1bb5a8' },
+        { name: 'lightblue',  label: 'Light blue',  hex: '#64b5f6' },
+        { name: 'blue',       label: 'Blue',        hex: '#1e5fd6' },
+        { name: 'purple',     label: 'Purple',      hex: '#8e24aa' },
+        { name: 'pink',       label: 'Pink',        hex: '#f06292' },
+        { name: 'white',      label: 'White',       hex: '#ffffff' },
+        { name: 'black',      label: 'Black',       hex: '#222222' },
+    ];
+    // The order new switches take colours in: the commonest switch colours first.
+    const NEXT_COLOURS = ['red', 'yellow', 'green', 'blue', 'purple', 'orange', 'pink', 'white', 'black', 'turquoise', 'lightblue', 'lightgreen'];
+    const isColour = c => PALETTE.some(p => p.name === c);
+
+    // Each slot: { id, binding: null | { type: 'key', code } | { type: 'pad', button }, colour }
     const slots = load();
     const pressListeners = [], releaseListeners = [], anyListeners = [];
     let learning = null;          // { finish } while waiting for a press to capture
     let padDown  = [];            // which controller buttons were down at the last check
     let pollTimer = null;
-    const POLL_MS = 30;           // about 30 checks a second: quicker than any switch press
+
+    function newId() { return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
     function load() {
-        const fresh = Array.from({ length: COUNT }, (_, i) => ({ binding: null, colour: COLOURS[i] }));
+        const list = [];
         try {
             const saved = JSON.parse(localStorage.getItem(KEY));
-            if (Array.isArray(saved)) saved.slice(0, COUNT).forEach((s, i) => {
-                if (s && isBinding(s.binding)) fresh[i].binding = s.binding;
-                if (s && COLOURS.includes(s.colour)) fresh[i].colour = s.colour;
+            if (Array.isArray(saved)) saved.slice(0, MAX).forEach((s, i) => {
+                if (!s || typeof s !== 'object') return;
+                list.push({
+                    id:      typeof s.id === 'string' ? s.id : newId(),
+                    binding: isBinding(s.binding) ? s.binding : null,
+                    colour:  isColour(s.colour) ? s.colour : NEXT_COLOURS[i % NEXT_COLOURS.length],
+                });
             });
-        } catch (e) { /* private window or blocked storage: nothing learned */ }
-        return fresh;
+        } catch (e) { /* private window or blocked storage: no switches yet */ }
+        return list;
     }
     function save() {
         try { localStorage.setItem(KEY, JSON.stringify(slots)); } catch (e) {}
     }
     function isBinding(b) {
-        return b && ((b.type === 'key' && typeof b.code === 'string') || (b.type === 'pad' && Number.isInteger(b.button)));
+        return !!b && ((b.type === 'key' && typeof b.code === 'string') || (b.type === 'pad' && Number.isInteger(b.button)));
     }
     function same(a, b) {
-        return a && b && a.type === b.type && (a.type === 'key' ? a.code === b.code : a.button === b.button);
+        return !!a && !!b && a.type === b.type && (a.type === 'key' ? a.code === b.code : a.button === b.button);
     }
     function indexOf(binding) {
         return slots.findIndex(s => same(s.binding, binding));
+    }
+    const byId = id => slots.find(s => s.id === id) || null;
+
+    // ── The list of numbered switches ──
+    function add() {
+        if (slots.length >= MAX) return null;
+        const used = slots.map(s => s.colour);
+        const colour = NEXT_COLOURS.find(c => !used.includes(c)) || NEXT_COLOURS[slots.length % NEXT_COLOURS.length];
+        const slot = { id: newId(), binding: null, colour };
+        slots.push(slot);
+        save();
+        return slot;
+    }
+    function remove(id) {
+        const i = slots.findIndex(s => s.id === id);
+        if (i >= 0) { slots.splice(i, 1); save(); }
+    }
+    function setColour(id, colour) {
+        const slot = byId(id);
+        if (slot && isColour(colour)) { slot.colour = colour; save(); }
+    }
+    function clear(id) {
+        const slot = byId(id);
+        if (slot) { slot.binding = null; save(); }
     }
 
     // Wait for the next key or controller button and return what it sends.
@@ -62,22 +109,20 @@ const Switches = (() => {
             learning = { finish };
         });
     }
+    function cancelLearn() { if (learning) learning.finish(null); }
 
-    // Learn numbered switch `index` (Animal Scenes) from the next press.
-    async function learn(index, timeoutMs) {
+    // Learn the numbered switch with this id from the next press.
+    async function learn(id, timeoutMs) {
         const binding = await capture(timeoutMs);
-        if (binding) {
-            // One switch can only have one number: take it off any other slot.
-            const taken = indexOf(binding);
-            if (taken >= 0 && taken !== index) slots[taken].binding = null;
-            slots[index].binding = binding;
+        const slot = byId(id);
+        if (binding && slot) {
+            // One real switch can only be one numbered switch: take it off any other.
+            slots.forEach(s => { if (s !== slot && same(s.binding, binding)) s.binding = null; });
+            slot.binding = binding;
             save();
         }
         return binding;
     }
-    function cancelLearn() { if (learning) learning.finish(null); }
-
-    function clear(index) { slots[index].binding = null; save(); }
 
     // A name an adult will recognise: "Key 1", "Space", "Controller button A".
     const PAD_NAMES = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'View', 'Menu', 'Left stick', 'Right stick', 'D-pad up', 'D-pad down', 'D-pad left', 'D-pad right', 'Xbox'];
@@ -93,7 +138,7 @@ const Switches = (() => {
         return c.replace(/([a-z])([A-Z])/g, '$1 $2');     // "Space", "Enter", "Page Down"…
     }
 
-    function emit(list, index, source) { list.forEach(fn => fn(index, source)); }
+    function emit(list, i, source) { list.forEach(fn => fn(slots[i], i, source)); }
     // Tell anything listening for every press; returns whether one of them used it.
     function emitAny(binding) { return anyListeners.map(fn => fn(binding) === true).some(Boolean); }
 
@@ -148,18 +193,23 @@ const Switches = (() => {
     startPolling();
 
     return {
-        COUNT,
-        COLOUR_HEX,
-        slots,
+        MAX,
+        PALETTE,
+        colourHex: name => (PALETTE.find(p => p.name === name) || PALETTE[0]).hex,
+        slots,                                       // the numbered switches, in order
+        byId,
+        add,
+        remove,
+        setColour,
+        clear,
         capture,
         learn,
         cancelLearn,
-        clear,
         describe,
         isBinding,
         sameBinding: same,
-        slotOf: indexOf,                             // which numbered switch sends this, or -1
-        onPress:    fn => pressListeners.push(fn),   // a numbered switch: fn(index, source)
+        slotOf: indexOf,                             // which numbered switch sends this (0-based), or -1
+        onPress:    fn => pressListeners.push(fn),   // a numbered switch: fn(slot, index, source)
         onRelease:  fn => releaseListeners.push(fn),
         onAnyPress: fn => anyListeners.push(fn),     // every key and button: fn(binding); return true if used
     };

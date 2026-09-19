@@ -244,31 +244,4 @@ document.getElementById('settings-panel').addEventListener('click', e => {
 
 applyPlayArea();
 
-/* ── HOLD TO OPEN ── */
-const SETTINGS_HOLD_MS = 2000;
-(function () {
-    const btn  = document.getElementById('settings-btn');
-    const hint = document.getElementById('hold-hint');
-    let timer = null, hintTimer = null;
-
-    btn.addEventListener('pointerdown', e => {
-        e.preventDefault();
-        btn.classList.add('holding');
-        timer = setTimeout(() => {
-            timer = null;
-            btn.classList.remove('holding');
-            openSettings();
-        }, SETTINGS_HOLD_MS);
-    });
-    const cancel = () => {
-        if (!timer) return;
-        clearTimeout(timer);
-        timer = null;
-        btn.classList.remove('holding');
-        hint.classList.add('visible');
-        clearTimeout(hintTimer);
-        hintTimer = setTimeout(() => hint.classList.remove('visible'), 2000);
-    };
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => btn.addEventListener(t, cancel));
-    btn.addEventListener('contextmenu', e => e.preventDefault());
-})();
+holdToOpen(document.getElementById('settings-btn'), document.getElementById('hold-hint'), openSettings);
