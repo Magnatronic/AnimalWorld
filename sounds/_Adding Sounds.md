@@ -133,3 +133,10 @@ from the other themes.
 - Some searches (scorpion, chameleon, jellyfish, squid) may have few results — skip those, the app works fine without them
 - The Fish theme needs no sound files; `bubbles.mp3` is optional polish
 - After downloading, if the file is `.ogg` or `.wav`, rename it to `.mp3` — most browsers handle all three formats
+
+## Volume levelling
+
+Every sound in this folder has been levelled to roughly the same loudness (about −16 LUFS,
+peaks held below −1 dBFS), so no animal is startlingly louder than another. A newly downloaded
+sound won't match: if it stands out as much louder or quieter than the rest, it needs levelling
+the same way before it goes in. The volume students hear overall is set in ⚙ Settings → Sound.
