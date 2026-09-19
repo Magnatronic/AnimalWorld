@@ -478,6 +478,37 @@
                 </div>
                 <p class="setting-note">The Fish theme always says names, because fish are silent.</p>
             </div>
+
+            <div class="setting-section">🗣️ Voice</div>
+
+            <div class="setting-group">
+                <span class="setting-label">Voice</span>
+                <select id="voice-select" class="setting-select"></select>
+                <p class="setting-note" id="voice-note"></p>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-label">Speed</span>
+                <div class="setting-opts" data-setting="sound.rate">
+                    <button class="setting-opt" data-value="0.75">Slower</button>
+                    <button class="setting-opt" data-value="0.9">Normal</button>
+                    <button class="setting-opt" data-value="1.05">Faster</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-label">Pitch</span>
+                <div class="setting-opts" data-setting="sound.pitch">
+                    <button class="setting-opt" data-value="0.85">Lower</button>
+                    <button class="setting-opt" data-value="1">Normal</button>
+                    <button class="setting-opt" data-value="1.15">Higher</button>
+                </div>
+            </div>
+
+            <button class="setting-test" onclick="testVoice()">▶ Test the voice</button>
+            <p class="setting-note">Voices marked "natural" sound the most lifelike; they come with
+                Microsoft Edge and need the internet. Without a connection the app switches to a voice on
+                this computer.</p>
         </div>
 
         <div class="settings-foot">

@@ -23,7 +23,9 @@ each computer remembers its own setup.
   bottom, and the Switch and ⚙ buttons move up out of reach.
 - **Games** — Whack-a-Mole hole count (4, 6 or 9), how many animals a Relaxed round has, and
   how long the timed levels last.
-- **Sound** — volume, and whether every animal's name is spoken after its sound.
+- **Sound** — volume, whether every animal's name is spoken after its sound, and the voice:
+  which one, its speed and its pitch, with a button to test it. The voices on offer depend on the
+  browser; Microsoft Edge has the most lifelike ("Natural") ones, which need the internet.
 
 ## Usage
 Open `index.html` in any modern browser. Everything it needs — pictures, sounds and font — is in this

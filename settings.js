@@ -25,6 +25,9 @@ const DEFAULT_SETTINGS = {
     sound: {
         volume:         1,   // 0.3 quiet, 0.6 medium, 1 loud
         speakNames: false,   // say every animal's name after its sound, not just fish
+        voice:         '',   // speechSynthesis voice name; '' = pick the best available
+        rate:         0.9,   // speaking speed
+        pitch:          1,   // 1 is the voice's natural pitch
     },
 };
 
@@ -58,6 +61,7 @@ function setSetting(path, value) {
     renderSettings();
     if (group === 'area') applyPlayArea();
     if (group === 'sound' && currentAudio) currentAudio.volume = settings.sound.volume;
+    if (path === 'sound.voice') { pickVoice(); renderVoiceOptions(); }
 }
 
 // The Play area is drawn entirely by these body classes (see PLAY AREA in styles.css);
@@ -86,6 +90,7 @@ function renderSettings() {
     });
     document.getElementById('delay-group').style.display = settings.scan.mode === 'auto' ? '' : 'none';
     document.getElementById('area-pos-group').style.display = settings.area.size < 100 ? '' : 'none';
+    renderVoiceOptions();
 }
 
 function resetSettings() {
@@ -105,6 +110,7 @@ function resetSettings() {
     for (const group in fresh) Object.assign(settings[group], fresh[group]);
     settings.scan.on = wasScanning;   // the Switch button owns this, not the panel
     saveSettings();
+    pickVoice();
     renderSettings();
     applyPlayArea();
 }
@@ -119,6 +125,8 @@ function openSettings() {
     document.getElementById('settings-panel').classList.add('open');
 }
 function closeSettings() { document.getElementById('settings-panel').classList.remove('open'); }
+
+document.getElementById('voice-select').addEventListener('change', e => setSetting('sound.voice', e.target.value));
 
 document.getElementById('settings-panel').addEventListener('click', e => {
     const opt = e.target.closest('.setting-opt');

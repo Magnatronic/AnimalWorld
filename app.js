@@ -692,58 +692,103 @@ function ftaRound() {
 }
 
 /* ── VOICE SELECTION ── */
+// The voice is chosen in Settings → Sound, or picked automatically. Which voices
+// exist depends on the browser: Edge offers Microsoft's "Natural" voices and
+// Chrome offers Google's, both of which need the internet; every browser also
+// has the computer's own voices, which work offline but sound more robotic.
 let ftaVoice = null;
 
+// Best first. UK voices lead because the app is used in UK classrooms.
+const PREFERRED_VOICES = [
+    'Microsoft Libby Online (Natural) - English (United Kingdom)',
+    'Microsoft Sonia Online (Natural) - English (United Kingdom)',
+    'Google UK English Female',
+    'Microsoft Aria Online (Natural) - English (United States)',
+    'Google US English Female',
+    'Microsoft Zira Desktop - English (United States)',
+    'Microsoft Zira',
+    'Samantha',          // macOS / iOS
+    'Karen',             // macOS / iOS Australian
+    'Moira',             // macOS Irish
+    'Tessa',             // macOS South African
+    'Fiona',             // macOS Scottish
+];
+
+// English voices for the Settings list: natural-sounding first, then UK, then the rest.
+function englishVoices() {
+    if (!window.speechSynthesis) return [];
+    const rank = v => (/natural/i.test(v.name) ? 4 : 0) + (/^Google/.test(v.name) ? 2 : 0) + (v.lang === 'en-GB' ? 1 : 0);
+    return speechSynthesis.getVoices()
+        .filter(v => v.lang.startsWith('en'))
+        .sort((a, b) => rank(b) - rank(a) || a.name.localeCompare(b.name));
+}
+
+// "Microsoft Sonia Online (Natural) - English (United Kingdom)" → "Sonia — United Kingdom · natural · needs internet"
+function voiceLabel(v) {
+    const name   = v.name.replace(/^(Microsoft|Google)\s+/, '').replace(/\s+(Online|Desktop|Multilingual)\b.*$/, '').replace(/\s+-\s+.*$/, '');
+    const region = (v.name.match(/\(([^()]+)\)\s*$/) || [])[1] || v.lang;
+    const notes  = [];
+    if (/natural/i.test(v.name)) notes.push('natural');
+    if (!v.localService) notes.push('needs internet');
+    return `${name} — ${region}` + (notes.length ? ' · ' + notes.join(' · ') : '');
+}
+
 function pickVoice() {
-    const voices = speechSynthesis.getVoices();
+    const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
     if (!voices.length) return;
+    const chosen = settings.sound.voice && voices.find(v => v.name === settings.sound.voice);
+    if (chosen) { ftaVoice = chosen; return; }
 
-    // Priority list — best female voices across Chrome/Edge/Mac/iOS/Android
-    const preferred = [
-        'Google UK English Female',
-        'Google US English Female',
-        'Microsoft Aria Online (Natural) - English (United States)',
-        'Microsoft Zira Desktop - English (United States)',
-        'Microsoft Zira',
-        'Samantha',          // macOS / iOS
-        'Karen',             // macOS / iOS Australian
-        'Moira',             // macOS Irish
-        'Tessa',             // macOS South African
-        'Fiona',             // macOS Scottish
-    ];
-
-    for (const name of preferred) {
+    for (const name of PREFERRED_VOICES) {
         const v = voices.find(v => v.name === name);
         if (v) { ftaVoice = v; return; }
     }
-
-    // Fall back: any English-language voice whose name suggests female
-    const femaleEn = voices.find(v =>
-        v.lang.startsWith('en') && /female|woman|girl/i.test(v.name)
-    );
-    if (femaleEn) { ftaVoice = femaleEn; return; }
-
-    // Last resort: first English voice available
-    ftaVoice = voices.find(v => v.lang.startsWith('en')) || null;
+    // Fall back: an English voice whose name suggests female, then any English voice
+    ftaVoice = voices.find(v => v.lang.startsWith('en') && /female|woman|girl/i.test(v.name))
+            || voices.find(v => v.lang.startsWith('en')) || null;
 }
 
 // Voices load asynchronously — try immediately then again on change
 if (window.speechSynthesis) {
     pickVoice();
-    speechSynthesis.addEventListener('voiceschanged', pickVoice);
+    speechSynthesis.addEventListener('voiceschanged', () => { pickVoice(); renderVoiceOptions(); });
 }
 
-function speak(text, onDone) {
+function speak(text, onDone, voice = ftaVoice) {
     if (!window.speechSynthesis) { if (onDone) onDone(); return; }
     speechSynthesis.cancel();
     const utt  = new SpeechSynthesisUtterance(text);
-    if (ftaVoice) utt.voice = ftaVoice;
-    utt.rate   = 0.88;
-    utt.pitch  = 1.15;
+    if (voice) utt.voice = voice;
+    utt.rate   = settings.sound.rate;
+    utt.pitch  = settings.sound.pitch;
     utt.volume = settings.sound.volume;
     if (onDone) utt.addEventListener('end', onDone, { once: true });
+    // An internet voice fails with no connection: say it again with one on this
+    // computer. Otherwise carry on, so a game never waits on speech that never comes.
+    utt.addEventListener('error', e => {
+        if (e.error === 'canceled' || e.error === 'interrupted') return;
+        const local = englishVoices().find(v => v.localService);
+        if (voice && !voice.localService && local) speak(text, onDone, local);
+        else if (onDone) onDone();
+    }, { once: true });
     speechSynthesis.speak(utt);
 }
+
+// Fill the Settings voice list with what this browser offers.
+function renderVoiceOptions() {
+    const select = document.getElementById('voice-select');
+    if (!select) return;
+    const voices    = englishVoices();
+    const available = voices.some(v => v.name === settings.sound.voice);
+    select.innerHTML = '<option value="">Automatic (best available)</option>' +
+        voices.map(v => `<option value="${v.name.replace(/"/g, '&quot;')}">${voiceLabel(v)}</option>`).join('');
+    select.value = available ? settings.sound.voice : '';
+    document.getElementById('voice-note').textContent = settings.sound.voice && !available
+        ? "The voice chosen earlier isn't available in this browser, so the best available one is used."
+        : 'Now using: ' + (ftaVoice ? voiceLabel(ftaVoice) : "the browser's default voice");
+}
+
+function testVoice() { speak('Find the duck! Well done!'); }
 
 function ftaSpeak(name) { speak('Find the ' + name); }
 
