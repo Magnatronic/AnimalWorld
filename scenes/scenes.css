@@ -49,14 +49,17 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .look-night { --wake: rgba(190,210,255,.5); }
 .look-line  { --wake: rgba(255,255,255,.9); }
 
-/* Animals that hide (pictures that are only a head) peep over a bush or log drawn in
-   front of them: cut off at the line the bush hides (--foot), and sunk below it to come
-   and go (.down), so they rise up from behind it */
+/* Animals that hide (pictures that are only a head) pop up from behind a bush or log,
+   then come forward to sit in front of it (peek() in scenes.js). Behind it (.behind)
+   they're cut off at the line it hides (--foot, the spot) and can sink out of sight
+   (.down); .up lifts them clear of its top; settled, they sit lower, in front. */
 .cover { position: absolute; z-index: 2; width: 15%; aspect-ratio: 2 / 1; translate: -50% -30%; pointer-events: none; }
 .cover svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.animal.on-hide { z-index: 1; clip-path: polygon(-50% -60%, 150% -60%, 150% var(--foot), -50% var(--foot)); }
-.animal.on-hide .body { transition: translate calc(1.2s * var(--pace)) cubic-bezier(.3,.1,.3,1); }
-.animal.on-hide.down .body { translate: 0 105%; }
+.animal.on-hide { z-index: 4; }
+.animal.on-hide.behind { z-index: 1; clip-path: polygon(-50% -60%, 150% -60%, 150% var(--foot), -50% var(--foot)); }
+.animal.on-hide .body { translate: 0 28%; transition: translate calc(.8s * var(--pace)) cubic-bezier(.3,.1,.3,1); }
+.animal.on-hide.up .body { translate: 0 -24%; }
+.animal.on-hide.down .body { translate: 0 110%; }
 .animal.peek.moving { transition: filter var(--fade, 5s) ease-in-out; }
 .animal.peek.moving img { animation-name: breathe; }
 /* Bats hang upside down under the branch, and turn the right way up to fly */
@@ -77,6 +80,9 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .look-night .p-seed { fill: #8d7a4c; } .look-night .p-seed2 { fill: #74633f; }
 .p-cap { fill: var(--cap); } .p-stalk { fill: #f6efe0; } .p-berry { fill: #d9473f; }
 .look-night .p-stalk { fill: #8e97b5; } .look-night .p-berry { fill: #8a4f78; }
+.p-corn { fill: #f2c64a; } .p-egg { fill: #fbf3e4; }
+.p-straw { fill: none; stroke: #dfbb55; stroke-width: 3.2; stroke-linecap: round; }
+.look-night .p-corn { fill: #8a7a48; } .look-night .p-egg { fill: #a9b1c8; } .look-night .p-straw { stroke: #7d7150; }
 .p-autumn1 { fill: #e58a3c; } .p-autumn2 { fill: #d4553f; } .p-autumn3 { fill: #e6b63e; }
 .look-night .p-autumn1 { fill: #8a6448; } .look-night .p-autumn2 { fill: #7e4a4c; } .look-night .p-autumn3 { fill: #857350; }
 .o { stroke: #1b1b1b; stroke-width: 0; stroke-linejoin: round; }
@@ -160,6 +166,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .theme-btn .front-sub { font-size: clamp(.95rem, 2.2vw, 1.15rem); font-weight: 700; opacity: .85; text-shadow: none; }
 .btn-forest { background: linear-gradient(135deg, #1b5e3b, #43a06b); }
 .btn-birds  { background: linear-gradient(135deg, #ad1457, #f06292); }
+.btn-farm   { background: linear-gradient(135deg, #6d4c41, #a1887f); }
 
 /* ── The adult's corner: ⚙ (hold to open), dim so it doesn't draw the eye ── */
 /* Above the start screen too, so set-up can be done before starting */
@@ -200,6 +207,12 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .reflect { opacity: .3; }
 .grass { fill: none; stroke: var(--leaf); stroke-width: 5; stroke-linecap: round; }
 .f-cap { fill: var(--cap); } .f-stalk, .f-dot { fill: var(--cloud); } .f-rock { fill: var(--rock); }
+.f-barn { fill: var(--barn); } .f-hay { fill: var(--hay); } .f-house { fill: var(--house); }
+.trim { fill: none; stroke: var(--house); stroke-width: 6; stroke-linejoin: round; }
+.straw { fill: none; stroke: var(--shade); stroke-opacity: calc(var(--shade-a) * 1.8); stroke-width: 3; stroke-linecap: round; }
+.twine { fill: none; stroke: var(--barn); stroke-width: 4; opacity: .7; }
+.hedge { fill: none; stroke: var(--leaf); stroke-width: 9; stroke-linecap: round; opacity: .8; }
+.willow { fill: none; stroke: var(--leaf2); stroke-width: 7; stroke-linecap: round; }
 .stick { fill: none; stroke: var(--shade); stroke-opacity: calc(var(--shade-a) * 2.2); stroke-width: 4; stroke-linecap: round; }
 
 /* ── Look changes fade rather than jump (over --fade, the "Look changes" setting) ──
@@ -219,6 +232,9 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @property --flower { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
 @property --cap    { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
 @property --rock   { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
+@property --barn   { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
+@property --hay    { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
+@property --house  { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
 @property --ring   { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --rain     { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --mist     { syntax: '<color>'; inherits: true; initial-value: transparent; }
@@ -226,7 +242,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @property --storm    { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --lean     { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
 .stage {
-    transition-property: --sky1, --sky2, --sun, --moon, --cloud, --hill, --lawn, --trunk, --leaf, --leaf2, --pond, --flower, --cap, --rock, --ring,
+    transition-property: --sky1, --sky2, --sun, --moon, --cloud, --hill, --lawn, --trunk, --leaf, --leaf2, --pond, --flower, --cap, --rock, --barn, --hay, --house, --ring,
                          --rain, --mist, --overcast, --storm, --lean;
     transition-duration: var(--fade, 5s);
     transition-timing-function: ease-in-out;
@@ -265,6 +281,18 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .scene-forest-clearing.look-soft  { --sky1:#c3e4f3; --sky2:#f2f8ec; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#c4d9b6; --lawn:#b0d58d; --trunk:#a0785a; --leaf:#6fa66b; --leaf2:#95c58a; --pond:#9fd3e6; --flower:#f3b6c8; --cap:#e2735f; --rock:#c0b9ad; --ring:rgba(255,255,255,.7); }
 .scene-forest-clearing.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#ea5a47; --cap:#ea5a47; --rock:#9b9b9a; --ring:rgba(255,255,255,.85); }
 .scene-forest-clearing.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d5e96; --cap:#6a4568; --rock:#3a4660; --ring:rgba(190,210,255,.45); }
+
+.scene-farm-farmyard.look-soft  { --sky1:#bfe3f7; --sky2:#f1f8fb; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#c6dcb4; --lawn:#a9d08e; --trunk:#a98561; --leaf:#80b777; --leaf2:#a7cf92; --pond:#9fd3e6; --flower:#f6b9c9; --rock:#e3cf9f; --barn:#d9776a; --hay:#f0d27a; --house:#fbf2df; --ring:rgba(255,255,255,.7); }
+.scene-farm-farmyard.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#5c9e31; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#ea5a47; --rock:#e2c28c; --barn:#d22f27; --hay:#f1b31c; --house:#ffffff; --ring:rgba(255,255,255,.85); }
+.scene-farm-farmyard.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d5e96; --rock:#3d4868; --barn:#5a3550; --hay:#5e5a4a; --house:#4a5578; --ring:rgba(190,210,255,.45); }
+
+.scene-farm-fields.look-soft  { --sky1:#b6dff5; --sky2:#f3f9f0; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#bcd9a8; --lawn:#a5d18a; --trunk:#a07a58; --leaf:#78b070; --leaf2:#9fcb88; --pond:#9fd3e6; --flower:#f6d38a; --rock:#d8c49a; --barn:#d9776a; --hay:#efd37e; --house:#fbf2df; --ring:rgba(255,255,255,.7); }
+.scene-farm-fields.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#f4aa41; --rock:#e2c28c; --barn:#d22f27; --hay:#f1b31c; --house:#ffffff; --ring:rgba(255,255,255,.85); }
+.scene-farm-fields.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1c2f45; --lawn:#1f3a45; --trunk:#46426a; --leaf:#1f4046; --leaf2:#27505a; --pond:#213f66; --flower:#6d5e96; --rock:#3d4868; --barn:#5a3550; --hay:#5e5a4a; --house:#4a5578; --ring:rgba(190,210,255,.45); }
+
+.scene-farm-pond.look-soft  { --sky1:#c3e4f3; --sky2:#f2f8ec; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#c4d9b6; --lawn:#aed58d; --trunk:#a0785a; --leaf:#74ad6c; --leaf2:#9ccb8c; --pond:#95cfe6; --flower:#f3b6c8; --rock:#d8c49a; --barn:#d9776a; --hay:#f0d27a; --house:#fbf2df; --ring:rgba(255,255,255,.7); }
+.scene-farm-pond.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#ea5a47; --rock:#e2c28c; --barn:#d22f27; --hay:#f1b31c; --house:#ffffff; --ring:rgba(255,255,255,.85); }
+.scene-farm-pond.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d5e96; --rock:#3d4868; --barn:#5a3550; --hay:#5e5a4a; --house:#4a5578; --ring:rgba(190,210,255,.45); }
 
 /* A scene change fades through this veil */
 .veil { position: fixed; inset: 0; z-index: 4; background: #0d1834; opacity: 0; pointer-events: none; transition: opacity .9s ease-in-out; }
@@ -350,6 +378,19 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
     animation: waver calc(var(--w) * var(--pace)) ease-in-out infinite alternate, spin calc(var(--r) * var(--pace)) linear infinite; }
 .look-line .snow b { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%231b1b1b' stroke-width='10'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3Cg stroke='white' stroke-width='5'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3C/svg%3E"); }
 .snow .d0 b { opacity: .6; }
+/* Falling leaves: the snow's drift and turn, with autumn leaves, and no slant */
+.st3 .snow.fall, .st4 .snow.fall, .st5 .snow.fall { rotate: 0deg; }
+.snow.fall b { height: calc(var(--s) * .6); border-radius: 0 100% 0 100%; background: #e58a3c; border: 0 solid #1b1b1b; }
+.snow.fall b.c1 { background: #d4553f; } .snow.fall b.c2 { background: #e6b63e; } .snow.fall b.c3 { background: #b8743a; }
+.look-line .snow.fall b { background-image: none; border-width: 2px; }
+.look-night .snow.fall b { filter: brightness(.55) saturate(.7); }
+.snow.fall .d0 b, .snow.fall .d1 b { opacity: 1; }
+/* …and the trees turn golden, then orange */
+.stage.wx-leaves.wx-s3:not(.look-night) { --leaf: #a7b35a; --leaf2: #c7c46e; }
+.stage.wx-leaves.wx-s4:not(.look-night) { --leaf: #c49a45; --leaf2: #d9b75a; }
+.stage.wx-leaves.wx-s5:not(.look-night) { --leaf: #d0803a; --leaf2: #e0a049; --lawn: #b9b877; }
+.stage.wx-leaves.wx-s4.look-night { --leaf: #3e4a3a; --leaf2: #4d5540; }
+.stage.wx-leaves.wx-s5.look-night { --leaf: #4d4436; --leaf2: #5a4f3c; }
 .snow .d1 b { opacity: .85; }
 @keyframes waver { from { transform: translateX(calc(var(--x) * -1)); } to { transform: translateX(var(--x)); } }
 @keyframes spin { to { rotate: 360deg; } }

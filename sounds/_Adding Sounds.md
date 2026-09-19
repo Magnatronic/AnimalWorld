@@ -163,8 +163,13 @@ calls). The app crossfades each loop into itself, so the join isn't heard.
 | `ambient/river.mp3` | [Small stream in the woods, Few birds](https://freesound.org/s/796191/) by fran_marenco (CC0) | 0.5–179.5 s (Forest Animals' Riverbank) |
 | `ambient/clearing.mp3` | [Summer afternoon Meadow ATM birds and crickets](https://freesound.org/s/414907/) by DanGasior (CC0) | 0.5–120.5 s (Forest Animals' Clearing) |
 
-Each is mixed down to mono (like the others). Every scene has its own; set-up's Sound tab can
-choose any of them instead.
+| `ambient/farmyard.mp3` | [farm_chicken_rooster_sheep_210410_0061](https://freesound.org/s/567523/) by titi2 (CC0) | 0.5–74.5 s (Farm Animals' Farmyard) |
+| `ambient/fields.mp3` | [Small sheep bells, cows and some birds singing in a field](https://freesound.org/s/136248/) by felix.blume (CC0) | 0.5–119.5 s (Farm Animals' Fields) |
+| `ambient/duckpond.mp3` | [pond, ducks](https://freesound.org/s/254683/) by monotraum (CC0) | 0.5–83.5 s (Farm Animals' Duck pond) |
+
+Each is mixed down to mono (like the others). The farm recordings are also gently compressed
+(ffmpeg `acompressor`, then `loudnorm` to −26 LUFS), so a moo or a crow never jumps out. Every
+scene has its own; set-up's Sound tab offers the other tracks of the same theme.
 
 ---
 

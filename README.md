@@ -5,7 +5,7 @@ An interactive animal learning app for classroom use. Plain HTML, CSS and JavaSc
 The front page offers two parts:
 - **Animal Activities** — pick a theme, then an activity (below). Open it directly at `index.html#activities`.
 - **Animal Scenes** — calm, interactive animal scenes for touch screens and switches, for sensory rooms
-  and large touch projectors. Open it directly at `scenes.html`. *(Birds and Forest Animals so far; more themes coming.)*
+  and large touch projectors. Open it directly at `scenes.html`. *(Birds, Forest Animals and Farm Animals so far; more themes coming.)*
 
 ## Animal Scenes
 A full-screen scene drawn in code, so it fills any screen shape and works offline. It opens on a choice of
@@ -21,12 +21,18 @@ Birds has three scenes, each with its own track: 🌳 **Garden** (room for 10 bi
 (11, mostly on branches, with a stream) and 🏞️ **Lakeside** (11, mostly on the water, with a jetty).
 Forest Animals has three scenes too: 🌲 **Woodland** (room for 14), 🏞️ **Riverbank** (15, with a
 beaver's lodge) and 🍄 **Clearing** (13, with a log and a pond). The fox, bear and wolf pictures are
-only heads, so they peep up from behind a bush or log and sink back down to leave; the bat hangs upside
-down under its branch; the frog, otter and beaver sit in the water. Set-up shows how many animals each
+only heads, so they pop up from behind a bush or log and then sit in front of it (and go back behind
+it to leave); the bat hangs upside down under its branch; the frog, otter and beaver sit in the water.
+Farm Animals has 🚜 **Farmyard** (a red barn, hay bales, a fence and a pond), 🌾 **Fields** (a
+five-bar gate, round bales and a far-off farmhouse) and 🦆 **Duck pond** (a farmhouse and a willow);
+the rooster, cat and chick sit on the fence or gate, and the hen (only a head) pops up from behind a
+hay bale. Every scene has its own background track, and set-up only offers the tracks of the animals
+chosen. Set-up shows how many animals each
 scene has room for, and where. Birds is the template for the other themes: a theme's animals and
 switch jobs are shared by all its scenes (`scenes/art.js`).
 
-Any scene can have **weather**, one at a time, fading in and out: 🌧️ Rain (with rings on the water),
+Any scene can have **weather**, one at a time, fading in and out; each theme has the weathers that suit
+it (Forest adds 🍂 Falling leaves, where the trees turn golden then orange as it strengthens): 🌧️ Rain (with rings on the water),
 ⛈️ Storm (rain, a darker sky, and now and then a faint bolt of lightning and far-off thunder), ❄️ Snow
 (crystal snowflakes near and far, turning as they fall; heavy snow slants and whitens the ground), 🍃 Wind (leaves blow across,
 the trees lean, and strong wind brings gusts), 🌫️ Fog (some drifting in front of the animals) and 🌈 Rainbow (sparkles, then a second
@@ -43,7 +49,7 @@ works from the start screen too):
 - **Presets** — saved set-ups (scene, look, speed, weather, switch jobs). Each set of animals has its
   own, and set-up shows only those for the animals chosen. Ready-made for Birds: 🌳 Calm garden,
   🌦️ Weather play, 🦉 Night owls and 🏞️ Busy lake; for Forest Animals: 🦊 Peek-a-boo, 🦫 Riverbank and
-  🦇 Forest at night. Use one, save the set-up as a new preset,
+  🦇 Forest at night; for Farm Animals: 🚜 Busy farmyard, 🌾 In the fields and 🦆 Rainy duck pond. Use one, save the set-up as a new preset,
   save changes into a preset, rename or delete (deleted ready-made ones can be brought back). Each has
   a link, `scenes.html#preset=<name>`, that opens straight into it — handy as a desktop shortcut.
 - **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, whether touching an

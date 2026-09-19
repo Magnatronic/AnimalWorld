@@ -12,7 +12,7 @@
 // makes rings. Light and shade (the `shade-*` and `light-*` shapes) are see-through
 // white and dark laid over the colours, so they suit every look.
 
-// Background tracks: any scene can play any of them.
+// Background tracks: each scene has its own, and set-up offers those of the same theme.
 const SceneTracks = {
     garden:   { label: 'Garden birdsong', file: 'sounds/ambient/garden.mp3' },
     woodland: { label: 'Woodland',        file: 'sounds/ambient/woodland.mp3' },
@@ -20,6 +20,9 @@ const SceneTracks = {
     forest:   { label: 'Forest birds and breeze', file: 'sounds/ambient/forest.mp3' },
     river:    { label: 'Woodland stream', file: 'sounds/ambient/river.mp3' },
     clearing: { label: 'Summer meadow',   file: 'sounds/ambient/clearing.mp3' },
+    farmyard: { label: 'Farmyard',        file: 'sounds/ambient/farmyard.mp3' },
+    fields:   { label: 'Sheep bells in a field', file: 'sounds/ambient/fields.mp3' },
+    duckpond: { label: 'Duck pond',       file: 'sounds/ambient/duckpond.mp3' },
 };
 
 // Weather: one at a time over any scene, fading in and out (drawn by scenes.js and
@@ -32,7 +35,9 @@ const SceneWeather = {
     wind:    { label: '🍃 Wind',    sound: 'sounds/weather/wind.mp3', hint: 'Leaves blow across and the trees lean; strong wind brings gusts.' },
     fog:     { label: '🌫️ Fog',     hint: 'Mist rolls in, some of it drifting low in front of the animals.' },
     rainbow: { label: '🌈 Rainbow', hint: 'A rainbow fades in; stronger, it sparkles, then a second one appears above it.' },
+    leaves:  { label: '🍂 Falling leaves', hint: 'Autumn leaves drift down, rocking as they fall; stronger, the trees turn golden, then orange.' },
 };
+// Which of these each theme has is its `weathers` below (a jungle shouldn't have snow).
 
 const SceneArt = (() => {
 
@@ -135,6 +140,61 @@ const SceneArt = (() => {
           <path class="stick" d="${sticks}"/><ellipse class="ring" cx="${x}" cy="${y}" rx="${w * .55}" ry="${h * .12}"/>`;
     }
 
+    // ── Farm pieces ──
+    // A red barn, (x, y) the middle of its foot: a gambrel roof, big doors with white braces,
+    // and hay showing in the loft.
+    function barn(x, y, w, h) {
+        const l = x - w / 2, r = x + w / 2, top = y - h, dw = w * 0.28, dh = h * 0.58;
+        const roof = `M${l - w * .05} ${top + 12} L${l + w * .14} ${top - h * .42} L${x} ${top - h * .66} L${r - w * .14} ${top - h * .42} L${r + w * .05} ${top + 12}Z`;
+        return `<rect class="f-barn ol" x="${l}" y="${top}" width="${w}" height="${h}"/><path class="shade-side" d="M${l} ${top} H${r} V${y} H${l}Z"/>
+          <path class="f-barn ol" d="${roof}"/><path class="shade-flat" d="M${x} ${top - h * .66} L${r - w * .14} ${top - h * .42} L${r + w * .05} ${top + 12} L${x} ${top + 12}Z"/>
+          <path class="trim" d="M${l - w * .05} ${top + 12} L${l + w * .14} ${top - h * .42} L${x} ${top - h * .66} L${r - w * .14} ${top - h * .42} L${r + w * .05} ${top + 12}"/>
+          <rect class="f-hay ol" x="${x - w * .08}" y="${top - h * .38}" width="${w * .16}" height="${h * .26}"/>
+          <path class="trim" d="M${x - w * .08} ${top - h * .38} h${w * .16} v${h * .26} h${-w * .16}Z"/>
+          <rect class="f-barn ol" x="${x - dw / 2}" y="${y - dh}" width="${dw}" height="${dh}"/><path class="shade-flat" d="M${x - dw / 2} ${y - dh} h${dw} v${dh} h${-dw}Z"/>
+          <path class="trim" d="M${x - dw / 2} ${y - dh} h${dw} v${dh} h${-dw}Z M${x} ${y - dh} V${y} M${x - dw / 2} ${y - dh} L${x} ${y} L${x + dw / 2} ${y - dh} M${x - dw / 2} ${y} L${x} ${y - dh} L${x + dw / 2} ${y}"/>`;
+    }
+    // A farmhouse: cream walls, a red roof and chimney, windows and a door.
+    function farmhouse(x, y, w, h) {
+        const l = x - w / 2, top = y - h;
+        const win = (wx, wy) => `<rect class="f-pond ol" x="${wx}" y="${wy}" width="${w * .13}" height="${h * .26}"/><path class="trim" d="M${wx} ${wy} h${w * .13} v${h * .26} h${-w * .13}Z M${wx + w * .065} ${wy} v${h * .26} M${wx} ${wy + h * .13} h${w * .13}"/>`;
+        return `<rect class="f-barn ol" x="${x + w * .22}" y="${top - h * .62}" width="${w * .09}" height="${h * .4}"/>
+          <rect class="f-house ol" x="${l}" y="${top}" width="${w}" height="${h}"/><path class="shade-side" d="M${l} ${top} h${w} v${h} h${-w}Z"/>
+          <path class="f-barn ol" d="M${l - w * .06} ${top + 6} L${x} ${top - h * .55} L${l + w * 1.06} ${top + 6}Z"/><path class="shade-belly" d="M${l - w * .06} ${top + 6} L${x} ${top - h * .55} L${l + w * 1.06} ${top + 6}Z"/>
+          ${win(l + w * .1, top + h * .2)}${win(l + w * .77, top + h * .2)}${win(l + w * .1, top + h * .6)}${win(l + w * .77, top + h * .6)}
+          <rect class="f-trunk ol" x="${x - w * .08}" y="${y - h * .5}" width="${w * .16}" height="${h * .5}" rx="${w * .08}"/>`;
+    }
+    // A wooden fence: posts every `gap`, two rails; animals perch on the top rail's top edge (y).
+    function fence(x1, x2, y, gap = 120) {
+        let posts = '';
+        for (let x = x1; x <= x2; x += gap) posts += trunk(`M${x - 9} ${y - 12} L${x + 9} ${y - 12} L${x + 9} ${y + 86} L${x - 9} ${y + 86}Z`);
+        return `<rect class="f-trunk ol" x="${x1 - 20}" y="${y + 40}" width="${x2 - x1 + 40}" height="14"/>${posts}
+          <rect class="f-trunk ol" x="${x1 - 20}" y="${y}" width="${x2 - x1 + 40}" height="16"/><path class="light-flat" d="M${x1 - 20} ${y} h${x2 - x1 + 40} v5 h${-(x2 - x1 + 40)}Z"/>`;
+    }
+    // A five-bar gate between two posts, with its diagonal brace.
+    function gate(x1, x2, y) {
+        const bars = [0, 20, 40, 60, 80].map(dy => `<rect class="f-trunk ol" x="${x1}" y="${y + dy}" width="${x2 - x1}" height="11"/>`).join('');
+        return `${bars}<path class="f-trunk ol" d="M${x1 + 6} ${y + 88} L${x2 - 14} ${y} L${x2 - 4} ${y + 6} L${x1 + 16} ${y + 91}Z"/>
+          ${trunk(`M${x1 - 12} ${y - 14} h20 v112 h-20Z`)}${trunk(`M${x2 - 8} ${y - 14} h20 v112 h-20Z`)}`;
+    }
+    // A haystack (a golden mound) and a round bale seen end-on.
+    function haystack(x, y, w, h) {
+        return `<path class="f-hay ol" d="M${x - w / 2} ${y} Q${x - w * .45} ${y - h} ${x} ${y - h} Q${x + w * .45} ${y - h} ${x + w / 2} ${y}Z"/>
+          <path class="shade-side" d="M${x - w / 2} ${y} Q${x - w * .45} ${y - h} ${x} ${y - h} Q${x + w * .45} ${y - h} ${x + w / 2} ${y}Z"/>
+          <path class="straw" d="M${x - w * .3} ${y - h * .3} q${w * .1} -8 ${w * .2} 0 M${x} ${y - h * .6} q${w * .1} -8 ${w * .2} 0 M${x - w * .15} ${y - h * .15} q${w * .12} -8 ${w * .24} 0"/>`;
+    }
+    function roundBale(x, y, r) {
+        return `<circle class="f-hay ol" cx="${x}" cy="${y - r}" r="${r}"/><circle class="shade-ball" cx="${x}" cy="${y - r}" r="${r}"/>
+          <path class="straw" d="M${x} ${y - r} m${-r * .3} 0 a${r * .3} ${r * .3} 0 1 1 ${r * .3} ${r * .3} a${r * .55} ${r * .55} 0 1 1 ${r * .5} ${-r * .55}"/>`;
+    }
+    // Far hills in a patchwork of fields, with hedges between them.
+    function patchwork(y) {
+        return `<path class="f-hill ol" d="M-10 ${y + 30} C 300 ${y - 50} 600 ${y - 10} 900 ${y - 30} C 1200 ${y - 50} 1400 ${y - 20} 1610 ${y - 40} L1610 ${y + 150} L-10 ${y + 150}Z"/>
+          <path class="f-leaf2" opacity=".55" d="M180 ${y - 4} C 330 ${y - 30} 480 ${y - 28} 620 ${y - 18} L680 ${y + 60} L120 ${y + 60}Z"/>
+          <path class="f-hay" opacity=".6" d="M900 ${y - 30} C 1050 ${y - 42} 1200 ${y - 46} 1330 ${y - 30} L1360 ${y + 50} L880 ${y + 50}Z"/>
+          <path class="hedge" d="M-10 ${y + 60} H1610"/>`;
+    }
+
     // The woodland: tall trunks with branches, a stream, and `extra` drawn on the forest
     // floor in front of the stream but behind the trunks (both themes have a woodland).
     function woodland(extra = '') {
@@ -195,6 +255,7 @@ const SceneArt = (() => {
                 Flamingo: { habitat: 'water',  w: 10,   face: 'l', foot: 80 },
             },
             switchCast: ['Sparrow', 'Owl', 'Duck', 'Swan', 'Parrot', 'Peacock'], // first jobs for switches 1, 2, 3…
+            weathers: ['rain', 'storm', 'snow', 'wind', 'fog', 'rainbow'],    // the weathers that suit it (SceneWeather)
 
             scenes: {
                 garden: {
@@ -296,9 +357,9 @@ const SceneArt = (() => {
             noun: 'animals',
             move: 'walk',
             fx: 'note',
-            // Four places: branches, the forest floor, the water, and `hide`: behind a bush or
-            // log, where the animals whose pictures are only a head (fox, bear, wolf) peep over
-            // it. For them `foot` is where the bush hides them from; for water animals it's the
+            // Four places: branches, the forest floor, the water, and `hide`: a bush or log that
+            // the animals whose pictures are only a head (fox, bear, wolf) pop up from behind,
+            // then sit in front of. For them `foot` is the chin; for water animals it's the
             // waterline. The bat hangs upside down under its branch (`hang`; `foot` is then
             // where its feet grip, near the top of the turned-over picture). Water and ground
             // animals come after the others, so they're in front when they cross.
@@ -306,9 +367,9 @@ const SceneArt = (() => {
                 Owl:        { habitat: 'perch',  w: 8.5, face: 'f', foot: 86,   move: 'fly' },
                 Squirrel:   { habitat: 'perch',  w: 8,   face: 'l', foot: 88.5, move: 'bound' },
                 Bat:        { habitat: 'perch',  w: 9,   face: 'f', foot: 4,    move: 'fly', hang: true },
-                Fox:        { habitat: 'hide',   w: 10.5, face: 'f', foot: 86,  move: 'peek' },
-                Bear:       { habitat: 'hide',   w: 11.5, face: 'f', foot: 83,  move: 'peek' },
-                Wolf:       { habitat: 'hide',   w: 10.5, face: 'f', foot: 86,  move: 'peek' },
+                Fox:        { habitat: 'hide',   w: 7,   face: 'f', foot: 94,   move: 'peek' },
+                Bear:       { habitat: 'hide',   w: 7.8, face: 'f', foot: 87,   move: 'peek' },
+                Wolf:       { habitat: 'hide',   w: 7,   face: 'f', foot: 94,   move: 'peek' },
                 Frog:       { habitat: 'water',  w: 8,   face: 'f', foot: 70,   move: 'bound' },
                 Otter:      { habitat: 'water',  w: 11,  face: 'l', foot: 60 },
                 Beaver:     { habitat: 'water',  w: 10,  face: 'l', foot: 64 },
@@ -321,6 +382,7 @@ const SceneArt = (() => {
                 Snake:      { habitat: 'ground', w: 8,   face: 'r', foot: 84.5 },
             },
             switchCast: ['Fox', 'Owl', 'Frog', 'Deer', 'Squirrel', 'Bear'],
+            weathers: ['rain', 'storm', 'snow', 'wind', 'leaves', 'fog', 'rainbow'],
             // What hides the peeping animals: drawn 200 × 100 in front of them, with the line
             // they're hidden from (the spot) at (100, 30).
             covers: {
@@ -449,6 +511,155 @@ const SceneArt = (() => {
                         { habitat: 'water', x: 66, y: 89 }, { habitat: 'water', x: 79, y: 88.5 },
                     ],
                     splashes: [[63, 88], [68, 92], [73, 86], [77, 91], [83, 88]],
+                },
+            },
+        },
+        farm: {
+            noun: 'animals',
+            move: 'walk',
+            fx: 'note',
+            // The fence is where the rooster, cat and chick perch; the hen's picture is only a
+            // head, so she pops up from behind a hay bale (`hide`) and sits in front of it.
+            // Ducks and geese sit in the pond (`foot` is the waterline).
+            animals: {
+                Rooster: { habitat: 'perch',  w: 8.5, face: 'l', foot: 85,   move: 'fly' },
+                Cat:     { habitat: 'perch',  w: 9,   face: 'l', foot: 79,   move: 'bound' },
+                Chick:   { habitat: 'perch',  w: 5.5, face: 'f', foot: 83.5, move: 'bound' },
+                Hen:     { habitat: 'hide',   w: 6.5, face: 'f', foot: 90,   move: 'peek' },
+                Duck:    { habitat: 'water',  w: 9.5, face: 'l', foot: 76 },
+                Goose:   { habitat: 'water',  w: 9.5, face: 'l', foot: 75 },
+                Cow:     { habitat: 'ground', w: 14,  face: 'l', foot: 80.3 },
+                Horse:   { habitat: 'ground', w: 13,  face: 'l', foot: 89.3 },
+                Donkey:  { habitat: 'ground', w: 12,  face: 'l', foot: 85.3 },
+                Llama:   { habitat: 'ground', w: 10,  face: 'l', foot: 85 },
+                Pig:     { habitat: 'ground', w: 11,  face: 'r', foot: 80.5 },
+                Sheep:   { habitat: 'ground', w: 11,  face: 'l', foot: 87 },
+                Goat:    { habitat: 'ground', w: 10,  face: 'l', foot: 89 },
+                Dog:     { habitat: 'ground', w: 9.5, face: 'l', foot: 85.5, move: 'bound' },
+                Turkey:  { habitat: 'ground', w: 9.5, face: 'l', foot: 83.5 },
+                Mouse:   { habitat: 'ground', w: 5.5, face: 'l', foot: 86.8 },
+            },
+            switchCast: ['Cow', 'Pig', 'Sheep', 'Duck', 'Rooster', 'Horse'],
+            weathers: ['rain', 'storm', 'snow', 'wind', 'fog', 'rainbow'],
+            covers: {
+                hay: `<rect class="f-hay ol" x="14" y="16" width="172" height="78" rx="8"/><path class="shade-flat" d="M14 60 H186 V86 Q186 94 178 94 H22 Q14 94 14 86Z"/>
+                      <path class="light-flat" d="M22 16 H178 V24 H22Z"/>
+                      <path class="straw" d="M30 36 h40 M92 44 h36 M140 34 h30 M40 70 h34 M110 76 h44 M26 54 h22 M150 58 h24"/>
+                      <path class="twine" d="M64 16 V94 M136 16 V94"/>`,
+            },
+            marks: {
+                perch: `<path class="p-leaf o" d="M36 60 Q40 44 54 42 Q46 54 36 60Z"/><ellipse class="p-corn o" cx="54" cy="54" rx="15" ry="7" transform="rotate(-14 54 54)"/>
+                    <path class="p-twig" d="M44 52 L46 60 M52 50 L54 59 M60 48 L62 57 M67 47 L68 55"/><path class="p-leaf o" d="M34 62 Q48 64 58 58 Q46 58 34 62Z"/>`,
+                ground: `<path class="p-straw" d="M28 62 L64 55 M34 57 L72 62 M38 64 L66 52 M30 59 L58 64 M44 66 L74 59 M40 54 L60 60"/>`,
+                hide: `<path class="p-straw" d="M36 64 L64 60 M38 60 L62 65"/><ellipse class="p-egg o" cx="50" cy="55" rx="8" ry="10.5"/>`,
+            },
+            markWords: { perch: 'corn on the fence', hide: 'an egg by a hay bale', ground: 'straw on the ground', water: 'a lily pad on the water' },
+
+            scenes: {
+                farmyard: {
+                    name: '🚜 Farmyard',
+                    track: 'farmyard',
+                    places: { perch: 'on the fence', hide: 'behind the hay bales', ground: 'in the yard', water: 'on the pond' },
+                    residents: ['Rooster', 'Pig'],
+                    svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+                      ${skyAndSun('g-farmyard', 1320)}
+                      ${cloud(0, 140, .9)}${cloud(1, 220, .7)}${cloud(2, 100, .55)}
+                      ${patchwork(560)}
+                      ${farTree(700, 560, .9)}${farTree(780, 570, .7)}${farTree(1500, 540, .8)}
+                      <path class="f-lawn ol" d="M-10 640 C 400 616 1000 650 1610 626 L1610 910 L-10 910Z"/>
+                      <path class="light-flat" d="M-10 640 C 400 616 1000 650 1610 626 L1610 650 C 1000 674 400 640 -10 664Z"/>
+                      ${barn(330, 650, 420, 250)}
+                      <path class="f-rock ol" d="M40 910 C 60 780 220 700 420 690 C 640 680 860 720 900 800 C 930 860 900 890 880 910Z"/>
+                      <path class="light-flat" d="M120 800 C 240 720 420 706 560 712 C 420 730 260 760 180 830Z"/>
+                      ${haystack(640, 660, 190, 120)}
+                      ${fence(860, 1610, 600, 125)}
+                      <ellipse class="f-pond ol" cx="1300" cy="832" rx="235" ry="56"/>
+                      <ellipse class="light-flat" cx="1300" cy="842" rx="215" ry="42"/>
+                      ${shine([[1150, 826, 44], [1380, 856, 36], [1300, 810, 26]])}
+                      <ellipse class="ring" cx="1250" cy="834" rx="74" ry="13"/><ellipse class="ring" cx="1370" cy="826" rx="60" ry="11" style="animation-delay:-3s"/>
+                      ${reeds(1520, 836, 4, 16)}
+                      ${tufts([[980, 700], [1060, 760], [960, 880], [60, 690], [1560, 700]])}
+                      ${flowers([[1000, 730], [1100, 880], [940, 820]])}
+                    </svg>`,
+                    spots: [
+                        { habitat: 'perch', x: 59, y: 66.7 }, { habitat: 'perch', x: 66.5, y: 66.7 },
+                        { habitat: 'perch', x: 74.5, y: 66.7 }, { habitat: 'perch', x: 82, y: 66.7 },
+                        { habitat: 'hide', x: 45, y: 72, cover: 'hay' }, { habitat: 'hide', x: 18, y: 76, cover: 'hay' },
+                        { habitat: 'ground', x: 28, y: 93 }, { habitat: 'ground', x: 45, y: 95 },
+                        { habitat: 'ground', x: 60, y: 85 }, { habitat: 'ground', x: 68, y: 97 },
+                        { habitat: 'water', x: 76, y: 93.5 }, { habitat: 'water', x: 86, y: 92.5 },
+                    ],
+                    splashes: [[73, 92], [78, 95], [82, 91], [87, 94], [91, 92]],
+                },
+
+                fields: {
+                    name: '🌾 Fields',
+                    track: 'fields',
+                    places: { perch: 'on the gate', hide: 'behind the hay bales', ground: 'in the field', water: 'in the pond' },
+                    residents: ['Sheep', 'Cow'],
+                    svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+                      ${skyAndSun('g-fields', 380)}
+                      ${cloud(0, 150, 1)}${cloud(1, 230, .75)}${cloud(2, 110, .6)}
+                      ${patchwork(520)}
+                      ${farmhouse(1180, 505, 110, 70)}
+                      ${farTree(1080, 520, .7)}${farTree(560, 530, .8)}
+                      ${roundBale(760, 612, 22)}${roundBale(840, 606, 18)}${roundBale(920, 614, 20)}
+                      <path class="f-lawn ol" d="M-10 620 C 400 600 1000 636 1610 612 L1610 910 L-10 910Z"/>
+                      <path class="light-flat" d="M-10 620 C 400 600 1000 636 1610 612 L1610 636 C 1000 660 400 624 -10 646Z"/>
+                      ${fence(-10, 230, 612, 120)}${gate(250, 520, 612)}${fence(540, 660, 612, 120)}
+                      <ellipse class="f-pond ol" cx="1230" cy="842" rx="220" ry="50"/>
+                      <ellipse class="light-flat" cx="1230" cy="852" rx="200" ry="36"/>
+                      ${shine([[1100, 838, 40], [1300, 862, 34]])}
+                      <ellipse class="ring" cx="1200" cy="842" rx="70" ry="12"/>
+                      ${trunk('M1420 910 L1440 280 Q1460 250 1480 280 L1500 910Z')}
+                      <g class="sway" style="--d:11s">${ball('f-leaf', 1340, 260, 110)}${ball('f-leaf2', 1480, 180, 120)}${ball('f-leaf', 1600, 260, 110)}${ball('f-leaf2', 1440, 340, 90)}</g>
+                      ${tufts([[120, 780], [380, 860], [700, 720], [880, 880], [1000, 700], [600, 810]])}
+                      ${flowers([[250, 820], [520, 880], [760, 800], [960, 760], [1040, 880]])}
+                    </svg>`,
+                    spots: [
+                        { habitat: 'perch', x: 18, y: 68 }, { habitat: 'perch', x: 24, y: 68 }, { habitat: 'perch', x: 31, y: 68 },
+                        { habitat: 'hide', x: 58, y: 71, cover: 'hay' }, { habitat: 'hide', x: 72, y: 68, cover: 'hay' },
+                        { habitat: 'ground', x: 17, y: 94 }, { habitat: 'ground', x: 32, y: 86 }, { habitat: 'ground', x: 44, y: 95 },
+                        { habitat: 'ground', x: 45, y: 78 }, { habitat: 'ground', x: 60, y: 90 },
+                        { habitat: 'water', x: 74, y: 95 }, { habitat: 'water', x: 83, y: 94 },
+                    ],
+                    splashes: [[70, 93], [75, 96], [80, 92], [85, 95]],
+                },
+
+                pond: {
+                    name: '🦆 Duck pond',
+                    track: 'duckpond',
+                    places: { perch: 'on the fence', hide: 'behind the hay bale', ground: 'by the pond', water: 'on the pond' },
+                    residents: ['Duck', 'Goose'],
+                    svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+                      ${skyAndSun('g-pond', 1000)}
+                      ${cloud(0, 130, .9)}${cloud(1, 210, .7)}${cloud(2, 100, .5)}
+                      <path class="f-hill ol" d="M-10 520 C 300 450 600 500 900 470 C 1200 440 1400 480 1610 460 L1610 620 L-10 620Z"/>
+                      ${farmhouse(1240, 600, 380, 200)}
+                      ${[[1020, 600, 50], [1470, 600, 56], [1540, 590, 48], [960, 604, 40]].map(([x, y, r]) => ball('f-leaf', x, y, r)).join('')}
+                      <path class="f-lawn ol" d="M-10 596 C 400 580 1000 610 1610 590 L1610 910 L-10 910Z"/>
+                      <path class="light-flat" d="M-10 596 C 400 580 1000 610 1610 590 L1610 614 C 1000 634 400 604 -10 620Z"/>
+                      ${fence(-10, 480, 574, 122)}
+                      <ellipse class="f-pond ol" cx="780" cy="790" rx="470" ry="98"/>
+                      <ellipse class="light-flat" cx="780" cy="806" rx="440" ry="76"/>
+                      ${shine([[520, 770, 60], [900, 820, 50], [700, 846, 40], [1050, 770, 36], [640, 740, 30]])}
+                      <ellipse class="ring" cx="650" cy="790" rx="110" ry="16"/><ellipse class="ring" cx="960" cy="800" rx="90" ry="14" style="animation-delay:-3s"/>
+                      ${reeds(290, 800, 5)}${reeds(1210, 780, 5, 18)}
+                      ${trunk('M60 910 L90 320 Q110 290 130 320 L160 910Z')}
+                      <g class="sway" style="--d:10s">${ball('f-leaf', 40, 260, 120)}${ball('f-leaf2', 170, 200, 110)}${ball('f-leaf', 110, 110, 100)}
+                        <path class="willow" d="${[20, 60, 100, 140, 180, 220, 250].map((x, i) => `M${x} ${300 + (i % 2) * 20} q${i % 2 ? 12 : -12} 120 ${i % 2 ? 4 : -4} ${220 + (i % 3) * 30}`).join(' ')}"/></g>
+                      ${tufts([[240, 700], [1320, 700], [1440, 860], [180, 880], [1560, 760]])}
+                      ${flowers([[330, 690], [1380, 760], [1500, 880], [250, 860]])}
+                    </svg>`,
+                    spots: [
+                        { habitat: 'perch', x: 17, y: 63.8 }, { habitat: 'perch', x: 24, y: 63.8 },
+                        { habitat: 'hide', x: 84, y: 75, cover: 'hay' },
+                        { habitat: 'ground', x: 36, y: 70 }, { habitat: 'ground', x: 55, y: 69 },
+                        { habitat: 'ground', x: 18, y: 93 }, { habitat: 'ground', x: 83, y: 95 },
+                        { habitat: 'water', x: 38, y: 84 }, { habitat: 'water', x: 52, y: 92 },
+                        { habitat: 'water', x: 64, y: 81 },
+                    ],
+                    splashes: [[34, 86], [42, 92], [50, 84], [58, 94], [66, 88], [72, 82]],
                 },
             },
         },

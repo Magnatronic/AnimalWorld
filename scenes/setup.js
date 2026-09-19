@@ -25,7 +25,7 @@ function switchRow(slot, i) {
                 <select aria-label="Job for switch ${i + 1} in this scene">
                     <optgroup label="Animals">${Object.keys(art.animals).map(n => option(n, n)).join('')}</optgroup>
                     <optgroup label="Scene">${Object.entries(SCENE_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
-                    <optgroup label="Weather">${Object.entries(WEATHER_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
+                    <optgroup label="Weather">${themeWeatherJobs().map(value => option(value, WEATHER_JOBS[value].label)).join('')}</optgroup>
                     ${option('nothing', 'Nothing')}
                 </select>
                 <button class="sw-learn">${slot.binding ? 'Learn again' : 'Learn'}</button>
@@ -135,7 +135,7 @@ function renderSetup() {
         </section>`,
         weather: `
         <section>
-            ${optRow("The scene's own weather", 'weather', [['clear', '☀️ Clear'], ...Object.entries(SceneWeather).map(([id, w]) => [id, w.label])])}
+            ${optRow("The scene's own weather", 'weather', [['clear', '☀️ Clear'], ...themeWeathers().map(id => [id, SceneWeather[id].label])])}
             <p class="setup-note">The scene starts with this weather${building() ? ', and goes back to it when left alone' : ''}.
                 Give switches weather jobs (Switches tab) to change it while playing.</p>
             ${optRow('Weather switches', 'weatherPress', [['build', 'Build up'], ['toggle', 'On / off']])}
@@ -196,8 +196,8 @@ function renderSetup() {
             ${optRow('Background sound', 'ambientVolume', [[0, 'Off'], [0.25, 'Quiet'], [0.5, 'Medium'], [1, 'Loud']])}
             ${optRow('Weather sounds', 'weatherVolume', [[0, 'Off'], [0.25, 'Quiet'], [0.5, 'Medium'], [1, 'Loud']])}
             <p class="setup-note">Rain, wind and far-off thunder.</p>
-            ${optRow('Background track', 'track', [['scene', `Matches the scene (${SceneTracks[art.track].label})`],
-                ...Object.entries(SceneTracks).map(([id, t]) => [id, t.label])])}
+            ${optRow('Background track', 'track', [['scene', 'Matches the scene'], ...themeTracks().map(id => [id, SceneTracks[id].label])])}
+            <p class="setup-note">Each scene has its own track (now: ${SceneTracks[art.track].label}); or choose one of the others for these animals.</p>
         </section>`,
     };
     document.getElementById('setup-body').innerHTML = sections[setupTab];

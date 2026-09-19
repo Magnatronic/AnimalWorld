@@ -131,7 +131,7 @@ let art = null;             // the theme's SceneArt merged with the chosen scene
 let cast = {};              // name → { el, def, sound, spot, arrivedAt, calledAt, leaving }
 let spots = [];             // art.spots, each with .animal = name or null
 let liveLook = null;        // the look on screen: set-up's choice, changed by the Day / night and Next look jobs
-let liveWeather = SceneWeather[sceneSettings.weather] ? sceneSettings.weather : 'clear';   // changed by weather jobs
+let liveWeather = 'clear';  // changed by weather jobs; the scene's own at the start (buildScene)
 let started = false;
 let calling = null;         // the animal sound playing now; one at a time
 
@@ -157,6 +157,10 @@ function buildScene() {
     const themeArt = SceneArt[sceneSettings.theme] || SceneArt.birds;
     const id = chosenScene();
     art = { ...themeArt, ...themeArt.scenes[id], id };
+    // A track or weather chosen for other animals doesn't carry over
+    if (sceneSettings.track !== 'scene' && !themeTracks().includes(sceneSettings.track)) sceneSettings.track = 'scene';
+    if (sceneSettings.weather !== 'clear' && !weatherFits(sceneSettings.weather)) sceneSettings.weather = 'clear';
+    if (liveWeather !== 'clear' && !weatherFits(liveWeather)) { liveWeather = homeWeather(); strength = BASE_STRENGTH; }
     const themeAnimals = themes[sceneSettings.theme].animals;
     liveLook = sceneSettings.look;
     // A new scene appears in its own colours at once, not fading from the last one's.
@@ -254,7 +258,7 @@ function settle(name, spot) {
     a.spot = spot;
     a.arrivedAt = a.calledAt = Date.now();
     a.el.hidden = false;
-    a.el.classList.remove('down');
+    a.el.classList.remove('down', 'behind', 'up');
     a.el.style.left = spot.x + '%';
     a.el.style.top = spot.y + '%';
     standAt(a, spot);
@@ -329,10 +333,11 @@ function travel(a, spot, coming, done) {
     setTimeout(finish, 3000 * sceneSettings.pace + 400);   // in case the transition never ends (reduced motion)
 }
 
-// Peeping animals rise up from behind their bush to arrive, and sink back down behind it
-// to leave, or to move to another bush (then rising there).
+// Peeping animals pop up from behind their bush or log, then come forward to sit in
+// front of it (scenes.css: .behind, .down, .up). To leave, or to move to another bush,
+// they go back up over it, behind it, and down out of sight.
 function peek(a, spot, coming, done) {
-    const el = a.el, ms = 1300 * sceneSettings.pace;
+    const el = a.el, ms = 800 * sceneSettings.pace;
     el.classList.add('moving');
     const finish = () => { el.classList.remove('moving'); done(); };
     const rise = () => {
@@ -341,11 +346,19 @@ function peek(a, spot, coming, done) {
         el.hidden = false;
         void el.offsetWidth;
         el.classList.remove('down');
-        setTimeout(finish, ms);
+        el.classList.add('up');                        // up from behind, clear of the top…
+        setTimeout(() => {
+            el.classList.remove('behind', 'up');       // …then forward, in front of it
+            setTimeout(finish, ms);
+        }, ms);
     };
-    el.classList.add('down');
-    if (coming) { rise(); return; }
-    setTimeout(spot ? rise : finish, ms);
+    if (coming) { el.classList.add('behind', 'down'); rise(); return; }
+    el.classList.add('up');
+    setTimeout(() => {
+        el.classList.add('behind', 'down');
+        el.classList.remove('up');
+        setTimeout(spot ? rise : finish, ms);
+    }, ms);
 }
 
 // An animal calls: its sound, a hop, and notes (or bubbles) rising.
@@ -389,7 +402,7 @@ function anything() {
 // switchCast in order (switch 1 the first animal, and so on), then "anything".
 function jobFor(slot) {
     const saved = sceneSettings.jobs[sceneSettings.theme]?.[slot.id];
-    if (saved) return saved;
+    if (saved && (!WEATHER_JOBS[saved] || themeWeatherJobs().includes(saved))) return saved;
     return art.switchCast[Switches.slots.indexOf(slot)] || 'anything';
 }
 
@@ -409,10 +422,12 @@ function jobLabel(job) {
     return job === 'nothing' ? 'Nothing' : jobInfo(job) ? jobInfo(job).label : job;
 }
 
-// The background track playing: the scene's own, or the one chosen in set-up.
+// The background tracks that belong to this theme: one for each of its scenes.
+function themeTracks() { return [...new Set(Object.values(SceneArt[sceneSettings.theme].scenes).map(s => s.track))]; }
+// The background track playing: the scene's own, or another of this theme's chosen in set-up.
 function trackUrl() {
-    const id = sceneSettings.track === 'scene' ? art.track : sceneSettings.track;
-    return (SceneTracks[id] || SceneTracks[art.track]).file;
+    const id = themeTracks().includes(sceneSettings.track) ? sceneSettings.track : art.track;
+    return SceneTracks[id].file;
 }
 
 // Change to another theme's scenes (chosen on the start screen).
@@ -471,10 +486,10 @@ const MAX_STRENGTH = 5;
 const BASE_STRENGTH = 3;    // the scene's own weather, and weather turned on with On / off
 const WEATHER_JOBS = {
     ...Object.fromEntries(Object.entries(SceneWeather).map(([id, w]) => [id, { label: w.label, hint: w.hint }])),
-    nextweather: { label: '🌦️ Next weather', hint: 'Fades to the next weather: clear, rain, rainbow, wind, fog, snow. (Storm only comes from its own job.)' },
+    nextweather: { label: '🌦️ Next weather', hint: "Fades to the next of this theme's weathers, starting from clear. (Storm only comes from its own job.)" },
     thunder:     { label: '⚡ Thunder',       hint: 'A faint flash of lightning, then thunder rumbles far away, whatever the weather.' },
 };
-const WEATHER_CYCLE = ['clear', 'rain', 'rainbow', 'wind', 'fog', 'snow'];
+const WEATHER_CYCLE = ['clear', 'rain', 'rainbow', 'wind', 'leaves', 'fog', 'snow'];
 const weatherLoops = {};    // sound file → its looper
 let weatherShown = [];      // the live weather's elements
 let strength = BASE_STRENGTH;
@@ -483,7 +498,14 @@ let nextThunder = 0;
 let lastThunder = 0;
 
 function building() { return sceneSettings.weatherPress !== 'toggle'; }
-function homeWeather() { return SceneWeather[sceneSettings.weather] ? sceneSettings.weather : 'clear'; }
+// Each theme has the weathers that suit it (`weathers` in art.js): no snow in a jungle.
+function themeWeathers() { return (SceneArt[sceneSettings.theme] || SceneArt.birds).weathers || Object.keys(SceneWeather); }
+function weatherFits(id) { return themeWeathers().includes(id); }
+// The weather jobs a switch can have in this theme (thunder only where there are storms).
+function themeWeatherJobs() {
+    return Object.keys(WEATHER_JOBS).filter(j => SceneWeather[j] ? weatherFits(j) : j !== 'thunder' || weatherFits('storm'));
+}
+function homeWeather() { return weatherFits(sceneSettings.weather) ? sceneSettings.weather : 'clear'; }
 
 function drawWeather(id) {
     // For each strength 1…5, `count[level]` things made by `make(level)`. Things of
@@ -519,6 +541,14 @@ function drawWeather(id) {
         `<div class="blowing lv4">${[[55, 30, 14], [25, 26, 18], [75, 26, 11]].map(([top, h, d], i) =>
             `<div class="mist" style="top:${top}%;height:${h}%;--d:${d}s;animation-delay:${-d * i * 0.4}s"></div>`).join('')}</div>` +
         '<div class="whiteout lv4"></div><div class="whiteout lv5"></div>';
+    // Autumn leaves drifting down, rocking and turning as they fall, like the snow.
+    const fallingLeaves = () => `<div class="snow fall">${levels([10, 20, 32, 45, 60], (level, lv) => {
+        const depth = Math.floor(Math.random() * 3);
+        const [size, fall, sway] = [[rand(1, 1.3), rand(18, 22), 1.5], [rand(1.4, 1.9), rand(12, 15), 2.2], [rand(2.1, 2.8), rand(8, 10), 3]][depth];
+        const d = fall * speed(level);
+        return `<i class="d${depth}${lv}" style="left:${rand(-3, 103).toFixed(1)}%;--d:${d.toFixed(1)}s;animation-delay:${rand(-d, 0).toFixed(1)}s">` +
+            `<b class="c${Math.floor(Math.random() * 4)}" style="--s:${size.toFixed(2)}vw;--x:${sway}vw;--w:${rand(2.5, 4).toFixed(1)}s;--r:${rand(6, 12).toFixed(0)}s"></b></i>`;
+    })}</div>`;
     const leaves = () => `<div class="leaves">${levels([8, 16, 28, 45, 70], (level, lv) => {
         const d = rand(9, 12) * speed(level);
         return `<i class="${lv}" style="top:${rand(8, 80).toFixed(1)}%;--d:${d.toFixed(1)}s;animation-delay:${rand(-d, 0).toFixed(1)}s">` +
@@ -542,6 +572,7 @@ function drawWeather(id) {
                 `<div class="front-fog">${[[66, 26, 60, 'lv2'], [50, 24, 85, 'lv3'], [78, 24, 72, 'lv4'], [36, 30, 90, 'lv5'], [58, 30, 50, 'lv5']].map(mist).join('')}` +
                 `<div class="haze high lv4"></div><div class="haze high lv5"></div></div>`],
         rainbow: ['', ''],
+        leaves: ['', fallingLeaves()],
     };
     const [back, front] = parts[id] || ['', ''];
     const shown = [];
@@ -748,12 +779,14 @@ function takesMs(job) {
 }
 
 function doJob(job) {
+    if (WEATHER_JOBS[job] && !themeWeatherJobs().includes(job)) return;    // a weather this theme doesn't have
     if (job === 'anything') anything();
     else if (job === 'move') { if (!moveAbout()) anything(); }
     else if (SceneWeather[job]) pressWeather(job);
     else if (job === 'nextweather') {
         lastWeatherPress = Date.now();
-        setWeather(WEATHER_CYCLE[(WEATHER_CYCLE.indexOf(liveWeather) + 1) % WEATHER_CYCLE.length], building() ? 1 : BASE_STRENGTH);
+        const cycle = WEATHER_CYCLE.filter(w => w === 'clear' || weatherFits(w));
+        setWeather(cycle[(cycle.indexOf(liveWeather) + 1) % cycle.length], building() ? 1 : BASE_STRENGTH);
     }
     else if (job === 'thunder') thunder();
     else if (job === 'daynight') {
@@ -973,5 +1006,6 @@ holdToOpen(document.getElementById('settings-btn'), document.getElementById('hol
 holdToOpen(document.getElementById('back-btn'), document.getElementById('back-hint'), chooseAnimals);
 
 while (Switches.slots.length < SCENE_SWITCHES_MIN) Switches.add();
+liveWeather = homeWeather();
 buildScene();
 showChooser();

@@ -24,6 +24,12 @@ const READY_PRESETS = [
       jobs: ['Beaver', 'Otter', 'Frog', 'Deer', 'anything'] },
     { id: 'forest-night', name: '🦇 Forest at night',  theme: 'forest', scene: 'clearing', look: 'night', pace: 1.7,
       jobs: ['Owl', 'Bat', 'Hedgehog', 'Badger', 'anything'] },
+    { id: 'farmyard',     name: '🚜 Busy farmyard',    theme: 'farm',   scene: 'farmyard', look: 'soft',
+      jobs: ['Cow', 'Pig', 'Hen', 'Rooster', 'anything'] },
+    { id: 'in-the-fields', name: '🌾 In the fields',   theme: 'farm',   scene: 'fields',   look: 'soft',  pace: 1.7,
+      jobs: ['Sheep', 'Horse', 'Cow', 'Goat', 'anything'] },
+    { id: 'rainy-pond',   name: '🦆 Rainy duck pond',  theme: 'farm',   scene: 'pond',     look: 'soft',  weather: 'rain',
+      jobs: ['Duck', 'Goose', 'rain', 'Dog', 'anything'] },
 ];
 const presets = loadPresets();
 

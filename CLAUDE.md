@@ -22,7 +22,7 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 | `shared/themes.js` | Every theme and animal (name, OpenMoji `code` or `src`, `sound`); `imgSrc()` |
 | `shared/switches.js` | Learning/reading switches: keys + Gamepad API. Numbered switch list for Scenes (min 5 in Scenes, max 12, id + colour); `capture()` for one-off learning (Activities' scanning switches) |
 | `shared/hold.js/.css`, `shared/fonts.css` | Hold-to-open ⚙; bundled Nunito |
-| `scenes/art.js` | Per theme: `animals` (habitat perch/ground/water/hide, width %, facing r/l/f, move fly/walk/bound/swim/peek, `hang`), `switchCast`, optional `covers`/`marks`/`markWords`, and `scenes` (each: SVG drawing, `spots`, `places`, `residents`, `track`, `splashes` = rain-ring points on its water). `SceneTracks` = background loops; `SceneWeather` = the weathers (label, hint, optional sound) |
+| `scenes/art.js` | Per theme: `animals` (habitat perch/ground/water/hide, width %, facing r/l/f, move fly/walk/bound/swim/peek, `hang`), `switchCast`, `weathers` (the SceneWeather ids that suit it), optional `covers`/`marks`/`markWords`, and `scenes` (each: SVG drawing, `spots`, `places`, `residents`, `track` (unique per scene), `splashes` = rain-ring points on its water). `SceneTracks` = background loops (set-up offers only the theme's, `themeTracks()`); `SceneWeather` = the weathers (label, hint, optional sound; `themeWeathers()`/`themeWeatherJobs()` filter them per theme) |
 | `scenes/scenes.js` | Scene engine, settings (`animalScenes.settings`), jobs, `makeLooper()` crossfading loops (track and weather sounds), weather (`drawWeather`, `setWeather`, `pressWeather`, strength 1–5 as `st1..5` on each weather layer + `.lv2…lv5` (stage `wx-s1..5` only for lean and snowy ground), easing off, thunder) |
 | `scenes/presets.js` | Presets (`animalScenes.presets`): ready-made list, save/update/rename/delete, `usePreset()`, `#preset=<id>` links. Jobs stored by switch number, not switch id. Each belongs to its `theme`; set-up lists only `themePresets()` |
 | `scenes/setup.js` | Set-up screen |
@@ -44,8 +44,8 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
   (`PLACE_ART` in scenes.js: nest, seeds, lily pad; a theme can override per habitat or per cover with
   `marks`, and name them in `markWords` for set-up), "Subtle" or "Clear". Forest adds habitat `hide`
   for head-only pictures (fox, bear, wolf): the spot is the line a cover hides them from (`covers`,
-  drawn 200×100 in front with the spot at (100, 30); a spot's `cover` picks bush or log); they rise
-  and sink (`peek()` in scenes.js). `hang: true` (bat) turns the picture over under a branch; its
+  drawn 200×100 with the spot at (100, 30); a spot's `cover` picks bush, log or hay); `peek()` pops
+  them up from behind (`.behind`, clipped; `.down`/`.up`) and then forward to sit in front of it. `hang: true` (bat) turns the picture over under a branch; its
   `foot` is then where it grips, near the top. Animals are z-ordered by spot y (`standAt()`).
 - **Sounds**: CC0 only (Freesound). Animal calls levelled to about −16 LUFS, background loops about
   −26 LUFS, peaks limited; credit each in `sounds/_Adding Sounds.md`. Tooling: `pip install
