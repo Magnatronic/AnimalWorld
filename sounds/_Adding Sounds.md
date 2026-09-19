@@ -156,7 +156,9 @@ calls). The app crossfades each loop into itself, so the join isn't heard.
 
 | Save as | Source | Section used |
 |---------|--------|--------------|
-| `ambient/birds.mp3` | [Birdsong with Blackcap, Nightingale, Robin, Chaffinch…](https://freesound.org/s/853112/) by hoshisato (CC0) | 0.3–98.5 s |
+| `ambient/garden.mp3` | [Birdsong with Blackcap, Nightingale, Robin, Chaffinch…](https://freesound.org/s/853112/) by hoshisato (CC0) | 0.3–98.5 s |
+| `ambient/woodland.mp3` | [Woods ambience, summer, UK birds, light wind through trees](https://freesound.org/s/523372/) by nickmaysoundmusic (CC0) | from 1 s |
+| `ambient/lake.mp3` | [Gentle waves on a lake](https://freesound.org/s/614299/) by TheFlyFishingFilmmaker (CC0) | 0.5–150 s (a louder splashy ending left out) |
 
 ---
 

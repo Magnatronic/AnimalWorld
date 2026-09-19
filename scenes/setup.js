@@ -47,6 +47,15 @@ function jobHint(job) {
 // Set-up has three tabs; it reopens on the one last used.
 let setupTab = 'scene';
 
+// How many animals the scene has room for, and where.
+function roomText() {
+    const counts = {};
+    art.spots.forEach(s => { counts[s.habitat] = (counts[s.habitat] || 0) + 1; });
+    const parts = Object.entries(counts).map(([habitat, n]) => `${n} ${art.places[habitat]}`);
+    const list = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0];
+    return `Room for ${art.spots.length} ${art.noun} at once: ${list}.`;
+}
+
 function leaveHint() {
     const s = sceneSettings.stay;
     if (s === 0)  return 'Animals stay. When every spot is full, the one that has been there longest makes room for a new arrival.';
@@ -61,6 +70,9 @@ function renderSetup() {
         scene: `
         <section>
             <h3>${themes[sceneSettings.theme].label}</h3>
+            <div class="opt-group"><span class="opt-label">Scene</span><div class="opts">${sceneIds().map(id =>
+                `<button class="opt${id === art.id ? ' active' : ''}" data-key="scene" data-value='"${id}"'>${SceneArt[sceneSettings.theme].scenes[id].name}</button>`).join('')}</div></div>
+            <p class="setup-note">${roomText()}</p>
             ${optRow('Look', 'look', [['soft', 'Soft flat'], ['line', 'Matching outlines'], ['night', 'Night-light']])}
             ${optRow('Speed', 'pace', [[1.7, 'Slower'], [1, 'Normal'], [0.6, 'Faster']])}
             ${optRow('Animals leave', 'stay', [[0, 'Never'], [-1, 'When touched'], [30, 'After 30 seconds'], [60, 'After 1 minute'], [120, 'After 2 minutes']])}
@@ -82,6 +94,8 @@ function renderSetup() {
         <section>
             ${optRow('Animal sounds', 'animalVolume', [[0, 'Off'], [0.3, 'Quiet'], [0.6, 'Medium'], [1, 'Loud']])}
             ${optRow('Background sound', 'ambientVolume', [[0, 'Off'], [0.25, 'Quiet'], [0.5, 'Medium'], [1, 'Loud']])}
+            ${optRow('Background track', 'track', [['scene', `Matches the scene (${SceneTracks[art.track].label})`],
+                ...Object.entries(SceneTracks).map(([id, t]) => [id, t.label])])}
         </section>`,
     };
     document.getElementById('setup-body').innerHTML = sections[setupTab];
@@ -97,11 +111,14 @@ document.getElementById('setup-tabs').addEventListener('click', e => {
 });
 
 function setScene(key, value) {
+    if (key === 'scene') { changeScene(value); setTimeout(renderSetup, 950); return; }
+    const trackBefore = key === 'track' ? trackUrl() : null;
     sceneSettings[key] = value;
     saveSceneSettings();
+    if (key === 'track' && started && trackUrl() !== trackBefore) Ambient.start(trackUrl(), sceneSettings.ambientVolume);
     if (key === 'look') liveLook = value;
     if (key === 'look' || key === 'pace') applyLook();
-    if (key === 'ambientVolume' && started) Ambient.setLevel(value, art.ambient);
+    if (key === 'ambientVolume' && started) Ambient.setLevel(value, trackUrl());
     renderLabels();
     renderSetup();
 }

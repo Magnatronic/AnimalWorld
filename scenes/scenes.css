@@ -92,6 +92,8 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .f-trunk { fill: var(--trunk); } .f-leaf { fill: var(--leaf); } .f-leaf2 { fill: var(--leaf2); }
 .f-pond { fill: var(--pond); } .f-flower { fill: var(--flower); } .f-centre { fill: var(--sun); }
 .f-star { fill: #fff8d8; }
+.f-ray { fill: var(--ray, transparent); }
+.f-stem { fill: none; stroke: var(--leaf); stroke-width: 4; }
 .ring { fill: none; stroke: var(--ring); stroke-width: 3; }
 
 /* ── Look changes fade rather than jump (over --fade, the "Look changes" setting) ──
@@ -126,9 +128,21 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .ol { stroke: #1b1b1b; stroke-width: 0; stroke-linejoin: round; stroke-linecap: round; transition: stroke-width var(--fade, 5s) ease-in-out; }
 .look-line .ol { stroke-width: 5; }
 
-.scene-birds.look-soft  { --sky1:#b9e0f4; --sky2:#eef8fc; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#bfdcae; --lawn:#a3d08e; --trunk:#a78461; --leaf:#86bf7f; --leaf2:#a9d494; --pond:#a6d8ea; --flower:#f6b9c9; --ring:rgba(255,255,255,.7); }
-.scene-birds.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#5c9e31; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#ea5a47; --ring:rgba(255,255,255,.85); }
-.scene-birds.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d5e96; --ring:rgba(190,210,255,.45); }
+.scene-birds-garden.look-soft  { --sky1:#b9e0f4; --sky2:#eef8fc; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#bfdcae; --lawn:#a3d08e; --trunk:#a78461; --leaf:#86bf7f; --leaf2:#a9d494; --pond:#a6d8ea; --flower:#f6b9c9; --ring:rgba(255,255,255,.7); }
+.scene-birds-garden.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#5c9e31; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#ea5a47; --ring:rgba(255,255,255,.85); }
+.scene-birds-garden.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d5e96; --ring:rgba(190,210,255,.45); }
+
+.scene-birds-woodland.look-soft  { --sky1:#cfe8d8; --sky2:#eef6ea; --sun:#ffe9a8; --moon:#f3efd2; --cloud:#ffffff; --hill:#bcd2b0; --lawn:#9fbf82; --trunk:#8a6a4d; --leaf:#6fa66b; --leaf2:#95c58a; --pond:#9fd0dd; --flower:#a9a7e8; --ring:rgba(255,255,255,.7); --ray:rgba(255,250,210,.28); }
+.scene-birds-woodland.look-line  { --sky1:#b8e3c4; --sky2:#e3f4dc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#8e6bd6; --ring:rgba(255,255,255,.85); --ray:rgba(255,250,200,.3); }
+.scene-birds-woodland.look-night { --sky1:#0b1a2a; --sky2:#1d3440; --sun:#000; --moon:#f3efd2; --cloud:#2c3f5a; --hill:#1a2e33; --lawn:#1c3230; --trunk:#46426a; --leaf:#1e3d3c; --leaf2:#26494a; --pond:#264a6e; --flower:#5c5690; --ring:rgba(190,210,255,.45); --ray:transparent; }
+
+.scene-birds-lake.look-soft  { --sky1:#bfe3f7; --sky2:#f1f8fb; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#b8c9d8; --lawn:#a9d08e; --trunk:#a98b6b; --leaf:#86b87a; --leaf2:#9cc39a; --pond:#8fcbe6; --flower:#f6d38a; --ring:rgba(255,255,255,.7); }
+.scene-birds-lake.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#9b9b9a; --lawn:#8ec63f; --trunk:#a57939; --leaf:#b1cc33; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#f4aa41; --ring:rgba(255,255,255,.85); }
+.scene-birds-lake.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1f2f4d; --lawn:#1f3a45; --trunk:#46426a; --leaf:#25474a; --leaf2:#1d3a40; --pond:#213f66; --flower:#6d5e96; --ring:rgba(190,210,255,.45); }
+
+/* A scene change fades through this veil */
+.veil { position: fixed; inset: 0; z-index: 4; background: #0d1834; opacity: 0; pointer-events: none; transition: opacity .9s ease-in-out; }
+.veil.on { opacity: 1; }
 
 /* Gentle ambient motion only: slow drift, sway and twinkle; nothing flashes */
 .cloud { animation: drift calc(var(--d) * var(--pace)) linear infinite; }
@@ -138,10 +152,12 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .ring { transform-box: fill-box; transform-origin: center; animation: ring calc(6s * var(--pace)) ease-out infinite; }
 @keyframes ring { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
 .f-star { animation: twinkle calc(5s * var(--pace)) ease-in-out infinite alternate; }
+.ray { animation: glow calc(9s * var(--pace)) ease-in-out infinite alternate; }
+@keyframes glow { from { opacity: .35; } to { opacity: 1; } }
 @keyframes twinkle { from { opacity: .35; } to { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
-    .cloud, .sway, .ring, .f-star, .animal img { animation: none !important; }
+    .cloud, .sway, .ring, .f-star, .ray, .animal img { animation: none !important; }
     .stage, .night-only, .day-only, .ol { transition-duration: .01s !important; }
     .animal.moving { transition-duration: .01s; }
 }

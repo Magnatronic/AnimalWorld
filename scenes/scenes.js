@@ -8,6 +8,8 @@
 const SCENES_KEY = 'animalScenes.settings';
 const SCENE_DEFAULTS = {
     theme:         'birds',
+    scenes:        {},         // the scene chosen for each theme, e.g. { birds: 'lake' }; the theme's first by default
+    track:         'scene',    // background track: 'scene' (the scene's own) or a SceneTracks id
     look:          'soft',     // 'soft' | 'line' (matching outlines) | 'night' (night-light)
     pace:          1,          // 1.7 slower, 1 normal, 0.6 faster
     labels:        false,      // show each switch's colour and job on screen
@@ -90,7 +92,7 @@ const Ambient = (() => {
 const stage  = document.getElementById('stage');
 const layer  = document.getElementById('layer');
 const labels = document.getElementById('labels');
-let art = null;             // SceneArt for the current theme
+let art = null;             // the theme's SceneArt merged with the chosen scene (see buildScene)
 let cast = {};              // name → { el, def, sound, spot, arrivedAt, calledAt, leaving }
 let spots = [];             // art.spots, each with .animal = name or null
 let liveLook = null;        // the look on screen: set-up's choice, changed by the Day / night and Next look jobs
@@ -99,17 +101,32 @@ let calling = null;         // the animal sound playing now; one at a time
 
 // Changing the class fades the scene to the new look (see "look changes" in scenes.css).
 function applyLook() {
-    stage.className = `stage scene-${sceneSettings.theme} look-${liveLook || sceneSettings.look}`;
+    const t = sceneSettings.theme;
+    stage.className = `stage scene-${t} scene-${t}-${art.id} look-${liveLook || sceneSettings.look}`;
     stage.style.setProperty('--pace', sceneSettings.pace);
     stage.style.setProperty('--fade', sceneSettings.fade + 's');
 }
 
+// The scenes a theme has, and the one chosen for it.
+function sceneIds() { return Object.keys((SceneArt[sceneSettings.theme] || SceneArt.birds).scenes); }
+function chosenScene() {
+    const chosen = sceneSettings.scenes[sceneSettings.theme];
+    return sceneIds().includes(chosen) ? chosen : sceneIds()[0];
+}
+
 function buildScene() {
     if (calling) { calling.pause(); calling = null; }
-    art = SceneArt[sceneSettings.theme] || SceneArt.birds;
+    // The theme's animals and switch jobs, with this scene's drawing, spots and track.
+    const themeArt = SceneArt[sceneSettings.theme] || SceneArt.birds;
+    const id = chosenScene();
+    art = { ...themeArt, ...themeArt.scenes[id], id };
     const themeAnimals = themes[sceneSettings.theme].animals;
     liveLook = sceneSettings.look;
+    // A new scene appears in its own colours at once, not fading from the last one's.
+    stage.style.transitionDuration = '0s';
     applyLook();
+    void stage.offsetWidth;
+    stage.style.transitionDuration = '';
     document.getElementById('bg').innerHTML = art.svg();
     layer.innerHTML = '';
     spots = art.spots.map(s => ({ ...s, animal: null }));
@@ -268,9 +285,30 @@ const SCENE_JOBS = {
     nextlook: { label: '🎨 Next look',       hint: 'Fades to the next look: Soft flat, then Matching outlines, then Night-light.' },
     goodbye:  { label: '👋 Goodbye',         hint: 'The animal that has been here longest leaves.' },
     clear:    { label: '🌙 Everyone leaves', hint: 'All the animals leave. Other switches bring them back.' },
+    nextscene:{ label: '🗺️ Next scene',      hint: 'Fades to the next scene for this theme.' },
 };
 function jobLabel(job) {
     return job === 'nothing' ? 'Nothing' : SCENE_JOBS[job] ? SCENE_JOBS[job].label : job;
+}
+
+// The background track playing: the scene's own, or the one chosen in set-up.
+function trackUrl() {
+    const id = sceneSettings.track === 'scene' ? art.track : sceneSettings.track;
+    return (SceneTracks[id] || SceneTracks[art.track]).file;
+}
+
+// Change to another of this theme's scenes, fading through a soft veil.
+function changeScene(id) {
+    sceneSettings.scenes[sceneSettings.theme] = id;
+    saveSceneSettings();
+    const veil = document.getElementById('veil');
+    const trackBefore = trackUrl();
+    veil.classList.add('on');
+    setTimeout(() => {
+        buildScene();
+        if (started && trackUrl() !== trackBefore) Ambient.start(trackUrl(), sceneSettings.ambientVolume);
+        veil.classList.remove('on');
+    }, 900);
 }
 
 // The animal that has been here longest leaves.
@@ -292,6 +330,9 @@ function doJob(job) {
     } else if (job === 'nextlook') {
         liveLook = LOOKS[(LOOKS.indexOf(liveLook) + 1) % LOOKS.length];
         applyLook();
+    } else if (job === 'nextscene') {
+        const ids = sceneIds();
+        changeScene(ids[(ids.indexOf(art.id) + 1) % ids.length]);
     } else if (job === 'goodbye') goodbye();
     else if (job === 'clear') everyoneLeaves();
     else if (job !== 'nothing') arrive(job);
@@ -368,7 +409,7 @@ function start() {
     document.getElementById('start').hidden = true;
     const root = document.documentElement;
     if (root.requestFullscreen && !document.fullscreenElement) root.requestFullscreen().catch(() => {});
-    Ambient.start(art.ambient, sceneSettings.ambientVolume);
+    Ambient.start(trackUrl(), sceneSettings.ambientVolume);
 }
 document.getElementById('start').addEventListener('click', start);
 

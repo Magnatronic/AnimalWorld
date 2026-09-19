@@ -10,22 +10,29 @@ The front page offers two parts:
 ## Animal Scenes
 A full-screen scene drawn in code, so it fills any screen shape and works offline. Tap to start (the
 first tap or key press starts the sound and goes full screen). Touch an animal to hear it, or anywhere
-for a ripple. Animals fly, walk or swim in; when every spot for them is taken, the one that has been
-there longest leaves. A quiet background loop (garden birdsong for Birds) plays under the calls.
+for a ripple. Animals fly, walk or swim in to the places the scene has for them (branches, ground,
+water); when every place of that kind is taken, the one that has been there longest leaves. A quiet
+background track plays under the calls.
+
+Birds has three scenes, each with its own track: 🌳 **Garden** (room for 10 birds), 🌲 **Woodland**
+(11, mostly on branches, with a stream) and 🏞️ **Lakeside** (11, mostly on the water, with a jetty).
+Set-up shows how many birds each scene has room for, and where. Birds is the template for the other
+themes: a theme's animals and switch jobs are shared by all its scenes (`scenes/art.js`).
 
 Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
 screen too):
-- **Scene** — the look (Soft flat, Matching outlines, Night-light), speed, when animals leave (never,
+- **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, when animals leave (never,
   when touched, or after 30 seconds to 2 minutes without being touched or called), and how long look
   changes take to fade (2 to 20 seconds).
 - **Switches** — add up to twelve switches: tap Learn and press the switch (SimplyWorks, Bluetooth,
   keyboard, Xbox Adaptive Controller), pick a colour to match the real switch, and give each a job:
-  bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 👋 Goodbye (the longest-
-  staying animal leaves), 🌙 Everyone leaves, or nothing. Five switches are always ready to learn.
+  bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 🗺️ Next scene, 👋 Goodbye
+  (the longest-staying animal leaves), 🌙 Everyone leaves, or nothing. Five switches are always ready to learn.
   Switch labels in those colours can be shown along the top of the screen. Keys and buttons that
   aren't learned do something random (or nothing), so any switch works straight away. Look changes
   fade gently rather than jump.
-- **Sound** — animal sounds and background sound, each Off, Quiet, Medium or Loud.
+- **Sound** — animal sounds and background sound, each Off, Quiet, Medium or Loud, and the background
+  track: the scene's own, or any of Garden birdsong, Woodland and Lakeside water.
 
 
 ## Activities
