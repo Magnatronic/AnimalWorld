@@ -126,6 +126,20 @@ from the other themes.
 
 ---
 
+## 🐞 Silent creatures: Ladybird and Worm
+
+Ladybirds and worms make no sound anyone could record, so, like the fish, each plays a short
+sound of the animal **moving** and then **says its name**. Both files are already here:
+
+| Save as | Source | Section used |
+|---------|--------|--------------|
+| `ladybird.mp3` | [Insect Superfast Wing Flap](https://freesound.org/s/482733/) by kalhan | 0–2.0 s |
+| `worm.mp3` | [Squelch.mp3](https://freesound.org/s/516643/) by LucasDuff | 0.4–2.1 s |
+
+Any animal whose sound file is missing now says its name instead of staying silent.
+
+---
+
 ## Tips
 
 - Pick sounds that are **2–8 seconds** long — short enough not to distract

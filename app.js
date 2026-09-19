@@ -174,8 +174,10 @@ function shuffle(arr) {
     return a;
 }
 
-function playSound(soundName, card, spoken) {
+// Play an animal's sound, then say its name if it should be spoken (see spokenName).
+function playSound(soundName, card, name) {
     stopAudio();
+    const spoken = spokenName(name);
     const audio = new Audio('sounds/' + soundName + '.mp3');
     audio.volume = settings.sound.volume;
 
@@ -193,16 +195,15 @@ function playSound(soundName, card, spoken) {
         if (spoken) speak(spoken);
     }, { once: true });
 
-    // No recording for this animal. If its name is to be spoken, still say it;
-    // the fish theme leads with a synthesised bubble, so it works even with
-    // no sound files installed.
+    // No recording for this animal: say its name rather than stay silent. The
+    // fish theme leads with a synthesised bubble, so it works even with no
+    // sound files installed.
     audio.addEventListener('error', () => {
-        if (!spoken) { if (card) card.classList.remove('playing'); return; }
         if (card) card.classList.add('has-sound', 'playing');
         const cue = themes[currentThemeKey]?.speakName ? bubbleCue : done => done();
         cue(() => {
             if (card) card.classList.remove('playing');
-            speak(spoken);
+            speak(name);
         });
     }, { once: true });
 
@@ -237,10 +238,12 @@ function bubbleCue(onDone) {
 }
 
 // The name to speak after a card's sound, or null when names aren't spoken:
-// always for themes that ask (fish), otherwise only if the setting is on.
+// always for themes or animals that ask (fish, and silent creatures such as
+// the worm), otherwise only if the setting is on.
 function spokenName(name) {
-    const theme = themes[currentThemeKey];
-    return (theme && theme.speakName) || settings.sound.speakNames ? name : null;
+    const theme  = themes[currentThemeKey];
+    const animal = theme && theme.animals.find(a => a.name === name);
+    return (theme && theme.speakName) || (animal && animal.speakName) || settings.sound.speakNames ? name : null;
 }
 
 /* ── NAVIGATION ── */
@@ -283,7 +286,7 @@ function showAnimals() {
             <img class="animal-img" src="${imgSrc(animal)}" alt="${animal.name}" loading="lazy"${animal.filter ? ` style="filter:${animal.filter}"` : ''}>
             <div class="animal-name">${animal.name}</div>
         `;
-        card.addEventListener('click', () => playSound(animal.sound, card, spokenName(animal.name)));
+        card.addEventListener('click', () => playSound(animal.sound, card, animal.name));
         grid.appendChild(card);
     });
 
@@ -362,7 +365,7 @@ function flipCard(card) {
     if (memFlipped.length === 2) return;
 
     card.classList.add('flipped');
-    playSound(card.dataset.sound, null, spokenName(card.dataset.animal));
+    playSound(card.dataset.sound, null, card.dataset.animal);
     memFlipped.push(card);
 
     if (memFlipped.length === 2) {
@@ -548,7 +551,7 @@ function whackHole(hole) {
     hole.classList.add('whacked');
     wamScore++;
     updateWamHud();
-    playSound(hole.dataset.sound, null, spokenName(hole.dataset.name));
+    playSound(hole.dataset.sound, null, hole.dataset.name);
 
     // Pulse score
     const scoreEl = document.getElementById('wam-score');

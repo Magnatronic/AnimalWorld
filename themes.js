@@ -3,7 +3,8 @@
 //   code   - an OpenMoji hexcode; the SVG must be in openmoji/ (see README), or
 //   src    - a path to our own artwork, as the fish theme does
 //   sound  - a file in sounds/, without the .mp3
-// Set `speakName: true` on a theme to say each name after its sound (see fish).
+// Set `speakName: true` on a theme, or on one animal, to say the name after its
+// sound (see fish, and the silent ladybird and worm).
 // A theme also needs a home-screen button in index.html and colours in styles.css
 // (search for the theme's css class, e.g. theme-birds).
 
@@ -106,11 +107,11 @@ const themes = {
             { name: 'Cricket',     code: '1F997', sound: 'cricket' },
             { name: 'Spider',      code: '1F577', sound: 'spider' },
             { name: 'Mosquito',    code: '1F99F', sound: 'mosquito' },
-            { name: 'Ladybird',    code: '1F41E', sound: 'ladybird' },
+            { name: 'Ladybird',    code: '1F41E', sound: 'ladybird', speakName: true },
             { name: 'Beetle',      code: '1FAB2', sound: 'beetle' },
             { name: 'Cockroach',   code: '1FAB3', sound: 'cockroach' },
             { name: 'Fly',         code: '1FAB0', sound: 'fly' },
-            { name: 'Worm',        code: '1FAB1', sound: 'worm' },
+            { name: 'Worm',        code: '1FAB1', sound: 'worm',     speakName: true },
             { name: 'Scorpion',    code: '1F982', sound: 'scorpion' },
         ]
     },
