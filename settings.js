@@ -10,9 +10,9 @@ const DEFAULT_SETTINGS = {
         speed:       1800,   // ms per item
         startDelay:  1000,   // ms before auto-scan begins
         loops:          0,   // 0 = continuous, n = stop after n loops
-        // Which switch does what. 'space' = Space (or Enter, for one-switch scanning),
-        // 'enter', 'any' = any key or switch, 'learned' = any learned switch,
-        // 's0'…'s5' = one learned switch (see shared/switches.js).
+        // Which switch does what: 'space' (Space, or Space / Enter for one-switch
+        // scanning), 'enter', 'any' (any key or switch), or a switch learned in the
+        // Scanning tab, e.g. { type: 'key', code: 'Digit1' } (see shared/switches.js).
         select:   'space',   // the one scanning switch, in Auto and Press to Start
         move:     'space',   // Two Switches: moves the highlight
         pick:     'enter',   // Two Switches: chooses
@@ -47,7 +47,15 @@ function loadSettings() {
             const value = saved?.[group]?.[key];
             if (typeof value === typeof s[group][key]) s[group][key] = value;
         }
-        // Before learned switches, "Any key" was a yes/no setting.
+        // Scanning switches are a word or a learned switch. Earlier versions saved
+        // "Any key" as scan.anyKey, and briefly a numbered switch ('s0'…) instead.
+        const WORDS = { select: ['space', 'any'], move: ['space', 'enter'], pick: ['enter', 'space'] };
+        for (const key in WORDS) {
+            const v = saved?.scan?.[key];
+            if (Switches.isBinding(v)) s.scan[key] = v;
+            else if (/^s\d$/.test(v) && Switches.slots[+v[1]]?.binding) s.scan[key] = Switches.slots[+v[1]].binding;
+            else if (!WORDS[key].includes(v)) s.scan[key] = DEFAULT_SETTINGS.scan[key];
+        }
         if (saved?.scan?.anyKey === true && saved.scan.select === undefined) s.scan.select = 'any';
     } catch (e) { /* private window or blocked storage: run on defaults */ }
     return s;
@@ -89,34 +97,69 @@ function parseSettingValue(v) {
     return v;
 }
 
-// Buttons for the rows that choose a switch: their fixed choices, then each learned switch.
-const CHOICE_LABELS = { space: 'Space', enter: 'Enter', any: 'Any key or switch', learned: 'Any learned switch' };
-function renderSwitchChoices() {
-    document.querySelectorAll('#settings-panel [data-choices]').forEach(row => {
-        const single = row.dataset.setting === 'scan.select';
-        const fixed = row.dataset.choices.split(' ').map(c =>
-            `<button class="setting-opt" data-value="${c}">${c === 'space' && single ? 'Space / Enter' : CHOICE_LABELS[c]}</button>`);
-        const learned = Switches.slots.map((slot, i) => slot.binding
-            ? `<button class="setting-opt" data-value="s${i}"><i class="opt-dot" style="background:${Switches.COLOUR_HEX[slot.colour]}"></i>Switch ${i + 1}</button>` : '');
-        row.innerHTML = fixed.join('') + learned.join('');
+// ── Scanning switches: learned right here, in the Scanning tab ──
+const SCAN_WORDS = { space: 'Space', enter: 'Enter', any: 'Any key or switch' };
+const SCAN_ROLE  = { move: 'Move', pick: 'Select' };
+
+function scanSwitchName(key) {
+    const v = settings.scan[key];
+    if (typeof v === 'object') return Switches.describe(v);
+    return v === 'space' && key === 'select' ? 'Space / Enter' : SCAN_WORDS[v];
+}
+
+// What a setting presses, as a binding, so it can be compared (null for "any").
+function scanBinding(value) {
+    if (typeof value === 'object') return value;
+    return { space: { type: 'key', code: 'Space' }, enter: { type: 'key', code: 'Enter' } }[value] || null;
+}
+
+// With two switches, Move and Select must be different. Returns a warning, or ''.
+function scanClash(key, value) {
+    if (key === 'select') return '';
+    const other = key === 'move' ? 'pick' : 'move';
+    return Switches.sameBinding(scanBinding(value), scanBinding(settings.scan[other]))
+        ? `That's already the ${SCAN_ROLE[other]} switch. Choose a different one.` : '';
+}
+
+function renderScanSwitches() {
+    document.querySelectorAll('#settings-panel .scan-switch').forEach(group => {
+        const key = group.dataset.scan, value = settings.scan[key];
+        group.querySelector('.learn-current').textContent = scanSwitchName(key);
+        group.querySelectorAll('.word-btn').forEach(b => b.classList.toggle('active', b.dataset.word === value));
+        // The same switch doing a job in Animal Scenes is fine: just say so.
+        const slot = Switches.slotOf(scanBinding(value));
+        const info = group.querySelector('.learn-info');
+        info.classList.remove('warn');
+        info.textContent = slot >= 0 ? `Also Switch ${slot + 1} in Animal Scenes.` : '';
     });
 }
 
-// Explain the scanning set-up in words, including when a chosen switch has been forgotten.
-function scanSwitchNote() {
-    const s = settings.scan;
-    const forgotten = c => /^s\d$/.test(c) && !Switches.slots[+c[1]].binding;
-    const name = c => (/^s\d$/.test(c) ? 'Switch ' + (+c[1] + 1) : CHOICE_LABELS[c]);
-    if (s.mode === 'two') {
-        const move = forgotten(s.move) ? 'space' : s.move, pick = forgotten(s.pick) ? 'enter' : s.pick;
-        if (move === pick) return 'Move and Select need different switches.';
-        if (forgotten(s.move) || forgotten(s.pick)) {
-            return `${name(forgotten(s.move) ? s.move : s.pick)} isn't learned any more, so ${forgotten(s.move) ? 'Space moves' : 'Enter selects'}.`;
-        }
-    } else if (forgotten(s.select)) {
-        return `${name(s.select)} isn't learned any more, so Space / Enter scans.`;
-    }
-    return '';
+function warnScanSwitch(key, text) {
+    const info = document.querySelector(`.scan-switch[data-scan="${key}"] .learn-info`);
+    info.textContent = text;
+    info.classList.add('warn');
+}
+
+async function learnScanSwitch(key) {
+    const group = document.querySelector(`.scan-switch[data-scan="${key}"]`);
+    // Move focus off the Learn button, so learning Space or Enter can't also "click" it.
+    if (document.activeElement) document.activeElement.blur();
+    group.classList.add('learning');
+    group.querySelector('.learn-current').textContent = 'Press the switch now…';
+    group.querySelector('.learn-btn').textContent = 'Cancel';
+    const binding = await Switches.capture();
+    group.classList.remove('learning');
+    group.querySelector('.learn-btn').textContent = 'Learn';
+    const clash = binding && scanClash(key, binding);
+    if (binding && !clash) setSetting('scan.' + key, binding);
+    else renderSettings();
+    if (clash) warnScanSwitch(key, clash);
+}
+
+function useScanWord(key, word) {
+    const clash = scanClash(key, word);
+    if (clash) { warnScanSwitch(key, clash); return; }
+    setSetting('scan.' + key, word);
 }
 
 const SCAN_MODE_NOTES = {
@@ -126,7 +169,7 @@ const SCAN_MODE_NOTES = {
 };
 
 function renderSettings() {
-    renderSwitchChoices();
+    renderScanSwitches();
     document.querySelectorAll('#settings-panel [data-setting]').forEach(row => {
         const [group, key] = row.dataset.setting.split('.');
         row.querySelectorAll('.setting-opt').forEach(btn =>
@@ -142,10 +185,6 @@ function renderSettings() {
     showRow('move-group',    two);
     showRow('pick-group',    two);
     document.getElementById('scan-mode-note').textContent = SCAN_MODE_NOTES[mode];
-    const note = scanSwitchNote();
-    document.getElementById('scan-switch-note').textContent = note;
-    document.getElementById('scan-switch-note').style.display = note ? '' : 'none';
-    document.getElementById('go-switches').style.display = Switches.anyLearned() ? 'none' : '';
     document.getElementById('area-pos-group').style.display = settings.area.size < 100 ? '' : 'none';
     renderVoiceOptions();
 }
@@ -172,45 +211,6 @@ function resetSettings() {
     applyPlayArea();
 }
 
-// ── Learned switches (shared/switches.js) ──
-function renderSwitchList() {
-    const list = document.getElementById('switch-list');
-    list.innerHTML = Switches.slots.map((slot, i) => `
-        <div class="switch-row" data-switch="${i}">
-            <span class="switch-dot" style="background:${Switches.COLOUR_HEX[slot.colour]}"></span>
-            <span class="switch-name">Switch ${i + 1}</span>
-            <span class="switch-binding${slot.binding ? '' : ' unset'}">${Switches.describe(slot.binding)}</span>
-            <button class="switch-learn" id="switch-learn-${i}">${slot.binding ? 'Learn again' : 'Learn'}</button>
-            <button class="switch-clear" id="switch-clear-${i}" aria-label="Forget switch ${i + 1}"${slot.binding ? '' : ' disabled'}>✕</button>
-        </div>`).join('');
-}
-
-async function learnSwitch(i) {
-    const row = document.querySelector(`.switch-row[data-switch="${i}"]`);
-    // Move focus off the Learn button, so learning Space or Enter can't also "click" it.
-    if (document.activeElement) document.activeElement.blur();
-    row.classList.add('learning');
-    row.querySelector('.switch-binding').textContent = 'Press the switch now…';
-    row.querySelector('.switch-learn').textContent = 'Cancel';
-    await Switches.learn(i);
-    renderSwitchList();
-    renderSettings();
-}
-
-document.getElementById('switch-list').addEventListener('click', e => {
-    const row = e.target.closest('.switch-row');
-    if (!row) return;
-    const i = +row.dataset.switch;
-    if (e.target.closest('.switch-learn')) {
-        if (row.classList.contains('learning')) Switches.cancelLearn();
-        else learnSwitch(i);
-    } else if (e.target.closest('.switch-clear')) {
-        Switches.clear(i);
-        renderSwitchList();
-        renderSettings();
-    }
-});
-
 function showSettingsTab(name) {
     document.querySelectorAll('#settings-panel .settings-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
     document.querySelectorAll('#settings-panel .settings-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === name));
@@ -218,7 +218,6 @@ function showSettingsTab(name) {
 
 function openSettings() {
     renderSettings();
-    renderSwitchList();
     document.getElementById('settings-panel').classList.add('open');
 }
 function closeSettings() {
@@ -232,7 +231,15 @@ document.getElementById('settings-panel').addEventListener('click', e => {
     const opt = e.target.closest('.setting-opt');
     if (opt) { setSetting(opt.closest('[data-setting]').dataset.setting, parseSettingValue(opt.dataset.value)); return; }
     const tab = e.target.closest('.settings-tab');
-    if (tab) showSettingsTab(tab.dataset.tab);
+    if (tab) { showSettingsTab(tab.dataset.tab); return; }
+    const group = e.target.closest('.scan-switch');
+    if (!group) return;
+    if (e.target.closest('.learn-btn')) {
+        if (group.classList.contains('learning')) Switches.cancelLearn();
+        else learnScanSwitch(group.dataset.scan);
+    } else if (e.target.closest('.word-btn')) {
+        useScanWord(group.dataset.scan, e.target.closest('.word-btn').dataset.word);
+    }
 });
 
 applyPlayArea();

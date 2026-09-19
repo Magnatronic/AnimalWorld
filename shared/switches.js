@@ -1,12 +1,14 @@
 /* ── SWITCHES ── */
-// Up to six switches, shared by Animal Activities and Animal Scenes. An adult
-// "learns" each one by pressing it, so whatever the device sends works:
+// Learning and reading switches for both parts of Animal World. An adult "learns"
+// a switch by pressing it, so whatever the device sends works:
 //   - a keystroke, from a Pretorian SimplyWorks SEND-6, a Bluetooth switch or a keyboard
 //   - a controller button, from the Xbox Adaptive Controller (read through the
 //     browser's Gamepad API; Chrome and Edge only see a controller once one of
 //     its buttons has been pressed on the page)
-// Both parts of Animal World run from the same site, so a switch learned in one
-// works in the other.
+// Animal Scenes keeps six numbered switches here (slots), each with a colour and
+// jobs. Animal Activities learns its scanning switches with capture() and keeps
+// them in its own settings. Both parts run from the same site, so the numbered
+// switches are shared.
 const Switches = (() => {
     const KEY    = 'animalWorld.switches';
     const COUNT  = 6;
@@ -15,8 +17,8 @@ const Switches = (() => {
 
     // Each slot: { binding: null | { type: 'key', code } | { type: 'pad', button }, colour }
     const slots = load();
-    const pressListeners = [], releaseListeners = [];
-    let learning = null;          // { index, finish } while waiting for a press to learn
+    const pressListeners = [], releaseListeners = [], anyListeners = [];
+    let learning = null;          // { finish } while waiting for a press to capture
     let padDown  = [];            // which controller buttons were down at the last check
     let pollTimer = null;
     const POLL_MS = 30;           // about 30 checks a second: quicker than any switch press
@@ -45,9 +47,9 @@ const Switches = (() => {
         return slots.findIndex(s => same(s.binding, binding));
     }
 
-    // Learn a binding for slot `index` from the next key or controller button.
+    // Wait for the next key or controller button and return what it sends.
     // Resolves with the binding, or null if cancelled (Escape) or timed out.
-    function learn(index, timeoutMs = 15000) {
+    function capture(timeoutMs = 15000) {
         cancelLearn();
         startPolling();
         return new Promise(resolve => {
@@ -55,17 +57,23 @@ const Switches = (() => {
             function finish(binding) {
                 clearTimeout(timer);
                 learning = null;
-                if (binding) {
-                    // One switch can only have one job: take it off any other slot.
-                    const taken = indexOf(binding);
-                    if (taken >= 0 && taken !== index) slots[taken].binding = null;
-                    slots[index].binding = binding;
-                    save();
-                }
                 resolve(binding);
             }
-            learning = { index, finish };
+            learning = { finish };
         });
+    }
+
+    // Learn numbered switch `index` (Animal Scenes) from the next press.
+    async function learn(index, timeoutMs) {
+        const binding = await capture(timeoutMs);
+        if (binding) {
+            // One switch can only have one number: take it off any other slot.
+            const taken = indexOf(binding);
+            if (taken >= 0 && taken !== index) slots[taken].binding = null;
+            slots[index].binding = binding;
+            save();
+        }
+        return binding;
     }
     function cancelLearn() { if (learning) learning.finish(null); }
 
@@ -86,6 +94,8 @@ const Switches = (() => {
     }
 
     function emit(list, index, source) { list.forEach(fn => fn(index, source)); }
+    // Tell anything listening for every press; returns whether one of them used it.
+    function emitAny(binding) { return anyListeners.map(fn => fn(binding) === true).some(Boolean); }
 
     // ── Keyboard switches ──
     document.addEventListener('keydown', e => {
@@ -96,10 +106,12 @@ const Switches = (() => {
             else learning.finish({ type: 'key', code: e.code });
             return;
         }
-        const i = indexOf({ type: 'key', code: e.code });
-        if (i < 0) return;
-        e.preventDefault();                 // a learned switch shouldn't also scroll or click
-        if (!e.repeat) emit(pressListeners, i, 'key');
+        if (e.repeat) return;
+        const binding = { type: 'key', code: e.code };
+        const used = emitAny(binding);
+        const i = indexOf(binding);
+        if (i >= 0) emit(pressListeners, i, 'key');
+        if (used || i >= 0) e.preventDefault();     // a switch press shouldn't also scroll or click
     }, true);
     document.addEventListener('keyup', e => {
         const i = indexOf({ type: 'key', code: e.code });
@@ -118,8 +130,10 @@ const Switches = (() => {
         pads.forEach(pad => pad.buttons.forEach((b, n) => { if (b.pressed) down[n] = true; }));
         down.forEach((isDown, n) => {
             if (!isDown || padDown[n]) return;
-            if (learning) { learning.finish({ type: 'pad', button: n }); return; }
-            const i = indexOf({ type: 'pad', button: n });
+            const binding = { type: 'pad', button: n };
+            if (learning) { learning.finish(binding); return; }
+            emitAny(binding);
+            const i = indexOf(binding);
             if (i >= 0) emit(pressListeners, i, 'pad');
         });
         padDown.forEach((wasDown, n) => {
@@ -137,14 +151,16 @@ const Switches = (() => {
         COUNT,
         COLOUR_HEX,
         slots,
+        capture,
         learn,
         cancelLearn,
         clear,
         describe,
-        // Is this key event one of the learned switches? (so other key handling can leave it alone)
-        isLearnedKey: e => indexOf({ type: 'key', code: e.code }) >= 0,
-        anyLearned: () => slots.some(s => s.binding),
-        onPress:   fn => pressListeners.push(fn),
-        onRelease: fn => releaseListeners.push(fn),
+        isBinding,
+        sameBinding: same,
+        slotOf: indexOf,                             // which numbered switch sends this, or -1
+        onPress:    fn => pressListeners.push(fn),   // a numbered switch: fn(index, source)
+        onRelease:  fn => releaseListeners.push(fn),
+        onAnyPress: fn => anyListeners.push(fn),     // every key and button: fn(binding); return true if used
     };
 })();

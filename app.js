@@ -115,50 +115,32 @@ function scanSwitchPressed() {
     }
 }
 
-// A choice of switch from settings.scan (see settings.js). A learned switch that has
-// since been forgotten falls back to the key it replaced.
-function scanChoice(choice, fallback) {
-    const m = /^s(\d)$/.exec(choice);
-    return m && !Switches.slots[+m[1]].binding ? fallback : choice;
+// Does a press match a scanning switch setting: a word ('space', 'enter', 'any') or
+// a switch learned in the Scanning tab?
+function scanMatches(choice, input, spaceOrEnter) {
+    if (choice === 'any') return true;
+    if (typeof choice === 'object') return Switches.sameBinding(choice, input);
+    if (input.type !== 'key') return false;
+    if (choice === 'enter') return input.code === 'Enter';
+    return input.code === 'Space' || (spaceOrEnter && input.code === 'Enter');
 }
 
-// Does an input match a choice? `code` is the key it came from (learned keyboard
-// switches included), `sw` the learned switch number or -1.
-function choiceMatches(choice, code, sw, spaceOrEnter) {
-    switch (choice) {
-        case 'space':   return code === 'Space' || (spaceOrEnter && code === 'Enter');
-        case 'enter':   return code === 'Enter';
-        case 'any':     return true;
-        case 'learned': return sw >= 0;
-        default:        return choice === 's' + sw;
-    }
-}
-
-// Work out what an input does in scanning, and do it. Returns whether it was a scanning input.
-function scanInput(code, sw) {
+// Work out what a press does in scanning, and do it. Returns whether it was a scanning press.
+function scanInput(input) {
     const s = settings.scan;
     if (s.mode === 'two') {
-        if (choiceMatches(scanChoice(s.move, 'space'), code, sw, false)) { stepScan(); return true; }
-        if (choiceMatches(scanChoice(s.pick, 'enter'), code, sw, false)) { scanSwitchPressed(); return true; }
+        if (scanMatches(s.move, input, false)) { stepScan(); return true; }
+        if (scanMatches(s.pick, input, false)) { scanSwitchPressed(); return true; }
         return false;
     }
-    if (!choiceMatches(scanChoice(s.select, 'space'), code, sw, true)) return false;
+    if (!scanMatches(s.select, input, true)) return false;
     scanSwitchPressed();
     return true;
 }
 
-document.addEventListener('keydown', e => {
-    if (!scanMode || settingsOpen() || e.repeat) return;
-    if (Switches.isLearnedKey(e)) return;      // learned switches arrive through Switches.onPress
-    if (scanInput(e.code, -1)) e.preventDefault();
-});
-
-// Learned switches (SimplyWorks, Bluetooth, Xbox Adaptive Controller)
-Switches.onPress(i => {
-    if (!scanMode || settingsOpen()) return;
-    const binding = Switches.slots[i].binding;
-    scanInput(binding && binding.type === 'key' ? binding.code : null, i);
-});
+// Every key and controller button press (SimplyWorks, Bluetooth, Xbox Adaptive
+// Controller, keyboard) comes through shared/switches.js.
+Switches.onAnyPress(input => scanMode && !settingsOpen() && scanInput(input));
 
 function setScanForScreen(id) {
     if (!scanMode || !id) return;
