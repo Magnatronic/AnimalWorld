@@ -15,26 +15,25 @@ function switchRow(slot, i) {
     const option = (value, text) => `<option value="${value}"${value === job ? ' selected' : ''}>${text}</option>`;
     // The first few switches are always there: they can be forgotten, not removed.
     const keep = i < SCENE_SWITCHES_MIN;
+    // One line: colour, name and key, its job in this scene, Learn; what the job does underneath.
     return `
         <div class="sw" data-id="${slot.id}">
             <div class="sw-top">
                 <button class="sw-colour sw-${slot.colour}" style="background:${colour.hex}" aria-label="Switch ${i + 1} is ${colour.label}. Change colour"></button>
-                <span class="sw-name">Switch ${i + 1}</span>
-                <span class="sw-binding${slot.binding ? '' : ' unset'}">${Switches.describe(slot.binding)}</span>
+                <span class="sw-id"><span class="sw-name">Switch ${i + 1}</span>
+                    <span class="sw-binding${slot.binding ? '' : ' unset'}">${Switches.describe(slot.binding)}</span></span>
+                <select aria-label="Job for switch ${i + 1} in this scene">
+                    <optgroup label="Animals">${Object.keys(art.animals).map(n => option(n, n)).join('')}</optgroup>
+                    <optgroup label="Scene">${Object.entries(SCENE_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
+                    <optgroup label="Weather">${Object.entries(WEATHER_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
+                    ${option('nothing', 'Nothing')}
+                </select>
                 <button class="sw-learn">${slot.binding ? 'Learn again' : 'Learn'}</button>
                 ${keep ? `<button class="sw-forget"${slot.binding ? '' : ' disabled'}>Forget</button>`
                        : `<button class="sw-remove" aria-label="Remove switch ${i + 1}">✕</button>`}
             </div>
             <div class="sw-palette" hidden>${Switches.PALETTE.map(p =>
                 `<button class="swatch sw-${p.name}${p.name === slot.colour ? ' active' : ''}" data-colour="${p.name}" style="background:${p.hex}" aria-label="${p.label}" title="${p.label}"></button>`).join('')}</div>
-            <label class="sw-job">Job in this scene
-                <select>
-                    <optgroup label="Animals">${Object.keys(art.animals).map(n => option(n, n)).join('')}</optgroup>
-                    <optgroup label="Scene">${Object.entries(SCENE_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
-                    <optgroup label="Weather">${Object.entries(WEATHER_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
-                    ${option('nothing', 'Nothing')}
-                </select>
-            </label>
             <p class="sw-hint">${jobHint(job)}</p>
         </div>`;
 }
@@ -60,22 +59,27 @@ function presetSummary(p) {
     const weather = SceneWeather[presetValue(p, 'weather')];
     const jobs = (p.jobs || []).slice(0, Switches.slots.length).map(jobLabel);
     return [scene.name, LOOK_NAMES[presetValue(p, 'look')], weather ? weather.label : '☀️ Clear'].join(' · ') +
-        (jobs.length ? `<br>Switches: ${jobs.join(', ')}` : '');
+        (jobs.length ? ` · Switches: ${jobs.join(', ')}` : '');
 }
 
 function presetCard(p) {
     const inUse = sceneSettings.preset === p.id;
     const changed = inUse && presetDiffers(p);
+    const summary = presetSummary(p);
     return `
         <div class="preset${inUse ? ' in-use' : ''}" data-id="${p.id}">
             <div class="preset-top">
-                <span class="preset-name">${escapeHtml(p.name)}</span>
-                ${inUse ? `<span class="preset-state">${changed ? 'In use, changed since' : '✓ In use'}</span>` : ''}
+                <div class="preset-main">
+                    <span class="preset-name">${escapeHtml(p.name)}</span>
+                    ${inUse ? `<span class="preset-state">${changed ? 'In use, changed since' : '✓ In use'}</span>` : ''}
+                    <p class="preset-sum" title="${escapeHtml(summary)}">${summary}</p>
+                </div>
+                ${changed ? '<button class="preset-update">Save changes here</button>' : ''}
                 <button class="preset-use">${inUse ? 'Start again' : 'Use'}</button>
+                <button class="preset-more" aria-label="More for ${escapeHtml(p.name)}" aria-expanded="false">⋯</button>
             </div>
-            <p class="preset-sum">${presetSummary(p)}</p>
-            <div class="preset-tools">
-                <button class="preset-update">Save changes here</button>
+            <div class="preset-tools" hidden>
+                ${changed ? '' : '<button class="preset-update">Save changes here</button>'}
                 <button class="preset-rename">Rename</button>
                 <button class="preset-link">Link</button>
                 <button class="preset-delete">Delete</button>
@@ -109,16 +113,15 @@ function renderSetup() {
     const sections = {
         presets: `
         <section>
-            <p class="setup-note">A preset is a saved set-up: scene, look, speed, weather and what each switch does.
-                Sound levels and the switches themselves stay as they are on this computer.</p>
-            <div class="preset-list">${presets.map(presetCard).join('') || '<p class="setup-note">No presets.</p>'}</div>
             <div class="preset-new">
                 <input type="text" id="preset-name" maxlength="40" value="Preset ${presets.length + 1}" aria-label="Name for the new preset">
                 <button class="preset-add">+ Save as a new preset</button>
             </div>
-            <p class="setup-note">Saves everything as it is set now. To change a preset: use it, change what you like, then tap
-                <strong>Save changes here</strong>. Each preset has a <strong>Link</strong> that opens Animal Scenes straight
-                into it, handy as a shortcut on the sensory-room computer.</p>
+            <div class="preset-list">${presets.map(presetCard).join('') || '<p class="setup-note">No presets.</p>'}</div>
+            <p class="setup-note">A preset is a saved set-up: scene, look, speed, weather and what each switch does (sound
+                levels and the switches themselves stay as they are on this computer). To change one: use it, change what you
+                like, then tap <strong>Save changes here</strong>. <strong>⋯</strong> has Rename, Delete and a <strong>Link</strong>
+                that opens Animal Scenes straight into the preset, handy as a shortcut on the sensory-room computer.</p>
             ${missingReadyPresets().length ? '<button class="preset-restore">Bring back the ready-made presets</button>' : ''}
         </section>`,
         weather: `
@@ -148,7 +151,14 @@ function renderSetup() {
             <p class="setup-note">${sceneSettings.touchPlaces
                 ? "Touch near an empty branch, the ground or the water and an animal that lives there comes to that spot (if they're all here, one moves over). Touching an animal makes it call."
                 : 'Touching an animal makes it call; touching anywhere else just makes a ripple. Switches bring animals in.'}</p>
-            ${sceneSettings.touchPlaces ? optRow('Empty places', 'showPlaces', [[true, 'Show a faint glow'], [false, "Don't show"]]) : ''}
+            ${sceneSettings.touchPlaces ? optRow('Empty places', 'showPlaces', [['subtle', 'Subtle'], ['clear', 'Clear'], ['off', "Don't show"]]) +
+                `<p class="setup-note">${{ subtle: 'Each empty place shows something that belongs there: a nest on a branch, seeds on the ground, a lily pad on the water.',
+                    clear: 'Each empty place shows a nest, seeds or a lily pad, with a warm glow and a star twinkling above it.',
+                    off: 'Empty places look like the rest of the scene.' }[sceneSettings.showPlaces]}</p>` : ''}
+            ${optRow('Animals move about', 'wander', [[0, 'Only when asked'], [40, 'Now and then'], [15, 'Often']])}
+            <p class="setup-note">${sceneSettings.wander
+                ? 'Now and then an animal quietly moves to an empty place (or two swap places), without calling.'
+                : "Animals stay where they are unless a switch with the 🔀 Move about job is pressed, or an empty place is touched when everyone who lives there is already here."}</p>
             ${optRow('Animals leave', 'stay', [[0, 'Never'], [-1, 'When touched'], [30, 'After 30 seconds'], [60, 'After 1 minute'], [120, 'After 2 minutes']])}
             <p class="setup-note">${leaveHint()}</p>
             ${optRow('Look changes', 'fade', [[2, 'Quick (2 s)'], [5, 'Gentle (5 s)'], [10, 'Slow (10 s)'], [20, 'Very slow (20 s)']])}
@@ -156,18 +166,20 @@ function renderSetup() {
         </section>`,
         switches: `
         <section>
-            <p class="setup-note">Tap <strong>Learn</strong>, then press the switch. Works with SimplyWorks and Bluetooth
-                switches, keyboards and the Xbox Adaptive Controller (press one of its buttons once first).
-                Choose a colour to match the real switch.</p>
+            <div class="opt-stack">
+                ${optRow('Labels on screen', 'labels', [[false, 'Hide'], [true, 'Show']])}
+                ${optRow('Other keys', 'others', [['anything', '🎲 Random'], ['nothing', 'Nothing']])}
+                ${optRow('Wait between presses', 'pressGap', [[1, '1 s'], [2, '2 s'], [3, '3 s'], [-1, 'When finished']])}
+            </div>
+            <p class="setup-note">${sceneSettings.pressGap === -1
+                ? 'After a press or touch does something, nothing else happens until it has finished (an animal has arrived, a change has faded in).'
+                : "After a press or touch does something, others are ignored for this long, so lots at once don't set everything off together; changing the scene, look or weather waits for the last change to finish."}
+                Other keys: any key or button that isn't a numbered switch.</p>
             <div class="sw-list">${Switches.slots.map(switchRow).join('') || '<p class="setup-note">No switches yet.</p>'}</div>
             <button class="sw-add"${full ? ' disabled' : ''}>${full ? `Twelve switches is the most` : '+ Add a switch'}</button>
-            ${optRow('Switch labels on screen', 'labels', [[false, 'Hide'], [true, 'Show']])}
-            ${optRow('Other keys and buttons', 'others', [['anything', '🎲 Random'], ['nothing', 'Nothing']])}
-            ${optRow('Wait between presses', 'pressGap', [[1, '1 second'], [2, '2 seconds'], [3, '3 seconds'], [-1, 'When finished']])}
-            <p class="setup-note">${sceneSettings.pressGap === -1
-                ? 'After a press or a touch does something, nothing else happens until it has finished: an animal has arrived, or a look or weather change has faded in.'
-                : 'After a press or a touch does something, others are ignored for this long, so lots of presses at once don\'t set everything off together. Changing the scene, the look or the weather also waits for the last change to finish.'}
-                Touches always make a ripple.</p>
+            <p class="setup-note">Tap <strong>Learn</strong>, then press the switch. Works with SimplyWorks and Bluetooth
+                switches, keyboards and the Xbox Adaptive Controller (press one of its buttons once first).
+                Tap the coloured circle to match the real switch's colour.</p>
         </section>`,
         sound: `
         <section>
@@ -240,7 +252,12 @@ function presetClick(e) {
     const id = card.dataset.id;
     const btn = e.target.closest('button');
     if (!btn) return true;
-    if (btn.classList.contains('preset-use')) { usePreset(presetById(id)); renderLabels(); renderSetup(); }
+    if (btn.classList.contains('preset-more')) {
+        const tools = card.querySelector('.preset-tools');
+        tools.hidden = !tools.hidden;
+        btn.setAttribute('aria-expanded', String(!tools.hidden));
+    }
+    else if (btn.classList.contains('preset-use')) { usePreset(presetById(id)); renderLabels(); renderSetup(); }
     else if (btn.classList.contains('preset-update')) { if (confirmTap(btn, 'Save over it?')) { updatePreset(id); renderSetup(); } }
     else if (btn.classList.contains('preset-delete')) { if (confirmTap(btn, 'Delete?')) { deletePreset(id); renderSetup(); } }
     else if (btn.classList.contains('preset-rename')) {

@@ -48,15 +48,32 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .look-night { --wake: rgba(190,210,255,.5); }
 .look-line  { --wake: rgba(255,255,255,.9); }
 
-/* Empty places: a faint glow that slowly breathes, fading as an animal heads there */
-.place { position: absolute; width: 7%; aspect-ratio: 3 / 1; translate: -50% -50%; border-radius: 50%; pointer-events: none;
-    background: radial-gradient(closest-side, var(--mark), transparent); opacity: 0; transition: opacity 1.5s ease-in-out; }
-.place::after { content: ''; position: absolute; inset: 16%; border-radius: 50%; border: max(2px, .2vw) solid var(--mark-ring);
-    animation: beckon calc(3.5s * var(--pace)) ease-in-out infinite alternate; }
+/* Empty places (see PLACE_ART in scenes.js): a nest, seeds or a lily pad, fading as an
+   animal heads there. Subtle is just that; Clear adds a warm glow, a gentle swell and a
+   twinkling star above. The drawing's spot is 62/70 of the way down. */
+.place { position: absolute; width: 6.5%; aspect-ratio: 10 / 7; translate: -50% -88.6%; pointer-events: none;
+    opacity: 0; transition: opacity 1.5s ease-in-out; }
 .place.free { opacity: 1; }
-@keyframes beckon { from { scale: .85; opacity: .5; } to { scale: 1.15; opacity: 1; } }
-.look-soft, .look-line { --mark: rgba(255,255,255,.6); --mark-ring: rgba(255,255,255,.9); }
-.look-night { --mark: rgba(190,210,255,.3); --mark-ring: rgba(190,210,255,.6); }
+.place svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.p-trunk { fill: var(--trunk); } .p-leaf { fill: var(--leaf); } .p-pond { fill: var(--pond); } .p-flower { fill: var(--flower); }
+.p-hollow { fill: var(--shade); fill-opacity: .4; }
+.p-twig, .p-vein { fill: none; stroke: var(--shade); stroke-opacity: .35; stroke-width: 2; stroke-linecap: round; }
+.p-seed { fill: #e7c25a; } .p-seed2 { fill: #c99a3e; }
+.look-night .p-seed { fill: #8d7a4c; } .look-night .p-seed2 { fill: #74633f; }
+.o { stroke: #1b1b1b; stroke-width: 0; stroke-linejoin: round; }
+.look-line .o { stroke-width: 2.2; }
+.p-star { fill: #fff6c8; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.look-line .p-star { fill: #fcea2b; stroke: #1b1b1b; stroke-width: 2; }
+.look-night .p-star { fill: #d6e0ff; }
+.p-thing { transform-box: fill-box; transform-origin: 50% 100%; }
+[data-places="clear"] .place::before { content: ''; position: absolute; left: -35%; right: -35%; top: 45%; bottom: -25%;
+    background: radial-gradient(closest-side, var(--mark), transparent); }
+[data-places="clear"] .p-star { opacity: 1; animation: twinkle-star calc(3s * var(--pace)) ease-in-out infinite alternate; }
+[data-places="clear"] .p-thing { animation: swell calc(3s * var(--pace)) ease-in-out infinite alternate; }
+@keyframes twinkle-star { from { opacity: .35; scale: .75; } to { opacity: 1; scale: 1.1; } }
+@keyframes swell { from { scale: 1; } to { scale: 1.1; } }
+.look-soft, .look-line { --mark: rgba(255,244,200,.85); }
+.look-night { --mark: rgba(190,210,255,.4); }
 .animal.moving { transition: left calc(3s * var(--pace)) cubic-bezier(.45,.05,.35,1), top calc(3s * var(--pace)) cubic-bezier(.45,.05,.35,1); }
 .animal.moving img        { animation: flap .35s ease-in-out infinite alternate; }
 .animal.walk.moving img   { animation: step .45s ease-in-out infinite alternate; }
@@ -352,7 +369,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @keyframes bolt { 0% { opacity: 0; } 14% { opacity: var(--peak, .8); } 28% { opacity: calc(var(--peak, .8) - .1); } 100% { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-    .cloud, .sway, .ring, .f-star, .ray, .animal img, .mist, .sparkle, .wake, .place::after, .shine { animation: none !important; }
+    .cloud, .sway, .ring, .f-star, .ray, .animal img, .mist, .sparkle, .wake, .p-star, .p-thing, .shine { animation: none !important; }
     .stage, .night-only, .day-only, .ol { transition-duration: .01s !important; }
     .animal.moving { transition-duration: .01s; }
     /* Weather that only makes sense moving is left out; the sky, mist, rainbow and snowy ground stay */
@@ -388,6 +405,8 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
     font-family: inherit; font-size: 1rem; font-weight: 800; color: #444; cursor: pointer;
 }
 .setup-saved { font-size: .85rem; font-weight: 700; color: #999; }
+/* minmax(0, 1fr): long one-line text (a preset's summary) is cut short rather than widening the box */
+.setup-body, .setup-body section, .preset-list, .preset { grid-template-columns: minmax(0, 1fr); }
 .setup-body section { display: grid; gap: 14px; }
 .setup-body h3 { font-size: 1.15rem; font-weight: 900; color: #1a1a2e; }
 .setup-note { font-size: .92rem; font-weight: 700; color: #777; line-height: 1.4; }
@@ -400,48 +419,60 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 }
 .opt { flex: 1; min-width: 90px; }
 .opt.active { background: #1a1a2e; border-color: #1a1a2e; color: #fff; }
+/* Compact rows: the label beside its choices (above them on narrow screens) */
+@media (min-width: 640px) {
+    .opt-group { grid-template-columns: 170px 1fr; align-items: center; gap: 12px; }
+    .opt { padding: 9px 10px; min-width: 70px; }
+}
+.opt-stack { display: grid; gap: 8px; }
 .sw-list { display: grid; gap: 10px; }
-.sw { border: 3px solid #eee; border-radius: 16px; padding: 10px 12px; display: grid; gap: 10px; }
+.sw { border: 3px solid #eee; border-radius: 16px; padding: 8px 10px; display: grid; gap: 4px; }
 .sw.learning { border-color: #FFD700; background: #fffbe6; }
 .sw-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.sw-colour { width: 38px; height: 38px; border-radius: 50%; border: 3px solid rgba(0,0,0,.15); cursor: pointer; flex-shrink: 0; }
+.sw-colour { width: 36px; height: 36px; border-radius: 50%; border: 3px solid rgba(0,0,0,.15); cursor: pointer; flex-shrink: 0; }
 .sw-white, .swatch.sw-white { border-color: #bbb; }
+.sw-id { display: grid; width: 110px; line-height: 1.2; }
 .sw-name { font-weight: 900; }
-.sw-binding { font-weight: 800; color: #555; flex: 1; min-width: 120px; }
+.sw-binding { font-size: .8rem; font-weight: 800; color: #555; }
 .sw-binding.unset { color: #aaa; }
+.sw-top select {
+    flex: 1; min-width: 170px; padding: 8px 10px; border: 3px solid #ddd; border-radius: 12px; background: #fff;
+    font-family: inherit; font-size: 1rem; font-weight: 800; color: #333;
+}
+.sw-top .sw-learn, .sw-top .sw-forget, .sw-top .sw-remove { padding: 8px 12px; }
 .sw.learning .sw-learn { background: #1a1a2e; border-color: #1a1a2e; color: #fff; }
 .sw-remove.confirm { border-color: #e53935; color: #e53935; }
 .sw-forget { padding: 11px 14px; border: 3px solid #ddd; border-radius: 14px; background: #f4f4f4;
     font-family: inherit; font-size: .92rem; font-weight: 800; color: #444; cursor: pointer; }
 .sw-forget:disabled { opacity: .4; cursor: default; }
-.sw-hint { font-size: .85rem; font-weight: 700; color: #888; margin-top: -4px; }
+.sw-hint { font-size: .82rem; font-weight: 700; color: #888; padding-left: 46px; }
 .sw-palette { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0; }
 .sw-palette[hidden] { display: none; }
 .swatch { width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(0,0,0,.12); cursor: pointer; }
 .swatch.active { outline: 4px solid #1a1a2e; outline-offset: 2px; }
-.sw-job { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .85rem; font-weight: 800; color: #777; }
-.sw-job select {
-    flex: 1; min-width: 180px; padding: 10px 12px; border: 3px solid #ddd; border-radius: 12px; background: #fff;
-    font-family: inherit; font-size: 1rem; font-weight: 800; color: #333;
-}
 .sw-add { justify-self: start; border-style: dashed; background: #fff; }
 .sw-add:disabled { opacity: .5; cursor: default; }
 
 /* Presets */
-.preset-list { display: grid; gap: 10px; }
-.preset { border: 3px solid #eee; border-radius: 16px; padding: 12px 14px; display: grid; gap: 8px; }
+.preset-list { display: grid; gap: 8px; }
+.preset { border: 3px solid #eee; border-radius: 16px; padding: 8px 10px 8px 14px; display: grid; gap: 8px; }
 .preset.in-use { border-color: #1a1a2e; }
-.preset-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.preset-name { font-size: 1.1rem; font-weight: 900; flex: 1; min-width: 160px; }
-.preset-state { font-size: .85rem; font-weight: 800; color: #4caf50; }
-.preset-use { padding: 11px 22px; border: none; border-radius: 14px; background: #1a1a2e; color: #fff;
-    font-family: inherit; font-size: 1rem; font-weight: 900; cursor: pointer; }
-.preset-sum { font-size: .88rem; font-weight: 700; color: #777; line-height: 1.45; }
+.preset-top { display: flex; align-items: center; gap: 8px; }
+.preset-main { flex: 1; min-width: 0; }
+.preset-name { font-size: 1.05rem; font-weight: 900; }
+.preset-state { font-size: .8rem; font-weight: 800; color: #4caf50; margin-left: 6px; }
+.preset-use { padding: 9px 18px; border: none; border-radius: 12px; background: #1a1a2e; color: #fff;
+    font-family: inherit; font-size: 1rem; font-weight: 900; cursor: pointer; flex-shrink: 0; }
+/* One line; the whole of it shows on hover */
+.preset-sum { font-size: .82rem; font-weight: 700; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .preset-tools { display: flex; gap: 8px; flex-wrap: wrap; }
-.preset-tools button, .preset-restore, .preset-add {
+.preset-tools[hidden] { display: none; }
+.preset-top .preset-update { flex-shrink: 0; }
+.preset-tools button, .preset-more, .preset-top .preset-update, .preset-restore, .preset-add {
     padding: 8px 12px; border: 3px solid #ddd; border-radius: 12px; background: #f4f4f4;
     font-family: inherit; font-size: .85rem; font-weight: 800; color: #444; cursor: pointer; }
 .preset-tools button.confirm { border-color: #e53935; color: #e53935; }
+.preset-more { padding: 5px 14px; font-size: 1.2rem; line-height: 1.2; flex-shrink: 0; }
 .preset-linkline { font-size: .82rem; font-weight: 700; color: #555; word-break: break-all; user-select: text; }
 .preset-linkline[hidden] { display: none; }
 .preset-new { display: flex; gap: 10px; flex-wrap: wrap; }

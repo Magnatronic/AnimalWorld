@@ -15,7 +15,8 @@ const SCENE_DEFAULTS = {
     labels:        false,      // show each switch's colour and job on screen
     others:        'anything', // what keys and buttons that aren't numbered switches do: 'anything' (Random) | 'nothing'
     touchPlaces:   true,       // touching near an empty branch, ground or water brings an animal that lives there
-    showPlaces:    true,       // …and a faint glow marks each empty place
+    showPlaces:    'subtle',   // …and each empty place shows it: 'off' | 'subtle' (a nest, seeds, a lily pad) | 'clear' (with a glow and a twinkle)
+    wander:        0,          // animals move to another place by themselves: 0 never, or about every this many seconds
     stay:          0,          // when animals leave: 0 never (unless a newcomer needs the spot), -1 when touched,
                                // or seconds after they were last touched or called
     fade:          5,          // seconds a change of look or weather takes
@@ -191,18 +192,33 @@ function buildScene() {
     renderLabels();
 }
 
-// A faint glow on each empty place, so it's clear where touching brings an animal.
+// Each empty place shows something that belongs there, so it's clear where touching
+// brings an animal: a nest on a branch, seeds on the ground, a lily pad on the water.
+// "Clear" adds a warm glow and a twinkling star (scenes.css). Drawn 100 × 70 with the
+// spot at (50, 62); colours come from the scene's palette.
+const PLACE_ART = {
+    perch: `<path class="p-trunk o" d="M17 50 Q19 67 50 67 Q81 67 83 50Z"/><ellipse class="p-trunk o" cx="50" cy="50" rx="33" ry="7"/>
+        <ellipse class="p-hollow" cx="50" cy="50" rx="25" ry="4"/><path class="p-twig" d="M22 56 Q50 63 78 55 M27 62 Q50 67 73 61"/>`,
+    ground: [[30, 60, 20], [39, 64, -30], [47, 58, 60], [55, 63, 10], [63, 59, -50], [70, 64, 30], [43, 67, 80], [59, 67, -10], [51, 61, 45]]
+        .map(([x, y, turn], i) => `<ellipse class="${i % 3 ? 'p-seed' : 'p-seed2'} o" cx="${x}" cy="${y}" rx="4.2" ry="2.6" transform="rotate(${turn} ${x} ${y})"/>`).join(''),
+    water: `<ellipse class="p-leaf o" cx="50" cy="61" rx="34" ry="9"/><path class="p-pond" d="M50 61 L85 58 L84 65Z"/>
+        <path class="p-vein" d="M50 61 L24 57 M50 61 L30 67 M50 61 L64 69"/>
+        <circle class="p-flower o" cx="36" cy="57" r="3.6"/><circle class="p-flower o" cx="42" cy="56" r="3.6"/><circle class="p-flower o" cx="39" cy="52" r="3.6"/>`,
+};
 function placeMark(spot) {
     const m = document.createElement('i');
     m.className = 'place';
     m.style.left = spot.x + '%';
     m.style.top = spot.y + '%';
+    m.innerHTML = `<svg viewBox="0 0 100 70" aria-hidden="true"><path class="p-star" d="M50 4 L55 15 L66 18 L55 21 L50 32 L45 21 L34 18 L45 15Z"/>
+        <g class="p-thing">${PLACE_ART[spot.habitat] || ''}</g></svg>`;
     layer.appendChild(m);
     return m;
 }
 function markPlaces() {
-    const show = sceneSettings.touchPlaces && sceneSettings.showPlaces;
-    spots.forEach(s => s.mark.classList.toggle('free', show && !s.animal));
+    const style = sceneSettings.touchPlaces ? sceneSettings.showPlaces : 'off';
+    layer.dataset.places = style;
+    spots.forEach(s => s.mark.classList.toggle('free', style !== 'off' && !s.animal));
 }
 
 function freeSpot(habitat) {
@@ -339,6 +355,7 @@ const SCENE_JOBS = {
     anything: { label: '🎲 Random',          hint: 'A random animal arrives, or one already here calls.' },
     daynight: { label: '🌗 Day / night',     hint: 'Fades between the chosen look and Night-light.' },
     nextlook: { label: '🎨 Next look',       hint: 'Fades to the next look: Soft flat, then Matching outlines, then Night-light.' },
+    move:     { label: '🔀 Move about',      hint: 'An animal here moves to an empty place (or two swap places), and calls when it gets there. If nobody is here yet, someone arrives.' },
     goodbye:  { label: '👋 Goodbye',         hint: 'The animal that has been here longest leaves.' },
     clear:    { label: '🌙 Everyone leaves', hint: 'All the animals leave. Other switches bring them back.' },
     nextscene:{ label: '🗺️ Next scene',      hint: 'Fades to the next scene for this theme.' },
@@ -664,7 +681,7 @@ function takesMs(job) {
     const journey = 3000 * sceneSettings.pace + 1000;        // fly, walk or swim in, then call
     const fade = sceneSettings.fade * 1000;
     if (job === 'call') return 1500;
-    if (job === 'place' || job === 'anything') return journey;
+    if (job === 'place' || job === 'anything' || job === 'move') return journey;
     if (job === 'sky') return 1500;
     if (SceneWeather[job]) return isBig(job) ? fade : 1500;
     if (job === 'daynight' || job === 'nextlook' || job === 'nextweather') return fade;
@@ -678,6 +695,7 @@ function takesMs(job) {
 
 function doJob(job) {
     if (job === 'anything') anything();
+    else if (job === 'move') { if (!moveAbout()) anything(); }
     else if (SceneWeather[job]) pressWeather(job);
     else if (job === 'nextweather') {
         lastWeatherPress = Date.now();
@@ -771,15 +789,43 @@ function touchPlace(spot) {
     if (longest) moveTo(longest, spot);
     return !!longest;
 }
-// An animal already here goes to another spot, and calls when it gets there.
-function moveTo(name, spot) {
+// An animal already here goes to another spot, and calls when it gets there (unless
+// it's moving by itself: then quietly, and it isn't counted as having been called).
+function moveTo(name, spot, quiet = false) {
     const a = cast[name];
-    a.spot.animal = null;
+    if (a.spot && a.spot.animal === name) a.spot.animal = null;
     spot.animal = name;
     a.spot = spot;
-    a.arrivedAt = a.calledAt = Date.now();
-    travel(a, spot, false, () => sing(name));
+    if (!quiet) a.arrivedAt = a.calledAt = Date.now();
+    travel(a, spot, false, () => { if (!quiet) sing(name); });
 }
+
+// Someone here moves: to an empty place where it lives if there is one, or else two
+// that live in the same place swap. Returns whether anyone moved.
+function moveAbout(quiet = false) {
+    const settled = Object.keys(cast).filter(n => cast[n].spot && !cast[n].leaving && !cast[n].el.classList.contains('moving'));
+    const pick = list => list[Math.floor(Math.random() * list.length)];
+    const moves = [];
+    settled.forEach(n => spots.filter(s => s.habitat === cast[n].def.habitat && !s.animal).forEach(s => moves.push([n, s])));
+    if (moves.length) { const [n, s] = pick(moves); moveTo(n, s, quiet); return true; }
+    const pairs = [];
+    settled.forEach((m, i) => settled.slice(i + 1).forEach(n => { if (cast[m].def.habitat === cast[n].def.habitat) pairs.push([m, n]); }));
+    if (!pairs.length) return false;
+    const [m, n] = pick(pairs), ms = cast[m].spot, ns = cast[n].spot;
+    moveTo(m, ns, quiet);
+    moveTo(n, ms, true);                 // only one of the two calls
+    return true;
+}
+// "Animals move about by themselves": now and then, while nobody is in set-up.
+let nextWander = 0;
+setInterval(() => {
+    const every = sceneSettings.wander * 1000;
+    if (!started || setupOpen() || !every) { nextWander = 0; return; }
+    if (!nextWander) nextWander = Date.now() + every * (0.7 + Math.random() * 0.6);
+    if (Date.now() < nextWander) return;
+    moveAbout(true);
+    nextWander = Date.now() + every * (0.7 + Math.random() * 0.6);
+}, 1000);
 
 stage.addEventListener('pointerdown', e => {
     if (!started) return;
