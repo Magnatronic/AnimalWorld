@@ -159,5 +159,30 @@ const themes = {
             { name: 'Flamingo', code: '1F9A9',           sound: 'flamingo' },
             { name: 'Penguin',  code: '1F427',           sound: 'penguin' },
         ]
+    },
+    // Hen, Rooster, Chick, Duck, Goose, Turkey and Mouse share their sounds with
+    // the Birds and Forest themes. The llama's call is an alpaca, a close relative.
+    farm: {
+        label: '🚜 Farm Animals',
+        css: 'theme-farm',
+        icon: '⭐',
+        animals: [
+            { name: 'Cow',     code: '1F404', sound: 'cow' },
+            { name: 'Pig',     code: '1F416', sound: 'pig' },
+            { name: 'Sheep',   code: '1F411', sound: 'sheep' },
+            { name: 'Goat',    code: '1F410', sound: 'goat' },
+            { name: 'Horse',   code: '1F40E', sound: 'horse' },
+            { name: 'Donkey',  code: 'E001',  sound: 'donkey' },
+            { name: 'Dog',     code: '1F415', sound: 'dog' },
+            { name: 'Cat',     code: '1F408', sound: 'cat' },
+            { name: 'Hen',     code: '1F414', sound: 'hen' },
+            { name: 'Rooster', code: '1F413', sound: 'rooster' },
+            { name: 'Chick',   code: '1F425', sound: 'chick' },
+            { name: 'Duck',    code: '1F986', sound: 'duck' },
+            { name: 'Goose',   code: '1FABF', sound: 'goose' },
+            { name: 'Turkey',  code: '1F983', sound: 'turkey' },
+            { name: 'Llama',   code: '1F999', sound: 'llama' },
+            { name: 'Mouse',   code: '1F401', sound: 'mouse' },
+        ]
     }
 };

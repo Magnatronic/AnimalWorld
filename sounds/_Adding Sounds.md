@@ -126,6 +126,29 @@ from the other themes.
 
 ---
 
+## 🚜 Farm Animals
+
+These are **already in this folder** — CC0 recordings from Freesound, trimmed where noted and
+levelled like the rest. Hen, Rooster, Chick, Duck, Goose and Turkey reuse the Birds sounds, and
+Mouse reuses the Forest one.
+
+Llamas mostly hum quietly, and no clear llama recording was available, so `llama.mp3` is an
+**alpaca** — a close relative that makes the same kind of sounds.
+
+| Save as | Source | Section used |
+|---------|--------|--------------|
+| `cow.mp3` | [Cow mooing in south of France (Limousin)](https://freesound.org/s/163727/) by felix.blume | 0.3–3.0 s |
+| `pig.mp3` | [pig.wav](https://freesound.org/s/130783/) by killerpig | 10.0–15.5 s |
+| `sheep.mp3` | [Ewe Shetland Sheep Baa](https://freesound.org/s/692900/) by satoristudios3 | whole clip |
+| `goat.mp3` | [Baby goat bleating](https://freesound.org/s/200333/) by jsbarrett | 1.0–7.0 s |
+| `horse.mp3` | [horse](https://freesound.org/s/656661/) by dontwanttobehere | 0.4–6.0 s |
+| `donkey.mp3` | [S02-01 Donkey braying.wav](https://freesound.org/s/675411/) by craigsmith | 0–7.0 s |
+| `dog.mp3` | [Dog Bark](https://freesound.org/s/495658/) by aunrea | whole clip |
+| `cat.mp3` | [ANMLCat_Domestic Cat Meows 01](https://freesound.org/s/728095/) by KVV_Audio | whole clip |
+| `llama.mp3` | [Alpaca noises](https://freesound.org/s/623809/) by gtg777 | 6.5–10.5 s |
+
+---
+
 ## 🐞 Ladybird and Worm
 
 Ladybirds and worms make no sound anyone could record, so each plays a short sound of the

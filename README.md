@@ -9,7 +9,7 @@ An interactive animal learning app for classroom use. Plain HTML, CSS and JavaSc
 - **Find the Animal** — listen to the animal name and tap the correct picture
 
 ## Themes
-Forest 🌲 · Safari 🌅 · Ocean 🌊 · Mini Beasts 🐛 · Polar ❄️ · Fish 🐠 · Birds 🐦
+Forest 🌲 · Safari 🌅 · Ocean 🌊 · Mini Beasts 🐛 · Polar ❄️ · Fish 🐠 · Birds 🐦 · Farm 🚜
 
 ## Settings
 Press and hold the ⚙ button (bottom right) for two seconds to open Settings. A quick tap only
