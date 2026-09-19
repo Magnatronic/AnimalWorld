@@ -413,12 +413,18 @@
             </div>
 
             <div class="setting-group">
-                <span class="setting-label">Switch Key</span>
+                <span class="setting-label">Scanning key</span>
                 <div class="setting-opts" data-setting="scan.anyKey">
                     <button class="setting-opt" data-value="false">Space / Enter</button>
                     <button class="setting-opt" data-value="true">Any Key</button>
                 </div>
             </div>
+        
+            <div class="setting-section">🎛️ Your switches</div>
+            <p class="setting-note switch-intro">Tap <strong>Learn</strong>, then press the switch. Works with
+                SimplyWorks and Bluetooth switches, keyboards, and the Xbox Adaptive Controller. Every switch
+                learned here also works as the scanning switch, and in Animal Scenes.</p>
+            <div class="switch-list" id="switch-list"></div>
         </div>
 
         <div class="settings-pane" data-pane="area">
@@ -565,6 +571,7 @@
     <div class="hold-hint" id="hold-hint">Hold ⚙ to open settings</div>
 </div>
 <script src="shared/themes.js"></script>
+<script src="shared/switches.js"></script>
 <script src="settings.js"></script>
 <script src="app.js"></script>
 

@@ -115,6 +115,43 @@ function resetSettings() {
     applyPlayArea();
 }
 
+// ── Learned switches (shared/switches.js) ──
+function renderSwitchList() {
+    const list = document.getElementById('switch-list');
+    list.innerHTML = Switches.slots.map((slot, i) => `
+        <div class="switch-row" data-switch="${i}">
+            <span class="switch-dot" style="background:${Switches.COLOUR_HEX[slot.colour]}"></span>
+            <span class="switch-name">Switch ${i + 1}</span>
+            <span class="switch-binding${slot.binding ? '' : ' unset'}">${Switches.describe(slot.binding)}</span>
+            <button class="switch-learn" id="switch-learn-${i}">${slot.binding ? 'Learn again' : 'Learn'}</button>
+            <button class="switch-clear" id="switch-clear-${i}" aria-label="Forget switch ${i + 1}"${slot.binding ? '' : ' disabled'}>✕</button>
+        </div>`).join('');
+}
+
+async function learnSwitch(i) {
+    const row = document.querySelector(`.switch-row[data-switch="${i}"]`);
+    // Move focus off the Learn button, so learning Space or Enter can't also "click" it.
+    if (document.activeElement) document.activeElement.blur();
+    row.classList.add('learning');
+    row.querySelector('.switch-binding').textContent = 'Press the switch now…';
+    row.querySelector('.switch-learn').textContent = 'Cancel';
+    await Switches.learn(i);
+    renderSwitchList();
+}
+
+document.getElementById('switch-list').addEventListener('click', e => {
+    const row = e.target.closest('.switch-row');
+    if (!row) return;
+    const i = +row.dataset.switch;
+    if (e.target.closest('.switch-learn')) {
+        if (row.classList.contains('learning')) Switches.cancelLearn();
+        else learnSwitch(i);
+    } else if (e.target.closest('.switch-clear')) {
+        Switches.clear(i);
+        renderSwitchList();
+    }
+});
+
 function showSettingsTab(name) {
     document.querySelectorAll('#settings-panel .settings-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
     document.querySelectorAll('#settings-panel .settings-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === name));
@@ -122,9 +159,13 @@ function showSettingsTab(name) {
 
 function openSettings() {
     renderSettings();
+    renderSwitchList();
     document.getElementById('settings-panel').classList.add('open');
 }
-function closeSettings() { document.getElementById('settings-panel').classList.remove('open'); }
+function closeSettings() {
+    Switches.cancelLearn();
+    document.getElementById('settings-panel').classList.remove('open');
+}
 
 document.getElementById('voice-select').addEventListener('change', e => setSetting('sound.voice', e.target.value));
 

@@ -80,14 +80,12 @@ function selectCurrent() {
     }
 }
 
-document.addEventListener('keydown', e => {
-    if (!scanMode) return;
-    // Ignore keydown inside the settings panel
-    if (document.getElementById('settings-panel').classList.contains('open')) return;
-    const isSwitch = settings.scan.anyKey || e.code === 'Space' || e.code === 'Enter';
-    if (!isSwitch) return;
-    e.preventDefault();
+function settingsOpen() {
+    return document.getElementById('settings-panel').classList.contains('open');
+}
 
+// One press of the scanning switch, whatever sent it.
+function scanSwitchPressed() {
     if (settings.scan.mode === 'press') {
         if (!scanRunning) { clearTimeout(scanDelayTimer); beginCycling(); }
         else              { selectCurrent(); }
@@ -95,6 +93,20 @@ document.addEventListener('keydown', e => {
         // auto mode: keypress = select
         if (scanRunning) selectCurrent();
     }
+}
+
+document.addEventListener('keydown', e => {
+    if (!scanMode || settingsOpen()) return;
+    if (Switches.isLearnedKey(e)) return;      // learned switches arrive through Switches.onPress
+    const isSwitch = settings.scan.anyKey || e.code === 'Space' || e.code === 'Enter';
+    if (!isSwitch) return;
+    e.preventDefault();
+    scanSwitchPressed();
+});
+
+// Any learned switch (SimplyWorks, Bluetooth, Xbox Adaptive Controller) also scans.
+Switches.onPress(() => {
+    if (scanMode && !settingsOpen()) scanSwitchPressed();
 });
 
 function setScanForScreen(id) {

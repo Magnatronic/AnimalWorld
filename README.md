@@ -21,8 +21,12 @@ Press and hold the ⚙ button (bottom right) for two seconds to open Settings. A
 shows a reminder, so students can't open it by accident. Changes are saved in the browser, so
 each computer remembers its own setup.
 
-- **Switch** — switch scanning for AAC users: scan mode, speed, start delay, loops and switch key.
-  Whether scanning is on is remembered too.
+- **Switch** — switch scanning for AAC users: scan mode, speed, start delay, loops and scanning key.
+  Whether scanning is on is remembered too. **Your switches** learns up to six switches: tap Learn
+  and press the switch. It works with anything that sends a keystroke (Pretorian SimplyWorks SEND-6,
+  Bluetooth switches, keyboards) and with the Xbox Adaptive Controller. Every learned switch also
+  works as the scanning switch, and they are shared with Animal Scenes. In Chrome and Edge a
+  controller is only noticed after one of its buttons has been pressed on the page.
 - **Play area** — shrinks the app into a box at the bottom left, centre or right of the screen,
   for students who can't reach the top of a large touchscreen. The Back button can move to the
   bottom, and the Switch and ⚙ buttons move up out of reach.
@@ -46,6 +50,7 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `styles.css` | Animal Activities' styling, including each theme's colours |
 | `shared/themes.js` | The themes and their animals, used by both parts — start here to add or change a theme |
 | `shared/fonts.css` | The Nunito font, used by both parts |
+| `shared/switches.js` | Learning and reading switches (keys and the Xbox Adaptive Controller), used by both parts |
 | `settings.js` | The Settings panel: defaults, saving and the Play area |
 | `app.js` | The activities, sound playback and switch scanning |
 | `sounds/` | One `.mp3` per animal — see `sounds/_Adding Sounds.md` |
