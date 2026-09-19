@@ -148,6 +148,7 @@ function renderSetup() {
             <p class="setup-note">${sceneSettings.touchPlaces
                 ? "Touch near an empty branch, the ground or the water and an animal that lives there comes to that spot (if they're all here, one moves over). Touching an animal makes it call."
                 : 'Touching an animal makes it call; touching anywhere else just makes a ripple. Switches bring animals in.'}</p>
+            ${sceneSettings.touchPlaces ? optRow('Empty places', 'showPlaces', [[true, 'Show a faint glow'], [false, "Don't show"]]) : ''}
             ${optRow('Animals leave', 'stay', [[0, 'Never'], [-1, 'When touched'], [30, 'After 30 seconds'], [60, 'After 1 minute'], [120, 'After 2 minutes']])}
             <p class="setup-note">${leaveHint()}</p>
             ${optRow('Look changes', 'fade', [[2, 'Quick (2 s)'], [5, 'Gentle (5 s)'], [10, 'Slow (10 s)'], [20, 'Very slow (20 s)']])}
@@ -198,6 +199,7 @@ function setScene(key, value) {
     if (key === 'track' && started && trackUrl() !== trackBefore) Ambient.start(trackUrl(), sceneSettings.ambientVolume);
     if (key === 'look') liveLook = value;
     if (key === 'look' || key === 'pace') applyLook();
+    if (key === 'touchPlaces' || key === 'showPlaces') markPlaces();
     if (key === 'ambientVolume' && started) Ambient.setLevel(value, trackUrl());
     if (key === 'weather') { lastWeatherPress = Date.now(); setWeather(value); }
     if (key === 'weatherVolume') weatherSound();

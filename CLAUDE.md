@@ -34,7 +34,11 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
 - **A scene theme**: add a theme entry to `SceneArt` in `scenes/art.js` (animals + scenes), CSS
   palettes `.scene-<theme>-<scene>.look-soft|line|night` in `scenes/scenes.css`, and a track in
   `sounds/ambient/`. Birds is the template. Scenes are 1600×900; keep spots within x 15–85% (squarer
-  screens trim the sides). OpenMoji art has ~14% empty space under the feet (handled in CSS).
+  screens trim the sides). OpenMoji pictures have different empty space under the feet: give each
+  animal a `foot` (% down its picture where the feet are; for water birds, the waterline, below which
+  it's cut off while sitting). Measure it by drawing the SVG to a canvas and finding the lowest opaque
+  row. Light and shade in drawings: `ball()`, `trunk()`, `branch()` and the `shade-*`/`light-*`
+  classes (see-through, so they suit every look). Each empty spot has a faint glow (`.place`).
 - **Sounds**: CC0 only (Freesound). Animal calls levelled to about −16 LUFS, background loops about
   −26 LUFS, peaks limited; credit each in `sounds/_Adding Sounds.md`. Tooling: `pip install
   imageio-ffmpeg` gives an ffmpeg binary; pass `-nostdin` when looping over a heredoc.

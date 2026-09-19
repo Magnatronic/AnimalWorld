@@ -15,6 +15,7 @@ const SCENE_DEFAULTS = {
     labels:        false,      // show each switch's colour and job on screen
     others:        'anything', // what keys and buttons that aren't numbered switches do: 'anything' (Random) | 'nothing'
     touchPlaces:   true,       // touching near an empty branch, ground or water brings an animal that lives there
+    showPlaces:    true,       // …and a faint glow marks each empty place
     stay:          0,          // when animals leave: 0 never (unless a newcomer needs the spot), -1 when touched,
                                // or seconds after they were last touched or called
     fade:          5,          // seconds a change of look or weather takes
@@ -163,16 +164,19 @@ function buildScene() {
     stage.style.transitionDuration = '';
     document.getElementById('bg').innerHTML = art.svg();
     layer.innerHTML = '';
-    spots = art.spots.map(s => ({ ...s, animal: null }));
+    spots = art.spots.map(s => ({ ...s, animal: null, mark: placeMark(s) }));
     cast = {};
     Object.entries(art.animals).forEach(([name, def]) => {
         const animal = themeAnimals.find(a => a.name === name);
         if (!animal) return;
         const el = document.createElement('div');
-        el.className = 'animal ' + (def.move || art.move);
+        el.className = `animal ${def.move || art.move} on-${def.habitat}`;
         el.style.width = def.w + '%';
+        el.style.setProperty('--foot', (def.foot || 86) + '%');
         el.hidden = true;
-        el.innerHTML = `<img alt="${name}" src="${imgSrc(animal)}">`;
+        // Water birds sit in the water: a ring where they meet it, and the picture cut off below.
+        el.innerHTML = (def.habitat === 'water' ? '<i class="wake"></i>' : '') +
+            `<span class="body"><img alt="${name}" src="${imgSrc(animal)}"></span>`;
         el.querySelector('img').style.animationDelay = (-Math.random() * 3).toFixed(2) + 's';
         el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started && accept('call')) touched(name); });
         layer.appendChild(el);
@@ -182,8 +186,23 @@ function buildScene() {
         const spot = freeSpot(cast[name].def.habitat);
         if (spot) settle(name, spot);
     });
+    markPlaces();
     showWeather(false);
     renderLabels();
+}
+
+// A faint glow on each empty place, so it's clear where touching brings an animal.
+function placeMark(spot) {
+    const m = document.createElement('i');
+    m.className = 'place';
+    m.style.left = spot.x + '%';
+    m.style.top = spot.y + '%';
+    layer.appendChild(m);
+    return m;
+}
+function markPlaces() {
+    const show = sceneSettings.touchPlaces && sceneSettings.showPlaces;
+    spots.forEach(s => s.mark.classList.toggle('free', show && !s.animal));
 }
 
 function freeSpot(habitat) {
@@ -200,6 +219,7 @@ function settle(name, spot) {
     a.el.hidden = false;
     a.el.style.left = spot.x + '%';
     a.el.style.top = spot.y + '%';
+    markPlaces();
 }
 
 // An animal comes into the scene, or calls if it's already here. If every spot
@@ -236,6 +256,7 @@ function leave(name) {
 function travel(a, spot, coming, done) {
     const move = a.def.move || art.move;
     const el = a.el;
+    markPlaces();                                  // a place's glow fades as someone heads for it
     const here = { x: parseFloat(el.style.left), y: parseFloat(el.style.top) };
     const target = spot || { x: here.x > 50 ? 112 : -12, y: move === 'fly' ? 4 : here.y };
     if (coming) {

@@ -21,16 +21,42 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .stage svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
 /* ── Animals ── */
-/* OpenMoji art leaves ~14% empty below the feet, so sink the picture to stand on its spot */
+/* OpenMoji pictures leave empty space below the feet, different for each (--foot: how far
+   down the picture its feet are, from art.js), so the picture is raised to stand on its spot */
 .animal {
     position: absolute;
-    transform: translate(-50%, -86%);
+    transform: translate(-50%, calc(var(--foot, 86%) * -1));
     cursor: pointer;
     filter: drop-shadow(0 4px 4px rgba(0,0,0,.18));
 }
 .animal[hidden] { display: none; }
-.animal img { display: block; width: 100%; height: auto; pointer-events: none; transform-origin: 50% 100%;
+.animal .body { display: block; }
+.animal img { display: block; width: 100%; height: auto; pointer-events: none; transform-origin: 50% var(--foot, 86%);
     animation: bob calc(3.4s * var(--pace)) ease-in-out infinite alternate; }
+/* Birds on a branch or the ground breathe rather than bob, so their feet stay put */
+.animal:not(.on-water) img { animation-name: breathe; }
+@keyframes breathe { from { transform: none; } to { transform: scale(1.012, 1.03); } }
+/* Water birds settle into the water: cut off at the waterline (bobbing and calls lift
+   them through it), with a ring round them; flying, they're whole */
+.animal.on-water .body { clip-path: polygon(-50% -60%, 150% -60%, 150% 160%, -50% 160%); transition: clip-path 1.2s ease-out; }
+.animal.on-water:not(.moving) .body { clip-path: polygon(-50% -60%, 150% -60%, 150% var(--foot), -50% var(--foot)); }
+.wake { position: absolute; left: 50%; top: var(--foot); width: 82%; aspect-ratio: 5 / 1; translate: -50% -50%;
+    border-radius: 50%; border: max(2px, .18vw) solid var(--wake, rgba(255,255,255,.75)); background: rgba(255,255,255,.12);
+    opacity: 0; transition: opacity 1s ease-in-out; }
+.animal:not(.moving) .wake { opacity: 1; animation: wake calc(4s * var(--pace)) ease-in-out infinite alternate; }
+@keyframes wake { from { scale: .92 .9; } to { scale: 1.06 1.05; } }
+.look-night { --wake: rgba(190,210,255,.5); }
+.look-line  { --wake: rgba(255,255,255,.9); }
+
+/* Empty places: a faint glow that slowly breathes, fading as an animal heads there */
+.place { position: absolute; width: 7%; aspect-ratio: 3 / 1; translate: -50% -50%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, var(--mark), transparent); opacity: 0; transition: opacity 1.5s ease-in-out; }
+.place::after { content: ''; position: absolute; inset: 16%; border-radius: 50%; border: max(2px, .2vw) solid var(--mark-ring);
+    animation: beckon calc(3.5s * var(--pace)) ease-in-out infinite alternate; }
+.place.free { opacity: 1; }
+@keyframes beckon { from { scale: .85; opacity: .5; } to { scale: 1.15; opacity: 1; } }
+.look-soft, .look-line { --mark: rgba(255,255,255,.6); --mark-ring: rgba(255,255,255,.9); }
+.look-night { --mark: rgba(190,210,255,.3); --mark-ring: rgba(190,210,255,.6); }
 .animal.moving { transition: left calc(3s * var(--pace)) cubic-bezier(.45,.05,.35,1), top calc(3s * var(--pace)) cubic-bezier(.45,.05,.35,1); }
 .animal.moving img        { animation: flap .35s ease-in-out infinite alternate; }
 .animal.walk.moving img   { animation: step .45s ease-in-out infinite alternate; }
@@ -95,6 +121,22 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .f-ray { fill: var(--ray, transparent); }
 .f-stem { fill: none; stroke: var(--leaf); stroke-width: 4; }
 .ring { fill: none; stroke: var(--ring); stroke-width: 3; }
+/* Light and shade (see art.js): see-through, so they suit every palette; gentler at night */
+.stage { --shade: #13213a; --shade-a: .13; --light-a: .2; }
+.look-line  { --shade-a: .16; --light-a: .22; }
+.look-night { --shade-a: .22; --light-a: .06; }
+.s-shade { stop-color: var(--shade); stop-opacity: var(--shade-a); }
+.s-light { stop-color: #fff; stop-opacity: var(--light-a); }
+.shade-ball { fill: url(#sc-shade); } .light-ball { fill: url(#sc-light); }
+.shade-side { fill: url(#sc-side); } .shade-belly { fill: url(#sc-belly); opacity: .55; } .light-glint { fill: url(#sc-glint); }
+.shade-flat { fill: var(--shade); fill-opacity: var(--shade-a); }
+.light-flat { fill: #fff; fill-opacity: var(--light-a); }
+.shine { fill: none; stroke: #fff; stroke-opacity: .7; stroke-width: 5; stroke-linecap: round;
+    animation: twinkle calc(6s * var(--pace)) ease-in-out infinite alternate; }
+.look-night .shine { stroke: #bcd0ff; stroke-opacity: .35; }
+.plank { fill: none; stroke: var(--shade); stroke-opacity: calc(var(--shade-a) * 1.6); stroke-width: 3; }
+.reflect { opacity: .3; }
+.grass { fill: none; stroke: var(--leaf); stroke-width: 5; stroke-linecap: round; }
 
 /* ── Look changes fade rather than jump (over --fade, the "Look changes" setting) ──
    The colours are registered as real colours so the browser can blend them;
@@ -310,7 +352,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @keyframes bolt { 0% { opacity: 0; } 14% { opacity: var(--peak, .8); } 28% { opacity: calc(var(--peak, .8) - .1); } 100% { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-    .cloud, .sway, .ring, .f-star, .ray, .animal img, .mist, .sparkle { animation: none !important; }
+    .cloud, .sway, .ring, .f-star, .ray, .animal img, .mist, .sparkle, .wake, .place::after, .shine { animation: none !important; }
     .stage, .night-only, .day-only, .ol { transition-duration: .01s !important; }
     .animal.moving { transition-duration: .01s; }
     /* Weather that only makes sense moving is left out; the sky, mist, rainbow and snowy ground stay */
