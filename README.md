@@ -27,7 +27,9 @@ the trees lean, and strong wind brings gusts), 🌫️ Fog (some drifting in fro
 bow as it strengthens). Rain and wind have their own quiet sounds. Weather has five strengths, each heavier and quicker than the
 last: by default each press of a weather switch, or a touch on the sky, makes it a step stronger
 (a new weather starts at the lightest), and left alone it eases back to the scene's own weather,
-which sits in the middle. A stronger storm brings a brighter bolt and louder thunder.
+which sits in the middle. A strong storm brings bigger, brighter bolts every few
+seconds (never two within a second, and set-up can switch lightning off), a blizzard frosts the trees
+and freezes the pond, and thick fog becomes a near white-out.
 
 Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
 screen too):
@@ -46,7 +48,8 @@ screen too):
   bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 🗺️ Next scene, 👋 Goodbye
   (the longest-staying animal leaves), 🌙 Everyone leaves, a weather, 🌦️ Next weather, ⚡ Thunder, or
   nothing. Five switches are always ready to learn.
-  Switch labels in those colours can be shown along the top of the screen. Keys and buttons that
+  Switch labels in those colours can be shown along the top of the screen. A short wait between presses
+  (1 second by default, adjustable) stops a flurry of presses setting everything off at once. Keys and buttons that
   aren't learned do something random (or nothing), so any switch works straight away. Look changes
   fade gently rather than jump.
 - **Sound** — animal sounds, background sound and weather sounds, each Off, Quiet, Medium or Loud, and the

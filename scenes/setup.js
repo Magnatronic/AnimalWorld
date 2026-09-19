@@ -130,6 +130,9 @@ function renderSetup() {
             <p class="setup-note">${building()
                 ? "Each press makes the weather stronger, in five steps (a new weather starts at the lightest), and touching open sky (away from the branches) does the same. Left alone, it eases back a step at a time to the scene's own weather, which sits in the middle."
                 : 'A press turns that weather on; another press turns it off.'}</p>
+            ${optRow('Lightning in storms', 'lightning', [[true, 'Show'], [false, 'Thunder only']])}
+            <p class="setup-note">Lightning is thin bolts that fade in (never a flash or flicker), at most about one a second
+                even in the strongest storm. Choose Thunder only if anyone watching could be sensitive to it.</p>
             ${building() ? optRow('Each step lasts', 'weatherEase', [[10, '10 seconds'], [20, '20 seconds'], [60, '1 minute']]) +
                 '<p class="setup-note">How long before the weather eases off a step, once nobody is pressing or touching the sky.</p>' : ''}
         </section>`,
@@ -159,6 +162,10 @@ function renderSetup() {
             <button class="sw-add"${full ? ' disabled' : ''}>${full ? `Twelve switches is the most` : '+ Add a switch'}</button>
             ${optRow('Switch labels on screen', 'labels', [[false, 'Hide'], [true, 'Show']])}
             ${optRow('Other keys and buttons', 'others', [['anything', '🎲 Random'], ['nothing', 'Nothing']])}
+            ${optRow('Wait between presses', 'pressGap', [[0, 'None'], [0.5, '½ second'], [1, '1 second'], [2, '2 seconds'], [3, '3 seconds']])}
+            <p class="setup-note">After a press or a touch does something, others are ignored for this long, so lots of
+                presses at once don't set everything off together. Changing the scene, the look or the weather also waits for
+                the last change to finish. Touches always make a ripple.</p>
         </section>`,
         sound: `
         <section>

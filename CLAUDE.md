@@ -46,10 +46,13 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
 - Settings loaders keep only known keys of the right type, so old saves can't break new defaults.
   When a setting changes meaning, migrate old values (see `loadSettings()` in `settings.js`).
 - Gentle by design: slow motion, fades not jumps, nothing flashing; respect `prefers-reduced-motion`.
-  (Lightning is a faint thin bolt fading in over ~0.25 s, no flicker, at most one per 6 s however
-  often it's asked for; keep it that way for photosensitive users.)
+  (Lightning: thin bolts fading in over ~0.25 s, no flicker, never two within 0.8 s (BOLT_GAP), and a
+  "Thunder only" setting; keep those limits for photosensitive users.)
+- Presses and touches are paced by `accept()` (the "Wait between presses" setting, plus a longer
+  wait for big changes); new input paths should go through it.
 - Weather sits in two layers around the animals (`#wx-back`, `#wx-front`), neither catching touches;
-  the rainbow and lightning go into the scene's SVG just after the moon, so scenery is in front of them.
+  the rainbow goes into the scene's SVG just after the moon, so scenery is in front of it; lightning is
+  in `#wx-back` above the darkened sky, masked to fade out towards the horizon.
 
 ## Testing
 `python dev/serve.py`, then drive headless Chrome:

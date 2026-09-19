@@ -8,7 +8,7 @@
 // changed or deleted, and set-up can bring back any that were deleted.
 // A preset can be opened directly: scenes.html#preset=<id>.
 const PRESETS_KEY = 'animalScenes.presets';
-const PRESET_KEYS = ['theme', 'look', 'pace', 'touchPlaces', 'stay', 'fade', 'weather', 'weatherPress', 'weatherEase', 'others', 'track'];
+const PRESET_KEYS = ['theme', 'look', 'pace', 'touchPlaces', 'stay', 'fade', 'weather', 'weatherPress', 'weatherEase', 'lightning', 'others', 'pressGap', 'track'];
 const READY_PRESETS = [
     { id: 'calm-garden',  name: '🌳 Calm garden',  theme: 'birds', scene: 'garden',   look: 'soft',  pace: 1.7,
       jobs: ['Sparrow', 'Pigeon', 'Duck', 'Hen', 'anything'] },

@@ -21,6 +21,8 @@ const SCENE_DEFAULTS = {
     weather:       'clear',    // the scene's own weather ('clear' or a SceneWeather id): it starts with it and eases back to it
     weatherPress:  'build',    // weather switches: 'build' (each press stronger, eases off) | 'toggle' (on / off)
     weatherEase:   20,         // building up: seconds each step lasts once nobody presses or touches the sky
+    lightning:     true,       // storms show lightning bolts (false: thunder only)
+    pressGap:      1,          // seconds after a press or touch does something before another can
     animalVolume:  1,
     ambientVolume: 0.5,        // the background loop; 0 = off
     weatherVolume: 0.5,        // rain, wind and thunder; 0 = off
@@ -165,7 +167,7 @@ function buildScene() {
         el.hidden = true;
         el.innerHTML = `<img alt="${name}" src="${imgSrc(animal)}">`;
         el.querySelector('img').style.animationDelay = (-Math.random() * 3).toFixed(2) + 's';
-        el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started) touched(name); });
+        el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started && accept(false)) touched(name); });
         layer.appendChild(el);
         cast[name] = { el, def, sound: animal.sound, spot: null, arrivedAt: 0, calledAt: 0, leaving: false };
     });
@@ -361,9 +363,8 @@ function everyoneLeaves() {
 //
 // Each strength adds its own set of drops, flakes or leaves, faster than the last, so
 // stronger weather is both heavier and quicker (a drop can't change speed mid-fall
-// without jumping). Thunder is a faint lightning bolt, brighter in a stronger storm,
-// and a distant rumble: at most one every few seconds, however often it's asked for,
-// so it can never become flashing.
+// without jumping). Thunder is a lightning bolt and a distant rumble, more and closer
+// together as a storm strengthens, within firm limits (see thunder()).
 //
 // Weather switches either build up (each press is a step stronger, and left alone
 // the weather eases back to the scene's own) or turn the weather on and off.
@@ -381,7 +382,6 @@ let strength = BASE_STRENGTH;
 let lastWeatherPress = 0;   // when a weather switch was last pressed, or the sky touched
 let nextThunder = 0;
 let lastThunder = 0;
-let rumble = null;
 
 function building() { return sceneSettings.weatherPress !== 'toggle'; }
 function homeWeather() { return SceneWeather[sceneSettings.weather] ? sceneSettings.weather : 'clear'; }
@@ -393,32 +393,40 @@ function drawWeather(id) {
         const lv = k ? ` lv${k + 1}` : '';
         return Array.from({ length: count }, () => make(k + 1, lv)).join('');
     }).join('');
-    const speed = level => 1 - (level - 1) * 0.13;           // level 5 moves about twice as fast as level 1
+    const speed = level => 1 - (level - 1) * 0.15;           // level 5 moves two and a half times as fast as level 1
     // Each falling or blowing thing runs along a track the size of the scene, so
     // its motion is a transform (smooth, and cheap for the browser).
-    const rain = () => `<div class="rain">${levels([30, 40, 50, 60, 70], (level, lv) => {
+    const rain = () => `<div class="rain">${levels([20, 40, 70, 110, 160], (level, lv) => {
         const d = rand(1.1, 1.4) * speed(level);
-        return `<i class="${lv}" style="left:${rand(-5, 105).toFixed(1)}%;--d:${d.toFixed(2)}s;--len:${4 + level * 2}%;animation-delay:${rand(-d, 0).toFixed(2)}s"></i>`;
-    })}</div>`;
-    const overcast = storm => `<div class="overcast"></div><div class="overcast deep${storm ? '' : ' lv5'}"></div>`;
+        return `<i class="${lv}" style="left:${rand(-5, 105).toFixed(1)}%;--d:${d.toFixed(2)}s;--len:${4 + level * 2.5}%;animation-delay:${rand(-d, 0).toFixed(2)}s"></i>`;
+    })}</div>` +
+        // A downpour: grey sheets of rain sweeping through
+        '<div class="sheets lv4"></div><div class="sheets lv5 more"></div>';
+    // The sky darkens at each step; a storm has a deeper, darker layer from the start and another from 3.
+    const overcast = storm => `<div class="overcast"></div><div class="overcast deep${storm ? '' : ' lv4'}"></div>` +
+        (storm ? '<div class="overcast deeper lv3"></div>' : '');
     const splashes = () => [0, 1, 2, 3, 4].map(k => `<div class="fill${k ? ' lv' + (k + 1) : ''}">${(art.splashes || []).map(([x, y]) =>
         `<i class="splash" style="left:${(x + (k % 2 ? 1 : -1) * k * 1.4).toFixed(1)}%;top:${(y - k * 0.5).toFixed(1)}%;animation-delay:${rand(-2, 0).toFixed(2)}s"></i>`).join('')}</div>`).join('');
     // Snow: six-armed crystals at three depths (small, faint and slow far away; big
     // close up), turning slowly and drifting from side to side as they fall.
-    const snow = () => `<div class="snow">${levels([22, 26, 30, 34, 38], (level, lv) => {
+    const snow = () => `<div class="snow">${levels([20, 45, 80, 120, 160], (level, lv) => {
         const depth = Math.floor(Math.random() * 3);
-        const [size, fall, sway] = [[rand(0.55, 0.85), rand(20, 26), 0.8], [rand(0.95, 1.4), rand(13, 17), 1.4], [rand(1.6, 2.4), rand(8, 11), 2.2]][depth];
+        const [size, fall, sway] = [[rand(0.7, 1), rand(20, 26), 0.8], [rand(0.95, 1.4), rand(13, 17), 1.4], [rand(1.6, 2.4), rand(8, 11), 2.2]][depth];
         const d = fall * speed(level);
         return `<i class="d${depth}${lv}" style="left:${rand(-3, 103).toFixed(1)}%;--d:${d.toFixed(1)}s;animation-delay:${rand(-d, 0).toFixed(1)}s">` +
             `<b style="--s:${size.toFixed(2)}vw;--x:${sway}vw;--w:${rand(2.5, 4.5).toFixed(1)}s;--r:${rand(12, 24).toFixed(0)}s"></b></i>`;
-    })}</div>`;
-    const leaves = () => `<div class="leaves">${levels([8, 10, 12, 14, 16], (level, lv) => {
+    })}</div>` +
+        // A blizzard: snow blowing in white bands, and a white-out haze
+        `<div class="blowing lv4">${[[55, 30, 14], [25, 26, 18], [75, 26, 11]].map(([top, h, d], i) =>
+            `<div class="mist" style="top:${top}%;height:${h}%;--d:${d}s;animation-delay:${-d * i * 0.4}s"></div>`).join('')}</div>` +
+        '<div class="whiteout lv4"></div><div class="whiteout lv5"></div>';
+    const leaves = () => `<div class="leaves">${levels([8, 16, 28, 45, 70], (level, lv) => {
         const d = rand(9, 12) * speed(level);
         return `<i class="${lv}" style="top:${rand(8, 80).toFixed(1)}%;--d:${d.toFixed(1)}s;animation-delay:${rand(-d, 0).toFixed(1)}s">` +
             `<b class="c${Math.floor(Math.random() * 3)}" style="--w:${(rand(2.5, 4) * speed(level)).toFixed(1)}s"></b></i>`;
     })}</div>`;
     // Strong wind: white streaks whipping across, more and quicker each level from 3.
-    const gusts = () => `<div class="gusts">${levels([0, 0, 4, 6, 8], (level, lv) => {
+    const gusts = () => `<div class="gusts">${levels([0, 3, 8, 14, 22], (level, lv) => {
         const d = rand(2.2, 3) * speed(level);
         return `<i class="${lv}" style="top:${rand(10, 75).toFixed(1)}%;--d:${d.toFixed(2)}s;animation-delay:${rand(-d * 2, 0).toFixed(2)}s"><b></b></i>`;
     })}</div>`;
@@ -429,9 +437,11 @@ function drawWeather(id) {
         storm: [overcast(true) + splashes(), rain()],
         snow:  [overcast(false), snow()],
         wind:  ['', leaves() + gusts()],
-        fog:   [`<div class="haze"></div><div class="haze high lv4"></div>${[[42, 30, 95, ''], [20, 26, 70, 'lv2'], [60, 34, 80, 'lv3']].map(mist).join('')}`,
-                // Low mist in front of the animals, for depth: light, and it doesn't stop touches.
-                `<div class="front-fog">${[[66, 26, 60, 'lv2'], [50, 24, 85, 'lv3'], [78, 24, 72, 'lv4'], [36, 30, 90, 'lv5']].map(mist).join('')}<div class="haze high lv5"></div></div>`],
+        fog:   [`<div class="haze"></div><div class="haze high lv3"></div>${[[42, 30, 95, ''], [20, 26, 70, 'lv2'], [60, 34, 80, 'lv3'], [8, 30, 60, 'lv4']].map(mist).join('')}`,
+                // Mist in front of the animals, for depth, thickening to a near white-out at 5.
+                // It doesn't stop touches.
+                `<div class="front-fog">${[[66, 26, 60, 'lv2'], [50, 24, 85, 'lv3'], [78, 24, 72, 'lv4'], [36, 30, 90, 'lv5'], [58, 30, 50, 'lv5']].map(mist).join('')}` +
+                `<div class="haze high lv4"></div><div class="haze high lv5"></div></div>`],
         rainbow: ['', ''],
     };
     const [back, front] = parts[id] || ['', ''];
@@ -448,10 +458,11 @@ function drawWeather(id) {
         g.innerHTML = `<defs><linearGradient id="rainbow-grad" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="0" y2="700">
             <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>
             <mask id="rainbow-fade"><rect width="1600" height="900" fill="url(#rainbow-grad)"/></mask></defs>
+            <path class="halo lv5" d="M190 740 A 610 610 0 0 1 1410 740"/>
             <g class="bows">${bow(560, 17, [1, 2, 3, 4, 5, 6])}<g class="lv4 second">${bow(700, 12, [6, 5, 4, 3, 2, 1])}</g></g>
-            ${[3, 4, 5].map(level => `<g class="lv${level}">${Array.from({ length: 6 }, () => {
+            ${[[3, 8], [4, 12], [5, 20]].map(([level, count]) => `<g class="lv${level}">${Array.from({ length: count }, () => {
                 // Gentle sparkles along the bow, twinkling slowly (never flashing)
-                const angle = rand(0.15, 0.85) * Math.PI, r = rand(470, 580);
+                const angle = rand(0.12, 0.88) * Math.PI, r = rand(450, 720);
                 return `<path class="sparkle" style="animation-delay:${rand(-4, 0).toFixed(1)}s" transform="translate(${(800 - r * Math.cos(angle)).toFixed(0)} ${(740 - r * Math.sin(angle)).toFixed(0)})"
                     d="M0 -14 Q2 -2 14 0 Q2 2 0 14 Q-2 2 -14 0 Q-2 -2 0 -14Z"/>`;
             }).join('')}</g>`).join('')}`;
@@ -528,37 +539,52 @@ setInterval(() => {
     else setWeather(home);
 }, 1000);
 
-// A faint bolt of lightning, then a rumble a moment later, as if far away. In a
-// stronger storm the bolt is a little thicker and brighter, and the rumble louder.
+// Thunder: a bolt of lightning, then a rumble a moment later, as if far away. The
+// stronger the storm, the thicker and brighter the bolt, the louder the rumble and
+// the sooner the next; in a strong storm a second bolt sometimes follows. Limits for
+// photosensitive students: never two bolts within BOLT_GAP (so at most about one a
+// second), each fades in over a quarter of a second, and none flickers.
+const BOLT_GAP = 800;
+let rumbles = [];
 function thunder() {
-    if (Date.now() - lastThunder < 6000) return;
-    lastThunder = Date.now();
     const level = liveWeather === 'storm' ? strength : BASE_STRENGTH;
-    // Into the scene's drawing, just after the sun and moon, so hills and trees are in front.
-    const svg = document.querySelector('#bg svg');
-    let bolt = svg.querySelector('.bolt');
-    if (!bolt) {
-        bolt = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        bolt.setAttribute('class', 'bolt');
-        svg.querySelector('.f-moon').parentNode.after(bolt);
+    const wait = [0, 6, 6, 4, 2.5, 1.5][level] * 1000;          // between thunders asked for by switches
+    if (Date.now() - lastThunder < wait) return;
+    strike(level);
+    if (level >= 4 && Math.random() < (level === 5 ? 0.5 : 0.3)) setTimeout(() => strike(level), rand(1000, 1500));
+}
+function strike(level) {
+    if (Date.now() - lastThunder < BOLT_GAP) return;
+    lastThunder = Date.now();
+    if (sceneSettings.lightning) {
+        // In front of the darkened sky (so a stronger storm doesn't hide it) but behind the
+        // animals; its lower end fades away towards the horizon (see .bolt in scenes.css).
+        const bolt = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        bolt.setAttribute('class', 'bolt strike');
+        bolt.setAttribute('viewBox', '0 0 1600 900');
+        bolt.setAttribute('preserveAspectRatio', 'none');
+        const d = boltPath(level >= 4 ? 2 : 1);
+        bolt.innerHTML = `<path class="bolt-halo" style="stroke-width:${10 + level * 4}" d="${d}"/>` +
+                         `<path class="bolt-core" style="stroke-width:${(2 + level * 0.9).toFixed(1)}" d="${d}"/>`;
+        bolt.style.setProperty('--peak', (0.5 + level * 0.1).toFixed(2));
+        document.getElementById('wx-back').appendChild(bolt);
+        setTimeout(() => bolt.remove(), 2200);
     }
-    const d = boltPath(level >= 4 ? 2 : 1);
-    bolt.innerHTML = `<path class="bolt-halo" style="stroke-width:${10 + level * 3}" d="${d}"/>` +
-                     `<path class="bolt-core" style="stroke-width:${(2 + level * 0.7).toFixed(1)}" d="${d}"/>`;
-    bolt.style.setProperty('--peak', (0.5 + level * 0.09).toFixed(2));
-    bolt.classList.remove('strike'); bolt.getBoundingClientRect(); bolt.classList.add('strike');
     setTimeout(() => {
         if (!(sceneSettings.weatherVolume > 0)) return;
-        if (rumble) rumble.pause();
-        rumble = new Audio(`sounds/weather/thunder-${1 + Math.floor(Math.random() * 3)}.mp3`);
-        rumble.volume = sceneSettings.weatherVolume * (0.5 + level * 0.1);
-        rumble.play().catch(() => {});
-    }, rand(900, 2400));
+        // Up to two rumbles at once, so a strong storm rolls on
+        rumbles = rumbles.filter(r => !r.paused && !r.ended);
+        if (rumbles.length >= 2) rumbles.shift().pause();
+        const r = new Audio(`sounds/weather/thunder-${1 + Math.floor(Math.random() * 3)}.mp3`);
+        r.volume = Math.min(1, sceneSettings.weatherVolume * (0.5 + level * 0.1));
+        r.play().catch(() => {});
+        rumbles.push(r);
+    }, rand(700, 2000) / (level >= 4 ? 1.5 : 1));
 }
 // A jagged line from high in the sky down behind the hills, with one or two short forks.
 function boltPath(forks) {
     const pt = (x, y) => ` ${x.toFixed(0)} ${y.toFixed(0)}`;
-    let x = rand(350, 1250), y = rand(30, 90), d = 'M' + pt(x, y), branches = '';
+    let x = rand(300, 1300), y = rand(30, 90), d = 'M' + pt(x, y), branches = '';
     const end = rand(560, 640);
     for (let i = 0; y < end; i++) {
         x += rand(-50, 50); y += rand(35, 65);
@@ -574,14 +600,33 @@ function boltPath(forks) {
 }
 function rand(a, b) { return a + Math.random() * (b - a); }
 
-// In a storm, thunder now and then: more often when it's stronger, never closer
-// than 20 seconds apart on its own, and less often at the Slower speed.
+// In a storm, thunder by itself now and then: every half a minute or so when it's
+// light, every few seconds at full strength (a little less often at the Slower speed).
 setInterval(() => {
     if (!started || setupOpen() || liveWeather !== 'storm' || Date.now() < nextThunder) return;
     thunder();
-    const [a, b] = [null, [40, 60], [35, 50], [28, 40], [22, 32], [20, 25]][strength];
+    const [a, b] = [null, [30, 45], [18, 28], [10, 16], [5, 9], [2.5, 5]][strength];
     nextThunder = Date.now() + rand(a, b) * 1000 * Math.max(1, sceneSettings.pace);
-}, 1000);
+}, 500);
+
+// ── A calm pace, however fast the presses come ──
+// After a switch press or a touch does something, others wait `pressGap` seconds,
+// so a flurry of presses doesn't set everything off at once. Big changes (a scene,
+// a look, a different weather, everyone leaving) also wait for the last one to
+// finish. Ripples always show, so a touch is always seen.
+let quietUntil = 0, bigQuietUntil = 0;
+function accept(big) {
+    const now = Date.now();
+    if (now < quietUntil || (big && now < bigQuietUntil)) return false;
+    quietUntil = now + sceneSettings.pressGap * 1000;
+    if (big) bigQuietUntil = now + Math.max(2, Math.min(sceneSettings.fade, 5)) * 1000;
+    return true;
+}
+const BIG_JOBS = ['daynight', 'nextlook', 'nextscene', 'clear', 'nextweather'];
+// Making the same weather stronger is small; changing the weather is big.
+function isBig(job) {
+    return BIG_JOBS.includes(job) || (!!SceneWeather[job] && (liveWeather !== job || !building()));
+}
 
 function doJob(job) {
     if (job === 'anything') anything();
@@ -642,7 +687,8 @@ function setupOpen() { return !document.getElementById('setup').hidden; }
 
 Switches.onPress(slot => {
     if (!started || setupOpen()) return;
-    doJob(jobFor(slot));
+    const job = jobFor(slot);
+    if (accept(isBig(job))) doJob(job);
 });
 // Keys and buttons that aren't numbered switches: start the scene, or something random.
 Switches.onAnyPress(binding => {
@@ -654,7 +700,7 @@ Switches.onAnyPress(binding => {
     }
     if (Switches.slotOf(binding) >= 0) return false;       // a numbered switch: onPress does its job
     if (sceneSettings.others !== 'anything') return false;
-    anything();
+    if (accept(false)) anything();
     return true;
 });
 
@@ -662,13 +708,14 @@ Switches.onAnyPress(binding => {
 // animal that lives there to that very spot. If all of them are here already, the one
 // that has been here longest moves over to it. Returns whether a place was touched.
 const TOUCH_REACH = 9;      // how near a place a touch must be, in % of the scene's width
-function touchPlace(x, y) {
+function placeNear(x, y) {
     const near = spots.filter(p => !p.animal)
         .map(p => ({ p, d: Math.hypot(p.x - x, (p.y - y) * 9 / 16) }))
         .filter(o => o.d < TOUCH_REACH)
         .sort((m, n) => m.d - n.d)[0];
-    if (!near) return false;
-    const spot = near.p;
+    return near ? near.p : null;
+}
+function touchPlace(spot) {
     const lives = Object.keys(cast).filter(n => cast[n].def.habitat === spot.habitat);
     const away = lives.filter(n => !cast[n].spot);
     if (away.length) { arrive(away[Math.floor(Math.random() * away.length)], spot); return true; }
@@ -696,9 +743,10 @@ stage.addEventListener('pointerdown', e => {
     stage.appendChild(r);
     setTimeout(() => r.remove(), 1900);
     const x = (e.clientX - s.left) / s.width * 100, y = (e.clientY - s.top) / s.height * 100;
-    if (sceneSettings.touchPlaces && touchPlace(x, y)) return;
+    const spot = sceneSettings.touchPlaces && placeNear(x, y);
+    if (spot) { if (accept(false)) touchPlace(spot); return; }
     // Building up: touching the sky (not an animal or a place) works like pressing the weather's switch.
-    if (building() && liveWeather !== 'clear' && y < 50) pressWeather(liveWeather);
+    if (building() && liveWeather !== 'clear' && y < 50 && accept(false)) pressWeather(liveWeather);
 });
 
 /* ── Start: the first tap or key press starts the sound and goes full screen ── */
