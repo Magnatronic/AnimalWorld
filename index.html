@@ -368,7 +368,8 @@
             <button class="setting-done" onclick="closeSettings()">✓ Done</button>
         </div>
         <div class="settings-tabs">
-            <button class="settings-tab active" data-tab="switch">♿ Switch</button>
+            <button class="settings-tab active" data-tab="switch">♿ Scanning</button>
+            <button class="settings-tab" data-tab="switches">🎛️ Switches</button>
             <button class="settings-tab" data-tab="area">📐 Play area</button>
             <button class="settings-tab" data-tab="games">🎮 Games</button>
             <button class="settings-tab" data-tab="sound">🔊 Sound</button>
@@ -380,10 +381,12 @@
                 <div class="setting-opts" data-setting="scan.mode">
                     <button class="setting-opt" data-value="auto">Auto</button>
                     <button class="setting-opt" data-value="press">Press to Start</button>
+                    <button class="setting-opt" data-value="two">Two Switches</button>
                 </div>
+                <p class="setting-note" id="scan-mode-note"></p>
             </div>
 
-            <div class="setting-group">
+            <div class="setting-group" id="speed-group">
                 <span class="setting-label">Scan Speed</span>
                 <div class="setting-opts" data-setting="scan.speed">
                     <button class="setting-opt" data-value="3000">Slow<br><small>3s</small></button>
@@ -403,7 +406,7 @@
                 </div>
             </div>
 
-            <div class="setting-group">
+            <div class="setting-group" id="loops-group">
                 <span class="setting-label">Loops</span>
                 <div class="setting-opts" data-setting="scan.loops">
                     <button class="setting-opt" data-value="1">1 loop</button>
@@ -412,19 +415,33 @@
                 </div>
             </div>
 
-            <div class="setting-group">
-                <span class="setting-label">Scanning key</span>
-                <div class="setting-opts" data-setting="scan.anyKey">
-                    <button class="setting-opt" data-value="false">Space / Enter</button>
-                    <button class="setting-opt" data-value="true">Any Key</button>
-                </div>
+            <!-- These three rows list the learned switches too, so settings.js builds their buttons. -->
+            <div class="setting-group" id="select-group">
+                <span class="setting-label">Scanning switch</span>
+                <div class="setting-opts" data-setting="scan.select" data-choices="space any learned"></div>
             </div>
-        
-            <div class="setting-section">🎛️ Your switches</div>
-            <p class="setting-note switch-intro">Tap <strong>Learn</strong>, then press the switch. Works with
-                SimplyWorks and Bluetooth switches, keyboards, and the Xbox Adaptive Controller. Every switch
-                learned here also works as the scanning switch, and in Animal Scenes.</p>
+
+            <div class="setting-group" id="move-group">
+                <span class="setting-label">Move switch</span>
+                <div class="setting-opts" data-setting="scan.move" data-choices="space enter"></div>
+            </div>
+
+            <div class="setting-group" id="pick-group">
+                <span class="setting-label">Select switch</span>
+                <div class="setting-opts" data-setting="scan.pick" data-choices="enter space"></div>
+            </div>
+
+            <p class="setting-note" id="scan-switch-note"></p>
+            <button class="setting-link" id="go-switches" onclick="showSettingsTab('switches')">🎛️ Learn switches in the Switches tab</button>
+        </div>
+
+        <div class="settings-pane" data-pane="switches">
+            <p class="setting-intro">Tap <strong>Learn</strong>, then press the switch. Works with SimplyWorks
+                and Bluetooth switches, keyboards, and the Xbox Adaptive Controller. Choose which switch scans in
+                the ♿ Scanning tab. Switches learned here are shared with Animal Scenes.</p>
             <div class="switch-list" id="switch-list"></div>
+            <p class="setting-note">An Xbox Adaptive Controller is only noticed once one of its buttons has
+                been pressed on this page.</p>
         </div>
 
         <div class="settings-pane" data-pane="area">

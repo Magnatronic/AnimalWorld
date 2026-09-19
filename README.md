@@ -21,11 +21,14 @@ Press and hold the ⚙ button (bottom right) for two seconds to open Settings. A
 shows a reminder, so students can't open it by accident. Changes are saved in the browser, so
 each computer remembers its own setup.
 
-- **Switch** — switch scanning for AAC users: scan mode, speed, start delay, loops and scanning key.
-  Whether scanning is on is remembered too. **Your switches** learns up to six switches: tap Learn
-  and press the switch. It works with anything that sends a keystroke (Pretorian SimplyWorks SEND-6,
-  Bluetooth switches, keyboards) and with the Xbox Adaptive Controller. Every learned switch also
-  works as the scanning switch, and they are shared with Animal Scenes. In Chrome and Edge a
+- **Scanning** — switch scanning for AAC users. Three modes: **Auto** (the highlight moves on its
+  own), **Press to Start**, and **Two Switches** (one switch moves the highlight, the other chooses,
+  with no timer). Only the options for the chosen mode are shown: speed, start delay and loops, and
+  which switch scans (Space / Enter, any key, any learned switch, or one particular switch) — or,
+  for two switches, which one moves and which one selects. Whether scanning is on is remembered too.
+- **Switches** — learns up to six switches: tap Learn and press the switch. It works with anything
+  that sends a keystroke (Pretorian SimplyWorks SEND-6, Bluetooth switches, keyboards) and with the
+  Xbox Adaptive Controller. Learned switches are shared with Animal Scenes. In Chrome and Edge a
   controller is only noticed after one of its buttons has been pressed on the page.
 - **Play area** — shrinks the app into a box at the bottom left, centre or right of the screen,
   for students who can't reach the top of a large touchscreen. The Back button can move to the

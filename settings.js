@@ -6,11 +6,16 @@ const SETTINGS_KEY = 'animalWorld.settings';
 const DEFAULT_SETTINGS = {
     scan: {
         on:         false,   // switch scanning; remembered so a switch user's device starts ready
-        mode:       'auto',  // 'auto' | 'press'
+        mode:       'auto',  // 'auto' | 'press' | 'two' (one switch moves, one selects)
         speed:       1800,   // ms per item
         startDelay:  1000,   // ms before auto-scan begins
         loops:          0,   // 0 = continuous, n = stop after n loops
-        anyKey:     false,   // true = any keydown acts as switch
+        // Which switch does what. 'space' = Space (or Enter, for one-switch scanning),
+        // 'enter', 'any' = any key or switch, 'learned' = any learned switch,
+        // 's0'…'s5' = one learned switch (see shared/switches.js).
+        select:   'space',   // the one scanning switch, in Auto and Press to Start
+        move:     'space',   // Two Switches: moves the highlight
+        pick:     'enter',   // Two Switches: chooses
     },
     area: {
         size:         100,   // % of the screen the app fills: 100, 80 or 60
@@ -42,6 +47,8 @@ function loadSettings() {
             const value = saved?.[group]?.[key];
             if (typeof value === typeof s[group][key]) s[group][key] = value;
         }
+        // Before learned switches, "Any key" was a yes/no setting.
+        if (saved?.scan?.anyKey === true && saved.scan.select === undefined) s.scan.select = 'any';
     } catch (e) { /* private window or blocked storage: run on defaults */ }
     return s;
 }
@@ -82,13 +89,63 @@ function parseSettingValue(v) {
     return v;
 }
 
+// Buttons for the rows that choose a switch: their fixed choices, then each learned switch.
+const CHOICE_LABELS = { space: 'Space', enter: 'Enter', any: 'Any key or switch', learned: 'Any learned switch' };
+function renderSwitchChoices() {
+    document.querySelectorAll('#settings-panel [data-choices]').forEach(row => {
+        const single = row.dataset.setting === 'scan.select';
+        const fixed = row.dataset.choices.split(' ').map(c =>
+            `<button class="setting-opt" data-value="${c}">${c === 'space' && single ? 'Space / Enter' : CHOICE_LABELS[c]}</button>`);
+        const learned = Switches.slots.map((slot, i) => slot.binding
+            ? `<button class="setting-opt" data-value="s${i}"><i class="opt-dot" style="background:${Switches.COLOUR_HEX[slot.colour]}"></i>Switch ${i + 1}</button>` : '');
+        row.innerHTML = fixed.join('') + learned.join('');
+    });
+}
+
+// Explain the scanning set-up in words, including when a chosen switch has been forgotten.
+function scanSwitchNote() {
+    const s = settings.scan;
+    const forgotten = c => /^s\d$/.test(c) && !Switches.slots[+c[1]].binding;
+    const name = c => (/^s\d$/.test(c) ? 'Switch ' + (+c[1] + 1) : CHOICE_LABELS[c]);
+    if (s.mode === 'two') {
+        const move = forgotten(s.move) ? 'space' : s.move, pick = forgotten(s.pick) ? 'enter' : s.pick;
+        if (move === pick) return 'Move and Select need different switches.';
+        if (forgotten(s.move) || forgotten(s.pick)) {
+            return `${name(forgotten(s.move) ? s.move : s.pick)} isn't learned any more, so ${forgotten(s.move) ? 'Space moves' : 'Enter selects'}.`;
+        }
+    } else if (forgotten(s.select)) {
+        return `${name(s.select)} isn't learned any more, so Space / Enter scans.`;
+    }
+    return '';
+}
+
+const SCAN_MODE_NOTES = {
+    auto:  'The highlight moves on its own. Press the switch to choose.',
+    press: 'Press the switch to start the highlight moving, and again to choose.',
+    two:   'One switch moves the highlight, the other chooses. There is no timer.',
+};
+
 function renderSettings() {
+    renderSwitchChoices();
     document.querySelectorAll('#settings-panel [data-setting]').forEach(row => {
         const [group, key] = row.dataset.setting.split('.');
         row.querySelectorAll('.setting-opt').forEach(btn =>
             btn.classList.toggle('active', parseSettingValue(btn.dataset.value) === settings[group][key]));
     });
-    document.getElementById('delay-group').style.display = settings.scan.mode === 'auto' ? '' : 'none';
+    // Show only the scanning rows that apply to the chosen mode.
+    const mode = settings.scan.mode, two = mode === 'two';
+    const showRow = (id, on) => { document.getElementById(id).style.display = on ? '' : 'none'; };
+    showRow('speed-group',  !two);
+    showRow('delay-group',  mode === 'auto');
+    showRow('loops-group',  !two);
+    showRow('select-group', !two);
+    showRow('move-group',    two);
+    showRow('pick-group',    two);
+    document.getElementById('scan-mode-note').textContent = SCAN_MODE_NOTES[mode];
+    const note = scanSwitchNote();
+    document.getElementById('scan-switch-note').textContent = note;
+    document.getElementById('scan-switch-note').style.display = note ? '' : 'none';
+    document.getElementById('go-switches').style.display = Switches.anyLearned() ? 'none' : '';
     document.getElementById('area-pos-group').style.display = settings.area.size < 100 ? '' : 'none';
     renderVoiceOptions();
 }
@@ -137,6 +194,7 @@ async function learnSwitch(i) {
     row.querySelector('.switch-learn').textContent = 'Cancel';
     await Switches.learn(i);
     renderSwitchList();
+    renderSettings();
 }
 
 document.getElementById('switch-list').addEventListener('click', e => {
@@ -149,6 +207,7 @@ document.getElementById('switch-list').addEventListener('click', e => {
     } else if (e.target.closest('.switch-clear')) {
         Switches.clear(i);
         renderSwitchList();
+        renderSettings();
     }
 });
 

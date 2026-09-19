@@ -38,8 +38,21 @@ function startScan(items) {
     if (!scanItems.length) return;
     if (settings.scan.mode === 'auto') {
         scanDelayTimer = setTimeout(beginCycling, settings.scan.startDelay);
+    } else if (settings.scan.mode === 'two') {
+        // Two switches: show where the highlight starts, then wait for Move or Select
+        scanRunning = true;
+        scanIndex   = 0;
+        applyFocus();
     }
     // press mode: wait for keypress to begin
+}
+
+// Two switches: the Move switch steps the highlight on, wrapping round at the end.
+function stepScan() {
+    if (!scanItems.length) return;
+    scanIndex = scanRunning ? (scanIndex + 1) % scanItems.length : 0;
+    scanRunning = true;
+    applyFocus();
 }
 
 function beginCycling() {
@@ -69,13 +82,20 @@ function applyFocus() {
 function selectCurrent() {
     if (!scanItems.length) return;
     const target = scanItems[scanIndex];
+    const mode = settings.scan.mode, chosen = scanIndex;
     _navigated = false;
     stopScan();
     target?.click();
-    // Auto mode: if no navigation happened (e.g. animal sound), restart scan
-    if (settings.scan.mode === 'auto') {
+    // If no navigation happened (e.g. an animal sound), carry on scanning this screen.
+    // With two switches, stay on the item just chosen instead of jumping back to the start.
+    if (mode === 'auto' || mode === 'two') {
         setTimeout(() => {
-            if (!_navigated) setScanForScreen(document.querySelector('.screen.active')?.id);
+            if (_navigated) return;
+            setScanForScreen(document.querySelector('.screen.active')?.id);
+            if (mode === 'two' && scanItems.length) {
+                scanIndex = Math.min(chosen, scanItems.length - 1);
+                applyFocus();
+            }
         }, 200);
     }
 }
@@ -84,29 +104,60 @@ function settingsOpen() {
     return document.getElementById('settings-panel').classList.contains('open');
 }
 
-// One press of the scanning switch, whatever sent it.
+// One press of the scanning (or Select) switch, whatever sent it.
 function scanSwitchPressed() {
     if (settings.scan.mode === 'press') {
         if (!scanRunning) { clearTimeout(scanDelayTimer); beginCycling(); }
         else              { selectCurrent(); }
     } else {
-        // auto mode: keypress = select
+        // auto and two-switch: a press chooses the highlighted item
         if (scanRunning) selectCurrent();
     }
 }
 
-document.addEventListener('keydown', e => {
-    if (!scanMode || settingsOpen()) return;
-    if (Switches.isLearnedKey(e)) return;      // learned switches arrive through Switches.onPress
-    const isSwitch = settings.scan.anyKey || e.code === 'Space' || e.code === 'Enter';
-    if (!isSwitch) return;
-    e.preventDefault();
+// A choice of switch from settings.scan (see settings.js). A learned switch that has
+// since been forgotten falls back to the key it replaced.
+function scanChoice(choice, fallback) {
+    const m = /^s(\d)$/.exec(choice);
+    return m && !Switches.slots[+m[1]].binding ? fallback : choice;
+}
+
+// Does an input match a choice? `code` is the key it came from (learned keyboard
+// switches included), `sw` the learned switch number or -1.
+function choiceMatches(choice, code, sw, spaceOrEnter) {
+    switch (choice) {
+        case 'space':   return code === 'Space' || (spaceOrEnter && code === 'Enter');
+        case 'enter':   return code === 'Enter';
+        case 'any':     return true;
+        case 'learned': return sw >= 0;
+        default:        return choice === 's' + sw;
+    }
+}
+
+// Work out what an input does in scanning, and do it. Returns whether it was a scanning input.
+function scanInput(code, sw) {
+    const s = settings.scan;
+    if (s.mode === 'two') {
+        if (choiceMatches(scanChoice(s.move, 'space'), code, sw, false)) { stepScan(); return true; }
+        if (choiceMatches(scanChoice(s.pick, 'enter'), code, sw, false)) { scanSwitchPressed(); return true; }
+        return false;
+    }
+    if (!choiceMatches(scanChoice(s.select, 'space'), code, sw, true)) return false;
     scanSwitchPressed();
+    return true;
+}
+
+document.addEventListener('keydown', e => {
+    if (!scanMode || settingsOpen() || e.repeat) return;
+    if (Switches.isLearnedKey(e)) return;      // learned switches arrive through Switches.onPress
+    if (scanInput(e.code, -1)) e.preventDefault();
 });
 
-// Any learned switch (SimplyWorks, Bluetooth, Xbox Adaptive Controller) also scans.
-Switches.onPress(() => {
-    if (scanMode && !settingsOpen()) scanSwitchPressed();
+// Learned switches (SimplyWorks, Bluetooth, Xbox Adaptive Controller)
+Switches.onPress(i => {
+    if (!scanMode || settingsOpen()) return;
+    const binding = Switches.slots[i].binding;
+    scanInput(binding && binding.type === 'key' ? binding.code : null, i);
 });
 
 function setScanForScreen(id) {
