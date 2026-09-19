@@ -78,7 +78,7 @@ function usePreset(p) {
     lastWeatherPress = Date.now();
     buildScene();
     if (started && trackUrl() !== trackBefore) Ambient.start(trackUrl(), sceneSettings.ambientVolume);
-    if (!started) document.getElementById('start-theme').textContent = p.name;
+    if (!started) showTapToStart(p.name);
 }
 
 // Save the set-up as a new preset, with an id made from its name (used in its link).

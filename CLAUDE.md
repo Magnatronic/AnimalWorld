@@ -12,7 +12,9 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
   picker → Explore, Memory, Whack-a-Mole, Find the Animal. Settings panel (hold ⚙ 2 s): Scanning,
   Play area, Games, Sound.
 - **Animal Scenes** — `scenes.html`, `scenes/`. A calm full-screen scene; touch and switches bring
-  animals in. Set-up (hold ⚙ 2 s): Presets, Scene, Weather, Switches, Sound tabs.
+  animals in. Opens on a choice of animals (theme buttons, `showChooser()`; a preset link shows
+  `showTapToStart()` instead); set-up's "Choose animals" returns there. Set-up (hold ⚙ 2 s): Presets,
+  Scene, Weather, Switches, Sound tabs.
 
 ## Where things live
 | Path | What |

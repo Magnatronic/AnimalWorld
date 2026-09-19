@@ -415,7 +415,7 @@ function trackUrl() {
     return (SceneTracks[id] || SceneTracks[art.track]).file;
 }
 
-// Change to another theme's scenes (from set-up, so at once).
+// Change to another theme's scenes (chosen on the start screen).
 function changeTheme(id) {
     if (!SceneArt[id] || !themes[id] || id === sceneSettings.theme) return;
     const trackBefore = trackUrl();
@@ -423,7 +423,6 @@ function changeTheme(id) {
     saveSceneSettings();
     buildScene();
     if (started && trackUrl() !== trackBefore) Ambient.start(trackUrl(), sceneSettings.ambientVolume);
-    document.getElementById('start-theme').textContent = themes[id].label;
 }
 
 // Change to another of this theme's scenes, fading through a soft veil; or at
@@ -898,7 +897,30 @@ stage.addEventListener('pointerdown', e => {
     if (building() && liveWeather !== 'clear' && y < 50 && accept('sky')) pressWeather(liveWeather);
 });
 
-/* ── Start: the first tap or key press starts the sound and goes full screen ── */
+/* ── Start: choose the animals, and that tap starts the sound and goes full screen ── */
+// Each theme with scenes has a big button, like Animal Activities' theme picker; the one
+// used last time is marked, and a switch or key press starts it. A preset's link skips
+// the choice: the start screen just says the preset's name (showTapToStart).
+function showChooser() {
+    document.getElementById('start-themes').innerHTML = Object.keys(SceneArt).filter(id => themes[id]).map(id => {
+        const [icon, ...words] = themes[id].label.split(' ');
+        const count = Object.keys(SceneArt[id].scenes).length;
+        return `<button class="theme-btn btn-${id}" data-theme="${id}"><span class="btn-icon">${icon}</span>
+            <span class="btn-label">${words.join(' ')}<span class="front-sub">${count} scenes${id === sceneSettings.theme ? ' · used last time' : ''}</span></span>
+            <span class="btn-arrow">▶</span></button>`;
+    }).join('');
+    const box = document.getElementById('start');
+    box.classList.add('choosing');
+    document.getElementById('start-choose').hidden = false;
+    document.getElementById('start-go').hidden = true;
+    box.hidden = false;
+}
+function showTapToStart(text) {
+    document.getElementById('start').classList.remove('choosing');
+    document.getElementById('start-choose').hidden = true;
+    document.getElementById('start-go').hidden = false;
+    document.getElementById('start-theme').textContent = text;
+}
 function start() {
     if (started) return;
     started = true;
@@ -909,7 +931,21 @@ function start() {
     Ambient.start(trackUrl(), sceneSettings.ambientVolume);
     weatherSound();
 }
-document.getElementById('start').addEventListener('click', start);
+document.getElementById('start').addEventListener('click', e => {
+    if (e.target.closest('.start-back')) return;
+    const pick = e.target.closest('[data-theme]');
+    if (pick) { changeTheme(pick.dataset.theme); start(); }
+    else if (!document.getElementById('start').classList.contains('choosing')) start();
+});
+// From set-up: back to the start screen to choose other animals (the scene goes quiet meanwhile).
+function chooseAnimals() {
+    closeSetup();
+    started = false;
+    Ambient.stop();
+    Object.values(weatherLoops).forEach(loop => loop.stop());
+    if (calling) { calling.pause(); calling = null; }
+    showChooser();
+}
 
 /* ── Set-up (the adult's screen, opened by holding ⚙) ── */
 function openSetup() {
@@ -933,5 +969,5 @@ function leaveScenes() {
 holdToOpen(document.getElementById('settings-btn'), document.getElementById('hold-hint'), openSetup);
 
 while (Switches.slots.length < SCENE_SWITCHES_MIN) Switches.add();
-document.getElementById('start-theme').textContent = themes[sceneSettings.theme].label;
 buildScene();
+showChooser();

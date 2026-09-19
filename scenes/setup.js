@@ -150,8 +150,7 @@ function renderSetup() {
         </section>`,
         scene: `
         <section>
-            <div class="opt-group"><span class="opt-label">Animals</span><div class="opts">${Object.keys(SceneArt).filter(id => themes[id]).map(id =>
-                `<button class="opt${id === sceneSettings.theme ? ' active' : ''}" data-key="theme" data-value='"${id}"'>${themes[id].label}</button>`).join('')}</div></div>
+            <h3>${themes[sceneSettings.theme].label}</h3>
             <div class="opt-group"><span class="opt-label">Scene</span><div class="opts">${sceneIds().map(id =>
                 `<button class="opt${id === art.id ? ' active' : ''}" data-key="scene" data-value='"${id}"'>${SceneArt[sceneSettings.theme].scenes[id].name}</button>`).join('')}</div></div>
             <p class="setup-note">${roomText()}</p>
@@ -215,7 +214,6 @@ document.getElementById('setup-tabs').addEventListener('click', e => {
 
 function setScene(key, value) {
     if (key === 'scene') { changeScene(value, true); renderSetup(); renderLabels(); return; }
-    if (key === 'theme') { changeTheme(value); renderSetup(); renderLabels(); return; }
     const trackBefore = key === 'track' ? trackUrl() : null;
     sceneSettings[key] = value;
     saveSceneSettings();

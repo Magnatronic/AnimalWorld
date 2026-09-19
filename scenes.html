@@ -20,12 +20,21 @@
 <div class="veil" id="veil"></div>
 <div class="labels" id="labels" hidden></div>
 
-<!-- ══ START: one tap starts the sound and goes full screen ══ -->
-<div class="start" id="start">
+<!-- ══ START: choose the animals; that tap starts the sound and goes full screen ══ -->
+<!-- (Opened with a preset's link, it just says the preset's name and "Tap to start".) -->
+<div class="start choosing" id="start">
+    <a class="start-back" href="index.html">← Animal World</a>
     <h1>🌈 Animal Scenes</h1>
-    <p id="start-theme"></p>
-    <button class="start-btn" id="start-btn">Tap to start</button>
-    <p>Touch the animals, or press a switch.</p>
+    <div class="start-choose" id="start-choose">
+        <p>Choose the animals</p>
+        <div class="start-themes" id="start-themes"></div>
+        <p class="start-hint">A switch or key starts the one used last time.</p>
+    </div>
+    <div class="start-go" id="start-go" hidden>
+        <p id="start-theme"></p>
+        <button class="start-btn" id="start-btn">Tap to start</button>
+        <p>Touch the animals, or press a switch.</p>
+    </div>
 </div>
 
 <!-- ══ THE ADULT'S CORNER: hold ⚙ for set-up ══ -->
@@ -53,6 +62,7 @@
         <div class="setup-body" id="setup-body"></div>
         <div class="setup-foot">
             <button class="setup-exit" onclick="leaveScenes()">← Animal World</button>
+            <button class="setup-exit" onclick="chooseAnimals()">🔄 Choose animals</button>
             <span class="setup-saved">Changes are saved on this device</span>
         </div>
     </div>
