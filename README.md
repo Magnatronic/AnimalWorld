@@ -2,6 +2,11 @@
 
 An interactive animal learning app for classroom use. Plain HTML, CSS and JavaScript — no build step.
 
+The front page offers two parts:
+- **Animal Activities** — pick a theme, then an activity (below). Open it directly at `index.html#activities`.
+- **Animal Scenes** — calm, interactive animal scenes for touch screens and switches, for sensory rooms
+  and large touch projectors. Open it directly at `scenes.html`. *(In progress.)*
+
 ## Activities
 - **Explore Animals** — tap each animal to hear its sound
 - **Memory Game** — find the matching pairs, with four difficulty levels
@@ -36,9 +41,11 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 ## Files
 | Path | What it holds |
 |------|---------------|
-| `index.html` | The screens and buttons |
-| `styles.css` | All styling, including each theme's colours |
-| `themes.js` | The themes and their animals — start here to add or change a theme |
+| `index.html` | Animal World's front page and Animal Activities' screens |
+| `scenes.html` | Animal Scenes |
+| `styles.css` | Animal Activities' styling, including each theme's colours |
+| `shared/themes.js` | The themes and their animals, used by both parts — start here to add or change a theme |
+| `shared/fonts.css` | The Nunito font, used by both parts |
 | `settings.js` | The Settings panel: defaults, saving and the Play area |
 | `app.js` | The activities, sound playback and switch scanning |
 | `sounds/` | One `.mp3` per animal — see `sounds/_Adding Sounds.md` |
@@ -49,7 +56,7 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 To give a theme an OpenMoji animal it doesn't have yet, find its hexcode on
 [openmoji.org](https://openmoji.org), download
 `https://cdn.jsdelivr.net/npm/openmoji@15.0.0/color/svg/<HEXCODE>.svg` into `openmoji/`,
-and use the hexcode as the animal's `code` in `themes.js`.
+and use the hexcode as the animal's `code` in `shared/themes.js`.
 
 ## Hosting
 Live at: [https://Magnatronic.github.io/AnimalWorld](https://Magnatronic.github.io/AnimalWorld)

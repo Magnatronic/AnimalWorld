@@ -103,7 +103,8 @@ function setScanForScreen(id) {
     const q  = s => document.querySelector(s);
     const qa = s => [...document.querySelectorAll(s)];
     switch (id) {
-        case 'home':           startScan(qa('#home .theme-btn')); break;
+        case 'front':          startScan(qa('#front .front-btn')); break;
+        case 'home':           startScan([q('#home .back-btn'), ...qa('#home .theme-btn')]); break;
         case 'activities':     startScan([q('#activities .back-btn'),    ...qa('#activities .activity-btn')]); break;
         case 'animals':        startScan([q('#animals .back-btn'),        ...qa('#animal-grid .animal-card')]); break;
         case 'difficulty':     startScan([q('#difficulty .back-btn'),     ...qa('#difficulty .diff-btn')]); break;
@@ -122,15 +123,6 @@ function setScanForScreen(id) {
         case 'fta-difficulty': startScan([q('#fta-difficulty .back-btn'), ...qa('#fta-difficulty .diff-btn')]); break;
         case 'fta-game':       startScan([q('#fta-game .back-btn'),        ...qa('#fta-grid .fta-card')]); break;
     }
-}
-
-// Most animals are OpenMoji glyphs, bundled in openmoji/ by hexcode so the app
-// works offline. The fish theme also uses artwork in fish/ that we derived from
-// those glyphs, named by `src`.
-const OPENMOJI_DIR = 'openmoji/';
-
-function imgSrc(animal) {
-    return animal.src || OPENMOJI_DIR + animal.code + '.svg';
 }
 
 /* ── STATE ── */
@@ -247,6 +239,19 @@ function spokenName(name) {
 }
 
 /* ── NAVIGATION ── */
+// The front page: Animal Activities (this page) or Animal Scenes.
+function showFront() {
+    stopAudio();
+    currentThemeKey = null;
+    show('front');
+}
+
+function openScenes() {
+    stopAudio();
+    location.href = 'scenes.html';
+}
+
+// Animal Activities' theme picker. End-of-game "Home" buttons come back here.
 function showHome() {
     stopAudio();
     hideWin();
@@ -867,3 +872,6 @@ function endWam() {
 
 // Pick up where the last session left off.
 if (settings.scan.on) toggleScanMode();
+
+// index.html#activities opens straight into Animal Activities, for a bookmark.
+if (location.hash === '#activities') showHome();

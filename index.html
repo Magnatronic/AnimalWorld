@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Animal World</title>
+    <link rel="stylesheet" href="shared/fonts.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,9 +14,35 @@
      them as one. The settings panel and the switch bar stay outside it. -->
 <div id="stage">
 
-<!-- ══ HOME ══ -->
-<div id="home" class="screen active">
+<!-- ══ FRONT PAGE ══ -->
+<!-- Animal World's two parts: the activities in this page, and Animal Scenes. -->
+<div id="front" class="screen active">
     <h1 class="home-title">🌍 Animal World</h1>
+    <p class="home-subtitle">What would you like to do?</p>
+    <div class="front-buttons">
+        <button class="theme-btn front-btn btn-activities" onclick="showHome()">
+            <span class="btn-icon">🎲</span>
+            <span class="btn-label">Animal Activities
+                <span class="front-sub">Explore, Memory, Whack-a-Mole and Find the Animal</span>
+            </span>
+            <span class="btn-arrow">▶</span>
+        </button>
+        <button class="theme-btn front-btn btn-scenes" onclick="openScenes()">
+            <span class="btn-icon">🌈</span>
+            <span class="btn-label">Animal Scenes
+                <span class="front-sub">Calm, interactive scenes for touch and switches</span>
+            </span>
+            <span class="btn-arrow">▶</span>
+        </button>
+    </div>
+</div>
+
+<!-- ══ HOME: Animal Activities' theme picker ══ -->
+<div id="home" class="screen">
+    <div class="screen-header">
+        <button class="back-btn" onclick="showFront()">← Animal World</button>
+    </div>
+    <h1 class="home-title home-title-sub">🎲 Animal Activities</h1>
     <p class="home-subtitle">Choose a theme to explore</p>
     <div class="theme-buttons">
         <button class="theme-btn btn-forest" onclick="pickTheme('forest')">
@@ -537,7 +564,7 @@
     </button>
     <div class="hold-hint" id="hold-hint">Hold ⚙ to open settings</div>
 </div>
-<script src="themes.js"></script>
+<script src="shared/themes.js"></script>
 <script src="settings.js"></script>
 <script src="app.js"></script>
 

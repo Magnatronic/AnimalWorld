@@ -1,4 +1,5 @@
-// The themes shown on the home screen. Each animal needs:
+// The themes and their animals, shared by Animal Activities and Animal Scenes.
+// Each animal needs:
 //   name   - the label on its card
 //   code   - an OpenMoji hexcode; the SVG must be in openmoji/ (see README), or
 //   src    - a path to our own artwork, as the fish theme does
@@ -6,6 +7,15 @@
 // Set `speakName: true` on a theme to say each name after its sound (see fish).
 // A theme also needs a home-screen button in index.html and colours in styles.css
 // (search for the theme's css class, e.g. theme-birds).
+
+// Most animals are OpenMoji glyphs, bundled in openmoji/ by hexcode so the app
+// works offline. The fish theme also uses artwork in fish/ that we derived from
+// those glyphs, named by `src`.
+const OPENMOJI_DIR = 'openmoji/';
+
+function imgSrc(animal) {
+    return animal.src || OPENMOJI_DIR + animal.code + '.svg';
+}
 
 const themes = {
     forest: {
