@@ -51,6 +51,7 @@ function loadSceneSettings() {
 // used to be allowed).
 function tidySettings(s) {
     if (s.pressGap !== -1 && !(s.pressGap >= 1)) s.pressGap = 1;
+    if (!SceneArt[s.theme] || !themes[s.theme]) s.theme = SCENE_DEFAULTS.theme;
 }
 function saveSceneSettings() {
     try { localStorage.setItem(SCENES_KEY, JSON.stringify(sceneSettings)); } catch (e) {}
@@ -165,13 +166,14 @@ function buildScene() {
     stage.style.transitionDuration = '';
     document.getElementById('bg').innerHTML = art.svg();
     layer.innerHTML = '';
+    art.spots.forEach(s => { if (s.habitat === 'hide') cover(s); });
     spots = art.spots.map(s => ({ ...s, animal: null, mark: placeMark(s) }));
     cast = {};
     Object.entries(art.animals).forEach(([name, def]) => {
         const animal = themeAnimals.find(a => a.name === name);
         if (!animal) return;
         const el = document.createElement('div');
-        el.className = `animal ${def.move || art.move} on-${def.habitat}`;
+        el.className = `animal ${def.move || art.move} on-${def.habitat}${def.hang ? ' hang' : ''}`;
         el.style.width = def.w + '%';
         el.style.setProperty('--foot', (def.foot || 86) + '%');
         el.hidden = true;
@@ -193,7 +195,8 @@ function buildScene() {
 }
 
 // Each empty place shows something that belongs there, so it's clear where touching
-// brings an animal: a nest on a branch, seeds on the ground, a lily pad on the water.
+// brings an animal: a nest on a branch, seeds on the ground, a lily pad on the water
+// (a theme can have its own: `marks` in art.js).
 // "Clear" adds a warm glow and a twinkling star (scenes.css). Drawn 100 × 70 with the
 // spot at (50, 62); colours come from the scene's palette.
 const PLACE_ART = {
@@ -205,16 +208,34 @@ const PLACE_ART = {
         <path class="p-vein" d="M50 61 L24 57 M50 61 L30 67 M50 61 L64 69"/>
         <circle class="p-flower o" cx="36" cy="57" r="3.6"/><circle class="p-flower o" cx="42" cy="56" r="3.6"/><circle class="p-flower o" cx="39" cy="52" r="3.6"/>`,
 };
+function markArt(spot) {
+    const own = art.marks || {};
+    return own[spot.cover] || own[spot.habitat] || PLACE_ART[spot.habitat] || '';
+}
 function placeMark(spot) {
     const m = document.createElement('i');
     m.className = 'place';
     m.style.left = spot.x + '%';
     m.style.top = spot.y + '%';
     m.innerHTML = `<svg viewBox="0 0 100 70" aria-hidden="true"><path class="p-star" d="M50 4 L55 15 L66 18 L55 21 L50 32 L45 21 L34 18 L45 15Z"/>
-        <g class="p-thing">${PLACE_ART[spot.habitat] || ''}</g></svg>`;
+        <g class="p-thing">${markArt(spot)}</g></svg>`;
     layer.appendChild(m);
     return m;
 }
+// A bush or log in front of a place where animals hide (see `covers` in art.js).
+function cover(spot) {
+    const c = document.createElement('i');
+    c.className = 'cover';
+    c.style.left = spot.x + '%';
+    c.style.top = spot.y + '%';
+    c.innerHTML = `<svg viewBox="0 0 200 100" aria-hidden="true">${art.covers[spot.cover || 'bush']}</svg>`;
+    layer.appendChild(c);
+}
+// Nearer animals are in front; those hiding stay behind their bush (scenes.css).
+function standAt(a, spot) {
+    if (a.def.habitat !== 'hide') a.el.style.zIndex = 10 + Math.round(spot.y);
+}
+
 function markPlaces() {
     const style = sceneSettings.touchPlaces ? sceneSettings.showPlaces : 'off';
     layer.dataset.places = style;
@@ -233,8 +254,10 @@ function settle(name, spot) {
     a.spot = spot;
     a.arrivedAt = a.calledAt = Date.now();
     a.el.hidden = false;
+    a.el.classList.remove('down');
     a.el.style.left = spot.x + '%';
     a.el.style.top = spot.y + '%';
+    standAt(a, spot);
     markPlaces();
 }
 
@@ -268,11 +291,13 @@ function leave(name) {
     travel(a, null, false, () => { if (a.leaving) { a.el.hidden = true; a.leaving = false; } });
 }
 
-// Fly, walk or swim between the edge of the scene and a spot, facing the way it goes.
+// Fly, walk, bound or swim between the edge of the scene and a spot, facing the way it goes.
 function travel(a, spot, coming, done) {
     const move = a.def.move || art.move;
     const el = a.el;
     markPlaces();                                  // a place's glow fades as someone heads for it
+    if (move === 'peek') { peek(a, spot, coming, done); return; }
+    if (spot) standAt(a, spot);
     const here = { x: parseFloat(el.style.left), y: parseFloat(el.style.top) };
     const target = spot || { x: here.x > 50 ? 112 : -12, y: move === 'fly' ? 4 : here.y };
     if (coming) {
@@ -302,6 +327,25 @@ function travel(a, spot, coming, done) {
         finish();
     });
     setTimeout(finish, 3000 * sceneSettings.pace + 400);   // in case the transition never ends (reduced motion)
+}
+
+// Peeping animals rise up from behind their bush to arrive, and sink back down behind it
+// to leave, or to move to another bush (then rising there).
+function peek(a, spot, coming, done) {
+    const el = a.el, ms = 1300 * sceneSettings.pace;
+    el.classList.add('moving');
+    const finish = () => { el.classList.remove('moving'); done(); };
+    const rise = () => {
+        el.style.left = spot.x + '%';
+        el.style.top = spot.y + '%';
+        el.hidden = false;
+        void el.offsetWidth;
+        el.classList.remove('down');
+        setTimeout(finish, ms);
+    };
+    el.classList.add('down');
+    if (coming) { rise(); return; }
+    setTimeout(spot ? rise : finish, ms);
 }
 
 // An animal calls: its sound, a hop, and notes (or bubbles) rising.
@@ -369,6 +413,17 @@ function jobLabel(job) {
 function trackUrl() {
     const id = sceneSettings.track === 'scene' ? art.track : sceneSettings.track;
     return (SceneTracks[id] || SceneTracks[art.track]).file;
+}
+
+// Change to another theme's scenes (from set-up, so at once).
+function changeTheme(id) {
+    if (!SceneArt[id] || !themes[id] || id === sceneSettings.theme) return;
+    const trackBefore = trackUrl();
+    sceneSettings.theme = id;
+    saveSceneSettings();
+    buildScene();
+    if (started && trackUrl() !== trackBefore) Ambient.start(trackUrl(), sceneSettings.ambientVolume);
+    document.getElementById('start-theme').textContent = themes[id].label;
 }
 
 // Change to another of this theme's scenes, fading through a soft veil; or at

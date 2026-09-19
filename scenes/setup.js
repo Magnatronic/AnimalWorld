@@ -58,7 +58,8 @@ function presetSummary(p) {
     const scene = theme.scenes[p.scene] || Object.values(theme.scenes)[0];
     const weather = SceneWeather[presetValue(p, 'weather')];
     const jobs = (p.jobs || []).slice(0, Switches.slots.length).map(jobLabel);
-    return [scene.name, LOOK_NAMES[presetValue(p, 'look')], weather ? weather.label : '☀️ Clear'].join(' · ') +
+    const label = (themes[p.theme] || themes.birds).label;
+    return [label, scene.name, LOOK_NAMES[presetValue(p, 'look')], weather ? weather.label : '☀️ Clear'].join(' · ') +
         (jobs.length ? ` · Switches: ${jobs.join(', ')}` : '');
 }
 
@@ -98,6 +99,14 @@ function roomText() {
     const parts = Object.entries(counts).map(([habitat, n]) => `${n} ${art.places[habitat]}`);
     const list = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] : parts[0];
     return `Room for ${art.spots.length} ${art.noun} at once: ${list}.`;
+}
+
+// What marks each empty place in this scene, e.g. "a nest on a branch, seeds on the ground or a lily pad on the water".
+const MARK_WORDS = { perch: 'a nest on a branch', ground: 'seeds on the ground', water: 'a lily pad on the water' };
+function marksText() {
+    const words = { ...MARK_WORDS, ...art.markWords };
+    const list = [...new Set(art.spots.map(s => words[s.cover] || words[s.habitat]))].filter(Boolean);
+    return list.length > 1 ? list.slice(0, -1).join(', ') + ' or ' + list[list.length - 1] : list[0] || '';
 }
 
 function leaveHint() {
@@ -141,7 +150,8 @@ function renderSetup() {
         </section>`,
         scene: `
         <section>
-            <h3>${themes[sceneSettings.theme].label}</h3>
+            <div class="opt-group"><span class="opt-label">Animals</span><div class="opts">${Object.keys(SceneArt).filter(id => themes[id]).map(id =>
+                `<button class="opt${id === sceneSettings.theme ? ' active' : ''}" data-key="theme" data-value='"${id}"'>${themes[id].label}</button>`).join('')}</div></div>
             <div class="opt-group"><span class="opt-label">Scene</span><div class="opts">${sceneIds().map(id =>
                 `<button class="opt${id === art.id ? ' active' : ''}" data-key="scene" data-value='"${id}"'>${SceneArt[sceneSettings.theme].scenes[id].name}</button>`).join('')}</div></div>
             <p class="setup-note">${roomText()}</p>
@@ -149,11 +159,11 @@ function renderSetup() {
             ${optRow('Speed', 'pace', [[1.7, 'Slower'], [1, 'Normal'], [0.6, 'Faster']])}
             ${optRow('Touching an empty place', 'touchPlaces', [[true, 'Brings an animal'], [false, 'Just a ripple']])}
             <p class="setup-note">${sceneSettings.touchPlaces
-                ? "Touch near an empty branch, the ground or the water and an animal that lives there comes to that spot (if they're all here, one moves over). Touching an animal makes it call."
+                ? "Touch near an empty place and an animal that lives there comes to that spot (if they're all here, one moves over). Touching an animal makes it call."
                 : 'Touching an animal makes it call; touching anywhere else just makes a ripple. Switches bring animals in.'}</p>
             ${sceneSettings.touchPlaces ? optRow('Empty places', 'showPlaces', [['subtle', 'Subtle'], ['clear', 'Clear'], ['off', "Don't show"]]) +
-                `<p class="setup-note">${{ subtle: 'Each empty place shows something that belongs there: a nest on a branch, seeds on the ground, a lily pad on the water.',
-                    clear: 'Each empty place shows a nest, seeds or a lily pad, with a warm glow and a star twinkling above it.',
+                `<p class="setup-note">${{ subtle: `Each empty place shows something that belongs there: ${marksText()}.`,
+                    clear: `Each empty place shows ${marksText()}, with a warm glow and a star twinkling above it.`,
                     off: 'Empty places look like the rest of the scene.' }[sceneSettings.showPlaces]}</p>` : ''}
             ${optRow('Animals move about', 'wander', [[0, 'Only when asked'], [40, 'Now and then'], [15, 'Often']])}
             <p class="setup-note">${sceneSettings.wander
@@ -205,6 +215,7 @@ document.getElementById('setup-tabs').addEventListener('click', e => {
 
 function setScene(key, value) {
     if (key === 'scene') { changeScene(value, true); renderSetup(); renderLabels(); return; }
+    if (key === 'theme') { changeTheme(value); renderSetup(); renderLabels(); return; }
     const trackBefore = key === 'track' ? trackUrl() : null;
     sceneSettings[key] = value;
     saveSceneSettings();

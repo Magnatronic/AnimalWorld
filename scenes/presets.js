@@ -18,6 +18,12 @@ const READY_PRESETS = [
       jobs: ['Owl', 'Crow', 'Eagle', 'daynight', 'anything'] },
     { id: 'busy-lake',    name: '🏞️ Busy lake',    theme: 'birds', scene: 'lake',     look: 'soft',  stay: 30,
       jobs: ['Duck', 'Swan', 'Goose', 'Flamingo', 'anything'] },
+    { id: 'peekaboo',     name: '🦊 Peek-a-boo',       theme: 'forest', scene: 'woodland', look: 'soft',
+      jobs: ['Fox', 'Bear', 'Wolf', 'Owl', 'anything'] },
+    { id: 'riverbank',    name: '🦫 Riverbank',        theme: 'forest', scene: 'river',    look: 'soft',
+      jobs: ['Beaver', 'Otter', 'Frog', 'Deer', 'anything'] },
+    { id: 'forest-night', name: '🦇 Forest at night',  theme: 'forest', scene: 'clearing', look: 'night', pace: 1.7,
+      jobs: ['Owl', 'Bat', 'Hedgehog', 'Badger', 'anything'] },
 ];
 const presets = loadPresets();
 

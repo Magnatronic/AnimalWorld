@@ -108,6 +108,63 @@ const SceneArt = (() => {
         return s;
     }
 
+    // A fir tree far off: three tiers, a little faded.
+    function pine(x, y, s, cls = 'f-leaf2') {
+        return `<g opacity=".8"><rect class="f-trunk" x="${x - 5 * s}" y="${y - 22 * s}" width="${10 * s}" height="${24 * s}"/>` +
+            [0, 1, 2].map(i => `<path class="${cls}" d="M${x - (62 - i * 14) * s} ${y - (18 + i * 36) * s} L${x} ${y - (80 + i * 36) * s} L${x + (62 - i * 14) * s} ${y - (18 + i * 36) * s}Z"/>`).join('') + '</g>';
+    }
+    // Toadstools: red caps with white spots; `s` scales each.
+    function toadstools(pts) {
+        return pts.map(([x, y, s = 1]) => `<g><path class="f-stalk ol" d="M${x - 6 * s} ${y} L${x - 4 * s} ${y - 22 * s} L${x + 4 * s} ${y - 22 * s} L${x + 6 * s} ${y}Z"/>
+          <path class="f-cap ol" d="M${x - 22 * s} ${y - 20 * s} Q${x} ${y - 54 * s} ${x + 22 * s} ${y - 20 * s}Z"/><path class="shade-flat" d="M${x - 22 * s} ${y - 20 * s} Q${x} ${y - 30 * s} ${x + 22 * s} ${y - 20 * s}Z"/>
+          <circle class="f-dot" cx="${x - 8 * s}" cy="${y - 30 * s}" r="${3.5 * s}"/><circle class="f-dot" cx="${x + 7 * s}" cy="${y - 34 * s}" r="${3 * s}"/><circle class="f-dot" cx="${x + 13 * s}" cy="${y - 25 * s}" r="${2.5 * s}"/></g>`).join('');
+    }
+    function rock(x, y, rx, ry) {
+        const at = `cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"`;
+        return `<ellipse class="f-rock ol" ${at}/><ellipse class="shade-ball" ${at}/><ellipse class="light-ball" ${at}/>`;
+    }
+    // A beaver's lodge: a mound of sticks standing in the water, (x, y) the middle of its foot.
+    function lodge(x, y, w, h) {
+        const sticks = [[-.42, -.1, -.1, -.55], [-.3, -.02, .15, -.75], [-.1, -.05, .38, -.4], [.05, -.85, .45, -.08], [-.38, -.4, .2, -.3], [-.2, -.7, .3, -.62]]
+            .map(([a, b, c, d]) => `M${x + a * w} ${y + b * h} L${x + c * w} ${y + d * h}`).join(' ');
+        return `<path class="f-trunk ol" d="M${x - w / 2} ${y} Q${x - w * .3} ${y - h * 1.1} ${x} ${y - h} Q${x + w * .3} ${y - h * 1.1} ${x + w / 2} ${y}Z"/>
+          <path class="shade-side" d="M${x - w / 2} ${y} Q${x - w * .3} ${y - h * 1.1} ${x} ${y - h} Q${x + w * .3} ${y - h * 1.1} ${x + w / 2} ${y}Z"/>
+          <path class="stick" d="${sticks}"/><ellipse class="ring" cx="${x}" cy="${y}" rx="${w * .55}" ry="${h * .12}"/>`;
+    }
+
+    // The woodland: tall trunks with branches, a stream, and `extra` drawn on the forest
+    // floor in front of the stream but behind the trunks (both themes have a woodland).
+    function woodland(extra = '') {
+        return `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+          ${skyAndSun('g-woodland', 1290)}
+          ${cloud(0, 120, .8)}${cloud(2, 90, .6)}
+          ${[[70,34],[300,28],[470,40],[760,30],[880,26],[1160,36],[1320,30],[1560,34]].map(([x, w]) =>
+            `<rect class="f-hill" x="${x}" y="160" width="${w}" height="560" rx="${w / 2}"/>`).join('')}
+          ${[[40,210,120],[260,170,130],[480,220,110],[700,180,140],[930,230,120],[1150,190,130],[1370,220,120],[1580,180,120]].map(([x, y, r]) =>
+            `<circle class="f-leaf2" cx="${x}" cy="${y}" r="${r}" opacity=".75"/>`).join('')}
+          <g class="day-only"><polygon class="f-ray ray" points="560,0 660,0 900,690 760,690"/><polygon class="f-ray ray" points="1150,0 1220,0 1330,690 1230,690" style="animation-delay:-5s"/></g>
+          ${[[90,700,56],[330,690,62],[450,705,48],[640,698,60],[760,700,46],[900,690,58],[1180,684,54],[1300,690,44],[1560,686,58]].map(([x, y, r]) =>
+            ball('f-leaf', x, y, r)).join('')}
+          <path class="f-lawn ol" d="M-10 690 C 300 650 600 705 900 682 C 1200 660 1400 692 1610 672 L1610 910 L-10 910Z"/>
+          <path class="light-flat" d="M-10 690 C 300 650 600 705 900 682 C 1200 660 1400 692 1610 672 L1610 698 C 1400 718 1200 686 900 708 C 600 731 300 676 -10 716Z"/>
+          <path class="f-pond ol" d="M700 910 C 850 820 1050 800 1250 805 C 1420 810 1500 770 1610 760 L1610 910 Z"/>
+          <path class="shade-flat" d="M700 910 C 850 820 1050 800 1250 805 C 1420 810 1500 770 1610 760 L1610 782 C 1500 792 1420 830 1250 826 C 1050 822 870 838 742 910Z"/>
+          ${shine([[930, 868, 40], [1140, 836, 54], [1440, 818, 36], [1250, 880, 30]])}
+          <ellipse class="ring" cx="1080" cy="858" rx="70" ry="12"/><ellipse class="ring" cx="1300" cy="846" rx="60" ry="10" style="animation-delay:-3s"/>
+          ${tufts([[80,760],[450,790],[560,870],[690,760],[120,880]])}
+          ${bluebells([[300,760],[380,810],[520,745],[610,800],[140,820]])}
+          ${extra}
+          ${trunk('M175 910 L195 -10 L255 -10 L262 910Z')}
+          ${branch(240, 440, 640, 370)}${branch(230, 250, 470, 205, 16)}
+          ${trunk('M1000 910 L1012 -10 L1066 -10 L1078 910Z')}
+          ${branch(1005, 350, 720, 315, 18)}${branch(1065, 500, 1340, 455)}
+          ${trunk('M1438 910 L1446 -10 L1498 -10 L1506 910Z')}
+          ${branch(1445, 260, 1210, 235, 16)}
+          <g class="sway" style="--d:12s">${[[60,20,150],[240,-10,140],[420,30,120],[640,-20,150],[860,10,130],[1060,-10,150],[1260,20,130],[1460,-10,150],[1620,30,120]].map(([x, y, r], i) =>
+            ball(i % 2 ? 'f-leaf2' : 'f-leaf', x, y, r)).join('')}</g>
+        </svg>`;
+    }
+
     return {
         birds: {
             noun: 'birds',
@@ -181,33 +238,7 @@ const SceneArt = (() => {
                     track: 'woodland',
                     places: { perch: 'on the branches', ground: 'on the forest floor', water: 'in the stream' },
                     residents: ['Owl', 'Crow'],
-                    svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
-                      ${skyAndSun('g-woodland', 1290)}
-                      ${cloud(0, 120, .8)}${cloud(2, 90, .6)}
-                      ${[[70,34],[300,28],[470,40],[760,30],[880,26],[1160,36],[1320,30],[1560,34]].map(([x, w]) =>
-                        `<rect class="f-hill" x="${x}" y="160" width="${w}" height="560" rx="${w / 2}"/>`).join('')}
-                      ${[[40,210,120],[260,170,130],[480,220,110],[700,180,140],[930,230,120],[1150,190,130],[1370,220,120],[1580,180,120]].map(([x, y, r]) =>
-                        `<circle class="f-leaf2" cx="${x}" cy="${y}" r="${r}" opacity=".75"/>`).join('')}
-                      <g class="day-only"><polygon class="f-ray ray" points="560,0 660,0 900,690 760,690"/><polygon class="f-ray ray" points="1150,0 1220,0 1330,690 1230,690" style="animation-delay:-5s"/></g>
-                      ${[[90,700,56],[330,690,62],[450,705,48],[640,698,60],[760,700,46],[900,690,58],[1180,684,54],[1300,690,44],[1560,686,58]].map(([x, y, r]) =>
-                        ball('f-leaf', x, y, r)).join('')}
-                      <path class="f-lawn ol" d="M-10 690 C 300 650 600 705 900 682 C 1200 660 1400 692 1610 672 L1610 910 L-10 910Z"/>
-                      <path class="light-flat" d="M-10 690 C 300 650 600 705 900 682 C 1200 660 1400 692 1610 672 L1610 698 C 1400 718 1200 686 900 708 C 600 731 300 676 -10 716Z"/>
-                      <path class="f-pond ol" d="M700 910 C 850 820 1050 800 1250 805 C 1420 810 1500 770 1610 760 L1610 910 Z"/>
-                      <path class="shade-flat" d="M700 910 C 850 820 1050 800 1250 805 C 1420 810 1500 770 1610 760 L1610 782 C 1500 792 1420 830 1250 826 C 1050 822 870 838 742 910Z"/>
-                      ${shine([[930, 868, 40], [1140, 836, 54], [1440, 818, 36], [1250, 880, 30]])}
-                      <ellipse class="ring" cx="1080" cy="858" rx="70" ry="12"/><ellipse class="ring" cx="1300" cy="846" rx="60" ry="10" style="animation-delay:-3s"/>
-                      ${tufts([[80,760],[450,790],[560,870],[690,760],[120,880]])}
-                      ${bluebells([[300,760],[380,810],[520,745],[610,800],[140,820]])}
-                      ${trunk('M175 910 L195 -10 L255 -10 L262 910Z')}
-                      ${branch(240, 440, 640, 370)}${branch(230, 250, 470, 205, 16)}
-                      ${trunk('M1000 910 L1012 -10 L1066 -10 L1078 910Z')}
-                      ${branch(1005, 350, 720, 315, 18)}${branch(1065, 500, 1340, 455)}
-                      ${trunk('M1438 910 L1446 -10 L1498 -10 L1506 910Z')}
-                      ${branch(1445, 260, 1210, 235, 16)}
-                      <g class="sway" style="--d:12s">${[[60,20,150],[240,-10,140],[420,30,120],[640,-20,150],[860,10,130],[1060,-10,150],[1260,20,130],[1460,-10,150],[1620,30,120]].map(([x, y, r], i) =>
-                        ball(i % 2 ? 'f-leaf2' : 'f-leaf', x, y, r)).join('')}</g>
-                    </svg>`,
+                    svg: () => woodland(),
                     spots: [
                         { habitat: 'perch', x: 27,   y: 45.2 }, { habitat: 'perch', x: 36.5, y: 42.2 },
                         { habitat: 'perch', x: 24,   y: 24.6 }, { habitat: 'perch', x: 49,   y: 35.9 },
@@ -254,6 +285,167 @@ const SceneArt = (() => {
                         { habitat: 'water', x: 57, y: 70 },     { habitat: 'water', x: 72, y: 88 },
                     ],
                     splashes: [[37.5, 66.7], [43.8, 71], [53, 77.8], [68.8, 73.3], [59.4, 91], [81, 86.7]],
+                },
+            },
+        },
+
+        forest: {
+            noun: 'animals',
+            move: 'walk',
+            fx: 'note',
+            // Four places: branches, the forest floor, the water, and `hide`: behind a bush or
+            // log, where the animals whose pictures are only a head (fox, bear, wolf) peep over
+            // it. For them `foot` is where the bush hides them from; for water animals it's the
+            // waterline. The bat hangs upside down under its branch (`hang`; `foot` is then
+            // where its feet grip, near the top of the turned-over picture). Water and ground
+            // animals come after the others, so they're in front when they cross.
+            animals: {
+                Owl:        { habitat: 'perch',  w: 8.5, face: 'f', foot: 86,   move: 'fly' },
+                Squirrel:   { habitat: 'perch',  w: 8,   face: 'l', foot: 88.5, move: 'bound' },
+                Bat:        { habitat: 'perch',  w: 9,   face: 'f', foot: 4,    move: 'fly', hang: true },
+                Fox:        { habitat: 'hide',   w: 10.5, face: 'f', foot: 86,  move: 'peek' },
+                Bear:       { habitat: 'hide',   w: 11.5, face: 'f', foot: 83,  move: 'peek' },
+                Wolf:       { habitat: 'hide',   w: 10.5, face: 'f', foot: 86,  move: 'peek' },
+                Frog:       { habitat: 'water',  w: 8,   face: 'f', foot: 70,   move: 'bound' },
+                Otter:      { habitat: 'water',  w: 11,  face: 'l', foot: 60 },
+                Beaver:     { habitat: 'water',  w: 10,  face: 'l', foot: 64 },
+                Deer:       { habitat: 'ground', w: 13,  face: 'l', foot: 94.3 },
+                Badger:     { habitat: 'ground', w: 11,  face: 'l', foot: 73.8 },
+                Hedgehog:   { habitat: 'ground', w: 8,   face: 'l', foot: 77.8 },
+                Rabbit:     { habitat: 'ground', w: 8,   face: 'l', foot: 80.5, move: 'bound' },
+                'Wild Boar':{ habitat: 'ground', w: 12,  face: 'l', foot: 80.8 },
+                Mouse:      { habitat: 'ground', w: 6,   face: 'l', foot: 86.8 },
+                Snake:      { habitat: 'ground', w: 8,   face: 'r', foot: 84.5 },
+            },
+            switchCast: ['Fox', 'Owl', 'Frog', 'Deer', 'Squirrel', 'Bear'],
+            // What hides the peeping animals: drawn 200 × 100 in front of them, with the line
+            // they're hidden from (the spot) at (100, 30).
+            covers: {
+                bush: `<g class="sway" style="--d:8s"><ellipse class="f-leaf ol" cx="100" cy="68" rx="96" ry="34"/>${ball('f-leaf2', 40, 66, 36)}${ball('f-leaf', 100, 56, 42)}${ball('f-leaf2', 160, 66, 36)}</g>`,
+                log:  `<rect class="f-trunk ol" x="6" y="22" width="182" height="52" rx="22"/><path class="shade-flat" d="M6 52 H188 V52 Q188 74 166 74 H28 Q6 74 6 52Z"/>
+                       <path class="light-flat" d="M28 22 H166 V30 H28Z"/>
+                       <ellipse class="f-trunk ol" cx="186" cy="48" rx="13" ry="26"/><ellipse class="light-flat" cx="186" cy="48" rx="13" ry="26"/>
+                       <path class="plank" d="M186 36 A 6 12 0 1 1 186 60 A 3 6 0 1 1 186 42"/>`,
+            },
+            // The empty places' markers (see PLACE_ART in scenes.js), and what set-up calls them.
+            marks: {
+                perch: [[38, 55], [60, 56]].map(([x, y]) => `<ellipse class="p-seed2 o" cx="${x}" cy="${y}" rx="6.5" ry="8"/>
+                    <path class="p-trunk o" d="M${x - 8} ${y - 4} Q${x} ${y - 14} ${x + 8} ${y - 4}Z"/><path class="p-trunk" d="M${x} ${y - 11} v-5"/>`).join(''),
+                // Fallen leaves (not toadstools, which are part of the scenery)
+                ground: [[36, 60, -30, 1], [52, 64, 20, 2], [64, 59, 70, 3], [46, 56, 110, 2]].map(([x, y, turn, c]) =>
+                    `<path class="p-autumn${c} o" transform="translate(${x} ${y}) rotate(${turn})" d="M-11 0 Q-4 -7 11 0 Q-4 7 -11 0Z"/>`).join(''),
+                // A log's empty place has little toadstools on it
+                log: [[42, 60, 1], [55, 61, .75]].map(([x, y, s]) => `<path class="p-stalk o" d="M${x - 3 * s} ${y} L${x - 2.5 * s} ${y - 9 * s} H${x + 2.5 * s} L${x + 3 * s} ${y}Z"/>
+                    <path class="p-cap o" d="M${x - 11 * s} ${y - 8 * s} Q${x} ${y - 27 * s} ${x + 11 * s} ${y - 8 * s}Z"/><circle class="p-stalk" cx="${x - 3 * s}" cy="${y - 14 * s}" r="${2 * s}"/>`).join(''),
+                hide: `<path class="p-leaf o" d="M34 58 Q40 46 52 50 Q44 60 34 58Z"/><path class="p-leaf o" d="M66 58 Q60 46 48 50 Q56 60 66 58Z"/>` +
+                    [[43, 56], [51, 60], [58, 55], [50, 51], [41, 63], [59, 63], [50, 66]].map(([x, y]) => `<circle class="p-berry o" cx="${x}" cy="${y}" r="5.4"/>`).join(''),
+            },
+            // Marks and words go by a spot's cover if it has its own, or else by where it is.
+            markWords: { perch: 'acorns on a branch', hide: 'berries on a bush', log: 'toadstools on the log', ground: 'leaves on the ground', water: 'a lily pad on the water' },
+
+            scenes: {
+                woodland: {
+                    name: '🌲 Woodland',
+                    track: 'woodland',
+                    places: { perch: 'on the branches', hide: 'behind the bushes', ground: 'on the forest floor', water: 'in the stream' },
+                    residents: ['Owl', 'Hedgehog'],
+                    svg: () => woodland(toadstools([[560, 815, 1], [120, 872, .8], [650, 752, .9], [420, 885, 1.1]]) +
+                        rock(1500, 800, 60, 26) + rock(760, 870, 44, 20)),
+                    spots: [
+                        { habitat: 'perch', x: 27,   y: 45.2 }, { habitat: 'perch', x: 36.5, y: 42.2 },
+                        { habitat: 'perch', x: 24,   y: 24.6 }, { habitat: 'perch', x: 49,   y: 35.9 },
+                        { habitat: 'perch', x: 76,   y: 52.8 }, { habitat: 'perch', x: 81,   y: 27.1 },
+                        { habitat: 'hide', x: 44, y: 71 }, { habitat: 'hide', x: 62, y: 70 },
+                        { habitat: 'ground', x: 20, y: 90 }, { habitat: 'ground', x: 32, y: 84 },
+                        { habitat: 'ground', x: 47, y: 92 }, { habitat: 'ground', x: 59, y: 87 },
+                        { habitat: 'water', x: 72.5, y: 94 }, { habitat: 'water', x: 84, y: 92.5 },
+                    ],
+                    splashes: [[56, 97.5], [65.5, 94.5], [74, 96], [84.5, 92.5], [92.5, 90]],
+                },
+
+                river: {
+                    name: '🏞️ Riverbank',
+                    track: 'lake',
+                    places: { perch: 'on the branches', hide: 'behind the bushes', ground: 'on the riverbank', water: 'in the river' },
+                    residents: ['Beaver', 'Deer'],
+                    svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+                      ${skyAndSun('g-river', 1250)}
+                      ${cloud(0, 130, .9)}${cloud(1, 200, .7)}${cloud(2, 90, .5)}
+                      <path class="f-hill ol" d="M-10 500 C 200 430 420 470 640 440 C 900 405 1150 470 1400 430 C 1500 415 1560 430 1610 440 L1610 600 L-10 600Z"/>
+                      ${[[40, .9], [150, 1.2], [270, 1], [390, 1.3], [520, .9], [640, 1.15], [770, 1], [900, 1.3], [1030, .95], [1150, 1.2], [1280, 1], [1400, 1.25], [1520, .9], [1610, 1.1]]
+                        .map(([x, s], i) => pine(x, 572 - (i % 2) * 8, s)).join('')}
+                      <path class="f-lawn ol" d="M-10 566 C 400 546 900 580 1610 552 L1610 670 L-10 670Z"/>
+                      <path class="f-pond ol" d="M-10 650 C 400 634 1000 666 1610 642 L1610 792 C 1100 774 500 802 -10 784Z"/>
+                      <path class="light-flat" d="M-10 650 C 400 634 1000 666 1610 642 L1610 682 C 1000 704 400 676 -10 690Z"/>
+                      ${shine([[120, 720, 50], [420, 700, 60], [700, 752, 40], [980, 712, 70], [1500, 740, 44], [300, 768, 34]])}
+                      <ellipse class="ring" cx="620" cy="720" rx="110" ry="13"/><ellipse class="ring" cx="1000" cy="750" rx="90" ry="11" style="animation-delay:-3s"/>
+                      ${lodge(1310, 716, 290, 125)}
+                      ${rock(210, 752, 40, 15)}${rock(880, 770, 34, 13)}
+                      <path class="f-lawn ol" d="M-10 784 C 500 802 1100 774 1610 792 L1610 910 L-10 910Z"/>
+                      <path class="light-flat" d="M-10 784 C 500 802 1100 774 1610 792 L1610 812 C 1100 796 500 826 -10 806Z"/>
+                      ${reeds(20, 812, 5)}${reeds(1480, 816, 5, 20)}
+                      ${tufts([[300, 850], [560, 880], [820, 840], [1080, 870], [1330, 860]])}
+                      ${flowers([[430, 860], [700, 890], [960, 850], [1220, 885]])}
+                      ${toadstools([[160, 880, .9], [1390, 895, .8]])}
+                      ${trunk('M110 910 L140 -10 L210 -10 L230 910Z')}
+                      ${branch(200, 300, 520, 250)}${branch(205, 480, 450, 450, 18)}
+                      ${trunk('M1460 910 L1478 -10 L1530 -10 L1545 910Z')}
+                      ${branch(1465, 380, 1180, 345)}
+                      <g class="sway" style="--d:12s">${[[40, 40, 140], [220, -20, 130], [360, 30, 100], [1420, 20, 120], [1570, -10, 140], [1610, 150, 90]].map(([x, y, r], i) =>
+                        ball(i % 2 ? 'f-leaf2' : 'f-leaf', x, y, r)).join('')}</g>
+                    </svg>`,
+                    spots: [
+                        { habitat: 'perch', x: 22, y: 30.7 }, { habitat: 'perch', x: 29, y: 28.75 },
+                        { habitat: 'perch', x: 24, y: 50.9 },
+                        { habitat: 'perch', x: 76, y: 38.8 }, { habitat: 'perch', x: 82, y: 40.1 },
+                        { habitat: 'hide', x: 38, y: 60 }, { habitat: 'hide', x: 54, y: 61 }, { habitat: 'hide', x: 70, y: 59.5 },
+                        { habitat: 'water', x: 36, y: 80 }, { habitat: 'water', x: 52, y: 81 }, { habitat: 'water', x: 67, y: 79.5 },
+                        { habitat: 'ground', x: 20, y: 95 }, { habitat: 'ground', x: 40, y: 96 },
+                        { habitat: 'ground', x: 62, y: 95 }, { habitat: 'ground', x: 80, y: 96 },
+                    ],
+                    splashes: [[28, 77], [40, 82], [47, 76], [58, 83], [64, 77.5], [76, 84], [90, 80]],
+                },
+
+                clearing: {
+                    name: '🍄 Clearing',
+                    track: 'garden',
+                    places: { perch: 'on the branches', hide: 'behind the log and the bush', ground: 'in the clearing', water: 'in the pond' },
+                    residents: ['Rabbit', 'Squirrel'],
+                    svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+                      ${skyAndSun('g-clearing', 1150)}
+                      ${cloud(0, 150, 1)}${cloud(1, 230, .75)}${cloud(2, 100, .55)}
+                      <path class="f-hill ol" d="M-10 540 C 260 470 520 520 800 500 C 1080 480 1340 440 1610 490 L1610 640 L-10 640Z"/>
+                      ${[[380, .9], [470, 1.2], [560, 1], [660, 1.3], [760, .95], [860, 1.2], [960, 1], [1060, 1.3], [1160, .9], [1250, 1.15]]
+                        .map(([x, s], i) => pine(x, 622 - (i % 3) * 6, s)).join('')}
+                      ${[[420, 1], [610, 1.1], [810, .9], [1010, 1.05], [1210, .95]].map(([x, s]) => pine(x, 630, s, 'f-leaf')).join('')}
+                      <path class="f-lawn ol" d="M-10 618 C 400 594 1100 628 1610 604 L1610 910 L-10 910Z"/>
+                      <path class="light-flat" d="M-10 618 C 400 594 1100 628 1610 604 L1610 630 C 1100 654 400 620 -10 646Z"/>
+                      <ellipse class="f-pond ol" cx="1180" cy="806" rx="250" ry="62"/>
+                      <ellipse class="light-flat" cx="1180" cy="816" rx="230" ry="48"/>
+                      ${shine([[1030, 800, 44], [1270, 832, 36], [1190, 784, 26]])}
+                      <ellipse class="ring" cx="1140" cy="808" rx="80" ry="15"/><ellipse class="ring" cx="1260" cy="800" rx="64" ry="12" style="animation-delay:-3s"/>
+                      ${reeds(1398, 810, 4, 18)}
+                      ${tufts([[330, 700], [560, 690], [700, 880], [880, 700], [420, 810], [940, 860]])}
+                      ${flowers([[380, 750], [520, 860], [640, 770], [800, 845], [900, 740]])}
+                      ${toadstools([[380, 694, .9], [410, 704, .65], [860, 800, .9], [380, 880, 1.1]])}
+                      ${rock(1560, 700, 70, 30)}
+                      ${trunk('M110 910 L140 250 L215 250 L240 910Z')}
+                      ${branch(205, 430, 470, 370)}${branch(195, 580, 400, 555, 16)}
+                      <g class="sway" style="--d:10s">${ball('f-leaf', 80, 230, 130)}${ball('f-leaf2', 220, 170, 115)}${ball('f-leaf', 330, 250, 95)}${ball('f-leaf2', 20, 80, 110)}${ball('f-leaf', 170, 50, 100)}</g>
+                      ${trunk('M1455 910 L1470 -10 L1520 -10 L1535 910Z')}
+                      ${branch(1462, 330, 1200, 300, 18)}
+                      <g class="sway" style="--d:12s">${ball('f-leaf2', 1380, -20, 110)}${ball('f-leaf', 1510, 20, 130)}${ball('f-leaf2', 1610, 140, 100)}</g>
+                    </svg>`,
+                    spots: [
+                        { habitat: 'perch', x: 20, y: 44.9 }, { habitat: 'perch', x: 26.25, y: 42.4 },
+                        { habitat: 'perch', x: 21, y: 62.5 },
+                        { habitat: 'perch', x: 78, y: 33.9 }, { habitat: 'perch', x: 84, y: 35.2 },
+                        { habitat: 'hide', x: 44, y: 73, cover: 'log' }, { habitat: 'hide', x: 80, y: 69 },
+                        { habitat: 'ground', x: 17, y: 92 }, { habitat: 'ground', x: 31, y: 84 },
+                        { habitat: 'ground', x: 46, y: 93 }, { habitat: 'ground', x: 59, y: 83 },
+                        { habitat: 'water', x: 66, y: 89 }, { habitat: 'water', x: 79, y: 88.5 },
+                    ],
+                    splashes: [[63, 88], [68, 92], [73, 86], [77, 91], [83, 88]],
                 },
             },
         },

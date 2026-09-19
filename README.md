@@ -5,20 +5,24 @@ An interactive animal learning app for classroom use. Plain HTML, CSS and JavaSc
 The front page offers two parts:
 - **Animal Activities** — pick a theme, then an activity (below). Open it directly at `index.html#activities`.
 - **Animal Scenes** — calm, interactive animal scenes for touch screens and switches, for sensory rooms
-  and large touch projectors. Open it directly at `scenes.html`. *(Birds so far; more themes coming.)*
+  and large touch projectors. Open it directly at `scenes.html`. *(Birds and Forest Animals so far; more themes coming.)*
 
 ## Animal Scenes
 A full-screen scene drawn in code, so it fills any screen shape and works offline. Tap to start (the
 first tap or key press starts the sound and goes full screen). Touch an animal to hear it. Touch near an
-empty branch, the ground or the water and an animal that lives there comes to that spot (if they're all
-here, the longest-staying one moves over); this can be turned off in set-up. Every touch makes a ripple. Animals fly, walk or swim in to the places the scene has for them (branches, ground,
-water); when every place of that kind is taken, the one that has been there longest leaves. A quiet
+empty place (a branch, a bush, the ground or the water) and an animal that lives there comes to that spot (if they're all
+here, the longest-staying one moves over); this can be turned off in set-up. Every touch makes a ripple. Animals fly, walk, bound or swim in to the places the scene has for them (branches, ground,
+water, or peeping over a bush); when every place of that kind is taken, the one that has been there longest leaves. A quiet
 background track plays under the calls.
 
 Birds has three scenes, each with its own track: 🌳 **Garden** (room for 10 birds), 🌲 **Woodland**
 (11, mostly on branches, with a stream) and 🏞️ **Lakeside** (11, mostly on the water, with a jetty).
-Set-up shows how many birds each scene has room for, and where. Birds is the template for the other
-themes: a theme's animals and switch jobs are shared by all its scenes (`scenes/art.js`).
+Forest Animals has three scenes too: 🌲 **Woodland** (room for 14), 🏞️ **Riverbank** (15, with a
+beaver's lodge) and 🍄 **Clearing** (13, with a log and a pond). The fox, bear and wolf pictures are
+only heads, so they peep up from behind a bush or log and sink back down to leave; the bat hangs upside
+down under its branch; the frog, otter and beaver sit in the water. Set-up shows how many animals each
+scene has room for, and where. Birds is the template for the other themes: a theme's animals and
+switch jobs are shared by all its scenes (`scenes/art.js`).
 
 Any scene can have **weather**, one at a time, fading in and out: 🌧️ Rain (with rings on the water),
 ⛈️ Storm (rain, a darker sky, and now and then a faint bolt of lightning and far-off thunder), ❄️ Snow
@@ -33,11 +37,11 @@ and freezes the pond, and thick fog becomes a near white-out.
 
 Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
 screen too):
-- **Presets** — saved set-ups (scene, look, speed, weather, switch jobs). Four are ready-made: 🌳 Calm
-  garden, 🌦️ Weather play, 🦉 Night owls and 🏞️ Busy lake. Use one, save the set-up as a new preset,
+- **Presets** — saved set-ups (scene, look, speed, weather, switch jobs). Seven are ready-made: 🌳 Calm
+  garden, 🌦️ Weather play, 🦉 Night owls, 🏞️ Busy lake, 🦊 Peek-a-boo, 🦫 Riverbank and 🦇 Forest at night. Use one, save the set-up as a new preset,
   save changes into a preset, rename or delete (deleted ready-made ones can be brought back). Each has
   a link, `scenes.html#preset=<name>`, that opens straight into it — handy as a desktop shortcut.
-- **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, whether touching an
+- **Scene** — which animals (Birds or Forest Animals), which scene, the look (Soft flat, Matching outlines, Night-light), speed, whether touching an
   empty place brings an animal, when animals leave (never,
   when touched, or after 30 seconds to 2 minutes without being touched or called), and how long look
   and weather changes take to fade (2 to 20 seconds).
