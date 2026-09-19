@@ -1,6 +1,6 @@
 # Animal World 🌍
 
-An interactive animal learning app for classroom use, built as a single HTML file.
+An interactive animal learning app for classroom use. Plain HTML, CSS and JavaScript — no build step.
 
 ## Activities
 - **Explore Animals** — tap each animal to hear its sound
@@ -17,8 +17,17 @@ Built-in switch scanning support for AAC users, with configurable speed, start d
 ## Usage
 Open `index.html` in any modern browser. An internet connection is required to load animal images.
 
-Place your sound files in a `sounds/` folder alongside `index.html`. The `fish/` folder
-must be kept alongside `index.html` too — the Fish theme loads its artwork from there.
+Keep the whole folder together — `index.html` loads the files and folders below from alongside it.
+
+## Files
+| Path | What it holds |
+|------|---------------|
+| `index.html` | The screens and buttons |
+| `styles.css` | All styling, including each theme's colours |
+| `themes.js` | The themes and their animals — start here to add or change a theme |
+| `app.js` | The activities, sound playback and switch scanning |
+| `sounds/` | One `.mp3` per animal — see `sounds/_Adding Sounds.md` |
+| `fish/` | Artwork for the Fish theme |
 
 ## Hosting
 Live at: [https://Magnatronic.github.io/AnimalWorld](https://Magnatronic.github.io/AnimalWorld)
