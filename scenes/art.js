@@ -253,7 +253,12 @@ const SceneArt = (() => {
         </svg>`;
     }
 
-    Object.assign(SceneDraw, { shading, ball, trunk, tuft, cloud, stars, flowers, skyAndSun, branch, shine, tufts, farTree,
+    // A bush that head-only animals pop up from behind, and the berries that mark an empty one.
+    const bushCover = `<g class="sway" style="--d:8s"><ellipse class="f-leaf ol" cx="100" cy="68" rx="96" ry="34"/>${ball('f-leaf2', 40, 66, 36)}${ball('f-leaf', 100, 56, 42)}${ball('f-leaf2', 160, 66, 36)}</g>`;
+    const berries = `<path class="p-leaf o" d="M34 58 Q40 46 52 50 Q44 60 34 58Z"/><path class="p-leaf o" d="M66 58 Q60 46 48 50 Q56 60 66 58Z"/>` +
+        [[43, 56], [51, 60], [58, 55], [50, 51], [41, 63], [59, 63], [50, 66]].map(([x, y]) => `<circle class="p-berry o" cx="${x}" cy="${y}" r="5.4"/>`).join('');
+
+    Object.assign(SceneDraw, { bushCover, berries, shading, ball, trunk, tuft, cloud, stars, flowers, skyAndSun, branch, shine, tufts, farTree,
         bluebells, reeds, pine, toadstools, rock, lodge, barn, farmhouse, fence, gate, haystack, roundBale, patchwork, woodland });
 
     return {
@@ -271,7 +276,7 @@ const SceneArt = (() => {
                 Eagle:    { habitat: 'perch',  w: 11.5, face: 'l', foot: 85 },
                 Parrot:   { habitat: 'perch',  w: 9,    face: 'l', foot: 74 },
                 Pigeon:   { habitat: 'ground', w: 9,    face: 'l', foot: 88 },
-                Hen:      { habitat: 'ground', w: 9,    face: 'f', foot: 88, move: 'walk' },
+                Hen:      { habitat: 'hide',   w: 7,    face: 'f', foot: 90, move: 'peek' },   // only a head: pops up from a bush
                 Rooster:  { habitat: 'ground', w: 10.5, face: 'l', foot: 85, move: 'walk' },
                 Chick:    { habitat: 'ground', w: 7,    face: 'f', foot: 83.5, move: 'walk' },
                 Turkey:   { habitat: 'ground', w: 11,   face: 'l', foot: 83.5, move: 'walk' },
@@ -283,13 +288,16 @@ const SceneArt = (() => {
                 Flamingo: { habitat: 'water',  w: 10,   face: 'l', foot: 80 },
             },
             switchCast: ['Sparrow', 'Owl', 'Duck', 'Swan', 'Parrot', 'Peacock'], // first jobs for switches 1, 2, 3…
+            covers: { bush: bushCover },
+            marks: { hide: berries },
+            markWords: { hide: 'berries on a bush' },
             weathers: ['rain', 'storm', 'snow', 'wind', 'fog', 'rainbow'],    // the weathers that suit it (SceneWeather)
 
             scenes: {
                 garden: {
                     name: '🌳 Garden',
                     track: 'garden',
-                    places: { perch: 'on the branches', ground: 'on the lawn', water: 'on the pond' },
+                    places: { perch: 'on the branches', hide: 'behind the bush', ground: 'on the lawn', water: 'on the pond' },
                     residents: ['Sparrow', 'Duck'],
                     svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
                       ${skyAndSun('g-garden', 1110)}
@@ -318,6 +326,7 @@ const SceneArt = (() => {
                     spots: [
                         { habitat: 'perch', x: 24, y: 47.4 }, { habitat: 'perch', x: 36, y: 42.1 },
                         { habitat: 'perch', x: 70, y: 32.8 }, { habitat: 'perch', x: 81, y: 30.8 },
+                        { habitat: 'hide', x: 18, y: 75, cover: 'bush' },
                         { habitat: 'ground', x: 25, y: 88 }, { habitat: 'ground', x: 35, y: 81 },
                         { habitat: 'ground', x: 45, y: 88 }, { habitat: 'ground', x: 52, y: 78 },
                         { habitat: 'water', x: 70, y: 86 },  { habitat: 'water', x: 83, y: 87.5 },
@@ -328,13 +337,14 @@ const SceneArt = (() => {
                 woodland: {
                     name: '🌲 Woodland',
                     track: 'woodland',
-                    places: { perch: 'on the branches', ground: 'on the forest floor', water: 'in the stream' },
+                    places: { perch: 'on the branches', hide: 'behind the bush', ground: 'on the forest floor', water: 'in the stream' },
                     residents: ['Owl', 'Crow'],
                     svg: () => woodland(),
                     spots: [
                         { habitat: 'perch', x: 27,   y: 45.2 }, { habitat: 'perch', x: 36.5, y: 42.2 },
                         { habitat: 'perch', x: 24,   y: 24.6 }, { habitat: 'perch', x: 49,   y: 35.9 },
                         { habitat: 'perch', x: 76,   y: 52.8 }, { habitat: 'perch', x: 81,   y: 27.1 },
+                        { habitat: 'hide', x: 58, y: 74, cover: 'bush' },
                         { habitat: 'ground', x: 25, y: 88 }, { habitat: 'ground', x: 36, y: 82 }, { habitat: 'ground', x: 48, y: 87 },
                         { habitat: 'water', x: 72.5, y: 94 }, { habitat: 'water', x: 82, y: 93 },
                     ],
@@ -344,7 +354,7 @@ const SceneArt = (() => {
                 lake: {
                     name: '🏞️ Lakeside',
                     track: 'lake',
-                    places: { perch: 'on the jetty', ground: 'on the shore', water: 'on the lake' },
+                    places: { perch: 'on the jetty', hide: 'behind the bush', ground: 'on the shore', water: 'on the lake' },
                     residents: ['Duck', 'Swan'],
                     svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
                       ${skyAndSun('g-lake', 420)}
@@ -372,6 +382,7 @@ const SceneArt = (() => {
                     </svg>`,
                     spots: [
                         { habitat: 'perch', x: 62.5, y: 60 },   { habitat: 'perch', x: 71, y: 65.6 }, { habitat: 'perch', x: 80, y: 65.6 },
+                        { habitat: 'hide', x: 30, y: 78, cover: 'bush' },
                         { habitat: 'ground', x: 17, y: 81 },    { habitat: 'ground', x: 26, y: 88 },  { habitat: 'ground', x: 37, y: 95 },
                         { habitat: 'water', x: 31, y: 73 },     { habitat: 'water', x: 44, y: 82 },   { habitat: 'water', x: 54, y: 92 },
                         { habitat: 'water', x: 57, y: 70 },     { habitat: 'water', x: 72, y: 88 },
@@ -393,20 +404,20 @@ const SceneArt = (() => {
             // animals come after the others, so they're in front when they cross.
             animals: {
                 Owl:        { habitat: 'perch',  w: 8.5, face: 'f', foot: 86,   move: 'fly' },
-                Squirrel:   { habitat: 'perch',  w: 8,   face: 'l', foot: 88.5, move: 'bound' },
+                Squirrel:   { habitat: 'perch',  w: 8,   face: 'l', foot: 88.5, move: 'climb', src: 'scenes/pictures/red-squirrel.svg' },
                 Bat:        { habitat: 'perch',  w: 9,   face: 'f', foot: 4,    move: 'fly', hang: true },
                 Fox:        { habitat: 'hide',   w: 7,   face: 'f', foot: 94,   move: 'peek' },
                 Bear:       { habitat: 'hide',   w: 7.8, face: 'f', foot: 87,   move: 'peek' },
                 Wolf:       { habitat: 'hide',   w: 7,   face: 'f', foot: 94,   move: 'peek' },
-                Frog:       { habitat: 'water',  w: 8,   face: 'f', foot: 70,   move: 'bound' },
-                Otter:      { habitat: 'water',  w: 11,  face: 'l', foot: 60 },
-                Beaver:     { habitat: 'water',  w: 10,  face: 'l', foot: 64 },
+                Frog:       { habitat: 'water',  w: 8,   face: 'f', foot: 70,   move: 'surface' },
+                Otter:      { habitat: 'water',  w: 11,  face: 'l', foot: 60,   move: 'surface' },
+                Beaver:     { habitat: 'water',  w: 10,  face: 'l', foot: 64,   move: 'surface' },
                 Deer:       { habitat: 'ground', w: 13,  face: 'l', foot: 94.3 },
                 Badger:     { habitat: 'ground', w: 11,  face: 'l', foot: 73.8 },
                 Hedgehog:   { habitat: 'ground', w: 8,   face: 'l', foot: 77.8 },
-                Rabbit:     { habitat: 'ground', w: 8,   face: 'l', foot: 80.5, move: 'bound' },
+                Rabbit:     { habitat: 'ground', w: 8,   face: 'l', foot: 80.5, move: 'bound', src: 'scenes/pictures/wild-rabbit.svg' },
                 'Wild Boar':{ habitat: 'ground', w: 12,  face: 'l', foot: 80.8 },
-                Mouse:      { habitat: 'ground', w: 6,   face: 'l', foot: 86.8 },
+                Mouse:      { habitat: 'ground', w: 6,   face: 'l', foot: 86.8, src: 'scenes/pictures/wood-mouse.svg' },
                 Snake:      { habitat: 'ground', w: 8,   face: 'r', foot: 84.5 },
             },
             switchCast: ['Fox', 'Owl', 'Frog', 'Deer', 'Squirrel', 'Bear'],
@@ -414,7 +425,7 @@ const SceneArt = (() => {
             // What hides the peeping animals: drawn 200 × 100 in front of them, with the line
             // they're hidden from (the spot) at (100, 30).
             covers: {
-                bush: `<g class="sway" style="--d:8s"><ellipse class="f-leaf ol" cx="100" cy="68" rx="96" ry="34"/>${ball('f-leaf2', 40, 66, 36)}${ball('f-leaf', 100, 56, 42)}${ball('f-leaf2', 160, 66, 36)}</g>`,
+                bush: bushCover,
                 log:  `<rect class="f-trunk ol" x="6" y="22" width="182" height="52" rx="22"/><path class="shade-flat" d="M6 52 H188 V52 Q188 74 166 74 H28 Q6 74 6 52Z"/>
                        <path class="light-flat" d="M28 22 H166 V30 H28Z"/>
                        <ellipse class="f-trunk ol" cx="186" cy="48" rx="13" ry="26"/><ellipse class="light-flat" cx="186" cy="48" rx="13" ry="26"/>
@@ -430,8 +441,7 @@ const SceneArt = (() => {
                 // A log's empty place has little toadstools on it
                 log: [[42, 60, 1], [55, 61, .75]].map(([x, y, s]) => `<path class="p-stalk o" d="M${x - 3 * s} ${y} L${x - 2.5 * s} ${y - 9 * s} H${x + 2.5 * s} L${x + 3 * s} ${y}Z"/>
                     <path class="p-cap o" d="M${x - 11 * s} ${y - 8 * s} Q${x} ${y - 27 * s} ${x + 11 * s} ${y - 8 * s}Z"/><circle class="p-stalk" cx="${x - 3 * s}" cy="${y - 14 * s}" r="${2 * s}"/>`).join(''),
-                hide: `<path class="p-leaf o" d="M34 58 Q40 46 52 50 Q44 60 34 58Z"/><path class="p-leaf o" d="M66 58 Q60 46 48 50 Q56 60 66 58Z"/>` +
-                    [[43, 56], [51, 60], [58, 55], [50, 51], [41, 63], [59, 63], [50, 66]].map(([x, y]) => `<circle class="p-berry o" cx="${x}" cy="${y}" r="5.4"/>`).join(''),
+                hide: berries,
             },
             // Marks and words go by a spot's cover if it has its own, or else by where it is.
             markWords: { perch: 'acorns on a branch', hide: 'berries on a bush', log: 'toadstools on the log', ground: 'leaves on the ground', water: 'a lily pad on the water' },
@@ -445,12 +455,12 @@ const SceneArt = (() => {
                     svg: () => woodland(toadstools([[560, 815, 1], [120, 872, .8], [650, 752, .9], [420, 885, 1.1]]) +
                         rock(1500, 800, 60, 26) + rock(760, 870, 44, 20)),
                     spots: [
-                        { habitat: 'perch', x: 27,   y: 45.2 }, { habitat: 'perch', x: 36.5, y: 42.2 },
-                        { habitat: 'perch', x: 24,   y: 24.6 }, { habitat: 'perch', x: 49,   y: 35.9 },
-                        { habitat: 'perch', x: 76,   y: 52.8 }, { habitat: 'perch', x: 81,   y: 27.1 },
+                        { habitat: 'perch', x: 27,   y: 45.2, up: [14, 80] }, { habitat: 'perch', x: 36.5, y: 42.2, up: [14, 80] },
+                        { habitat: 'perch', x: 24,   y: 24.6, up: [14, 80] }, { habitat: 'perch', x: 49,   y: 35.9, up: [64, 80] },
+                        { habitat: 'perch', x: 76,   y: 52.8, up: [66, 80] }, { habitat: 'perch', x: 81,   y: 27.1, up: [91.5, 79] },
                         { habitat: 'hide', x: 44, y: 71 }, { habitat: 'hide', x: 62, y: 70 },
                         { habitat: 'ground', x: 20, y: 90 }, { habitat: 'ground', x: 32, y: 84 },
-                        { habitat: 'ground', x: 47, y: 92 }, { habitat: 'ground', x: 59, y: 87 },
+                        { habitat: 'ground', x: 47, y: 92 }, { habitat: 'ground', x: 59, y: 87, from: 'l' },
                         { habitat: 'water', x: 72.5, y: 94 }, { habitat: 'water', x: 84, y: 92.5 },
                     ],
                     splashes: [[56, 97.5], [65.5, 94.5], [74, 96], [84.5, 92.5], [92.5, 90]],
@@ -488,9 +498,9 @@ const SceneArt = (() => {
                         ball(i % 2 ? 'f-leaf2' : 'f-leaf', x, y, r)).join('')}</g>
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 22, y: 30.7 }, { habitat: 'perch', x: 29, y: 28.75 },
-                        { habitat: 'perch', x: 24, y: 50.9 },
-                        { habitat: 'perch', x: 76, y: 38.8 }, { habitat: 'perch', x: 82, y: 40.1 },
+                        { habitat: 'perch', x: 22, y: 30.7, up: [10.6, 90] }, { habitat: 'perch', x: 29, y: 28.75, up: [10.6, 90] },
+                        { habitat: 'perch', x: 24, y: 50.9, up: [10.6, 90] },
+                        { habitat: 'perch', x: 76, y: 38.8, up: [93.5, 90] }, { habitat: 'perch', x: 82, y: 40.1, up: [93.5, 90] },
                         { habitat: 'hide', x: 38, y: 60 }, { habitat: 'hide', x: 54, y: 61 }, { habitat: 'hide', x: 70, y: 59.5 },
                         { habitat: 'water', x: 36, y: 80 }, { habitat: 'water', x: 52, y: 81 }, { habitat: 'water', x: 67, y: 79.5 },
                         { habitat: 'ground', x: 20, y: 95 }, { habitat: 'ground', x: 40, y: 96 },
@@ -530,12 +540,12 @@ const SceneArt = (() => {
                       <g class="sway" style="--d:12s">${ball('f-leaf2', 1380, -20, 110)}${ball('f-leaf', 1510, 20, 130)}${ball('f-leaf2', 1610, 140, 100)}</g>
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 20, y: 44.9 }, { habitat: 'perch', x: 26.25, y: 42.4 },
-                        { habitat: 'perch', x: 21, y: 62.5 },
-                        { habitat: 'perch', x: 78, y: 33.9 }, { habitat: 'perch', x: 84, y: 35.2 },
+                        { habitat: 'perch', x: 20, y: 44.9, up: [11, 88] }, { habitat: 'perch', x: 26.25, y: 42.4, up: [11, 88] },
+                        { habitat: 'perch', x: 21, y: 62.5, up: [11, 88] },
+                        { habitat: 'perch', x: 78, y: 33.9, up: [93.4, 88] }, { habitat: 'perch', x: 84, y: 35.2, up: [93.4, 88] },
                         { habitat: 'hide', x: 44, y: 73, cover: 'log' }, { habitat: 'hide', x: 80, y: 69 },
                         { habitat: 'ground', x: 17, y: 92 }, { habitat: 'ground', x: 31, y: 84 },
-                        { habitat: 'ground', x: 46, y: 93 }, { habitat: 'ground', x: 59, y: 83 },
+                        { habitat: 'ground', x: 46, y: 93 }, { habitat: 'ground', x: 59, y: 83, from: 'l' },
                         { habitat: 'water', x: 66, y: 89 }, { habitat: 'water', x: 79, y: 88.5 },
                     ],
                     splashes: [[63, 88], [68, 92], [73, 86], [77, 91], [83, 88]],
@@ -551,11 +561,11 @@ const SceneArt = (() => {
             // Ducks and geese sit in the pond (`foot` is the waterline).
             animals: {
                 Rooster: { habitat: 'perch',  w: 8.5, face: 'l', foot: 85,   move: 'fly' },
-                Cat:     { habitat: 'perch',  w: 9,   face: 'l', foot: 79,   move: 'bound' },
-                Chick:   { habitat: 'perch',  w: 5.5, face: 'f', foot: 83.5, move: 'bound' },
+                Cat:     { habitat: 'perch',  w: 9,   face: 'l', foot: 79,   move: 'climb' },
+                Chick:   { habitat: 'perch',  w: 5.5, face: 'f', foot: 83.5, move: 'climb' },
                 Hen:     { habitat: 'hide',   w: 6.5, face: 'f', foot: 90,   move: 'peek' },
-                Duck:    { habitat: 'water',  w: 9.5, face: 'l', foot: 76 },
-                Goose:   { habitat: 'water',  w: 9.5, face: 'l', foot: 75 },
+                Duck:    { habitat: 'water',  w: 9.5, face: 'l', foot: 76, move: 'fly' },
+                Goose:   { habitat: 'water',  w: 9.5, face: 'l', foot: 75, move: 'fly' },
                 Cow:     { habitat: 'ground', w: 14,  face: 'l', foot: 80.3 },
                 Horse:   { habitat: 'ground', w: 13,  face: 'l', foot: 89.3 },
                 Donkey:  { habitat: 'ground', w: 12,  face: 'l', foot: 85.3 },
@@ -610,8 +620,8 @@ const SceneArt = (() => {
                       ${flowers([[1000, 730], [1100, 880], [940, 820]])}
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 59, y: 66.7 }, { habitat: 'perch', x: 66.5, y: 66.7 },
-                        { habitat: 'perch', x: 74.5, y: 66.7 }, { habitat: 'perch', x: 82, y: 66.7 },
+                        { habitat: 'perch', x: 59, y: 66.7, up: [59, 79] }, { habitat: 'perch', x: 66.5, y: 66.7, up: [66.5, 79] },
+                        { habitat: 'perch', x: 74.5, y: 66.7, up: [74.5, 79] }, { habitat: 'perch', x: 82, y: 66.7, up: [82, 79] },
                         { habitat: 'hide', x: 45, y: 72, cover: 'hay' }, { habitat: 'hide', x: 18, y: 76, cover: 'hay' },
                         { habitat: 'ground', x: 28, y: 93 }, { habitat: 'ground', x: 45, y: 95 },
                         { habitat: 'ground', x: 60, y: 85 }, { habitat: 'ground', x: 68, y: 97 },
@@ -645,10 +655,10 @@ const SceneArt = (() => {
                       ${flowers([[250, 820], [520, 880], [760, 800], [960, 760], [1040, 880]])}
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 18, y: 68 }, { habitat: 'perch', x: 24, y: 68 }, { habitat: 'perch', x: 31, y: 68 },
+                        { habitat: 'perch', x: 18, y: 68, up: [18, 80] }, { habitat: 'perch', x: 24, y: 68, up: [24, 80] }, { habitat: 'perch', x: 31, y: 68, up: [31, 80] },
                         { habitat: 'hide', x: 58, y: 71, cover: 'hay' }, { habitat: 'hide', x: 72, y: 68, cover: 'hay' },
                         { habitat: 'ground', x: 17, y: 94 }, { habitat: 'ground', x: 32, y: 86 }, { habitat: 'ground', x: 44, y: 95 },
-                        { habitat: 'ground', x: 45, y: 78 }, { habitat: 'ground', x: 60, y: 90 },
+                        { habitat: 'ground', x: 45, y: 78 }, { habitat: 'ground', x: 60, y: 90, from: 'l' },
                         { habitat: 'water', x: 74, y: 95 }, { habitat: 'water', x: 83, y: 94 },
                     ],
                     splashes: [[70, 93], [75, 96], [80, 92], [85, 95]],
@@ -680,7 +690,7 @@ const SceneArt = (() => {
                       ${flowers([[330, 690], [1380, 760], [1500, 880], [250, 860]])}
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 17, y: 63.8 }, { habitat: 'perch', x: 24, y: 63.8 },
+                        { habitat: 'perch', x: 17, y: 63.8, up: [17, 75] }, { habitat: 'perch', x: 24, y: 63.8, up: [24, 75] },
                         { habitat: 'hide', x: 84, y: 75, cover: 'hay' },
                         { habitat: 'ground', x: 36, y: 70 }, { habitat: 'ground', x: 55, y: 69 },
                         { habitat: 'ground', x: 18, y: 93 }, { habitat: 'ground', x: 83, y: 95 },

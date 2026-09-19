@@ -71,7 +71,7 @@
           <path class="stem-thin" d="M${x - 60} ${ground - 40} q40 -60 20 -120 q-20 -80 30 -150 M${x + 60} ${ground - 40} q-40 -80 -10 -160 q20 -60 -10 -120"/>`;
     }
     function wateringCan(x, y) {
-        return `<path class="f-pond ol" d="M${x - 50} ${y} L${x - 44} ${y - 70} L${x + 44} ${y - 70} L${x + 50} ${y}Z"/><path class="f-pond ol" d="M${x + 44} ${y - 40} L${x + 110} ${y - 90} L${x + 118} ${y - 80} L${x + 48} ${y - 22}Z"/>
+        return `<path class="f-can ol" d="M${x - 50} ${y} L${x - 44} ${y - 70} L${x + 44} ${y - 70} L${x + 50} ${y}Z"/><path class="f-can ol" d="M${x + 44} ${y - 40} L${x + 110} ${y - 90} L${x + 118} ${y - 80} L${x + 48} ${y - 22}Z"/>
           <path class="stalk" d="M${x - 30} ${y - 70} Q${x} ${y - 120} ${x + 30} ${y - 70}"/><path class="shade-side" d="M${x - 50} ${y} L${x - 44} ${y - 70} L${x + 44} ${y - 70} L${x + 50} ${y}Z"/>`;
     }
 
@@ -84,9 +84,9 @@
             Butterfly:   { habitat: 'flower', w: 8,   face: 'f', foot: 77.5, move: 'fly' },
             Fly:         { habitat: 'flower', w: 5.5, face: 'f', foot: 89.8, move: 'fly' },
             Mosquito:    { habitat: 'flower', w: 5.5, face: 'f', foot: 86,   move: 'fly' },
-            Caterpillar: { habitat: 'leaf',   w: 8,   face: 'l', foot: 79.5 },
+            Caterpillar: { habitat: 'leaf',   w: 8,   face: 'l', foot: 79.5, move: 'climb' },
             Ladybird:    { habitat: 'leaf',   w: 5.5, face: 'f', foot: 82.8, move: 'fly' },
-            Snail:       { habitat: 'leaf',   w: 8,   face: 'r', foot: 78.5 },
+            Snail:       { habitat: 'leaf',   w: 8,   face: 'r', foot: 78.5, move: 'climb' },
             Spider:      { habitat: 'thread', w: 7,   face: 'f', foot: 50,   move: 'drop' },
             Worm:        { habitat: 'hide',   w: 7,   face: 'l', foot: 72.5, move: 'peek' },
             Ant:         { habitat: 'ground', w: 5,   face: 'f', foot: 85.5 },
@@ -115,6 +115,7 @@
         scenes: {
             flowers: {
                 name: '🌼 Flower bed',
+                weathers: ['rain', 'wind', 'fog', 'rainbow'],      // no trees here to drop autumn leaves
                 track: 'flowerbed',
                 cast: ['Bee', 'Butterfly', 'Fly', 'Ladybird', 'Caterpillar', 'Snail', 'Spider', 'Worm', 'Ant', 'Cricket', 'Beetle'],
                 places: { flower: 'on the flowers', leaf: 'on the leaves', thread: 'on threads', hide: 'in the soil', ground: 'on the ground' },
@@ -136,8 +137,8 @@
                 spots: [
                     { habitat: 'flower', x: 18.75, y: 39.3 }, { habitat: 'flower', x: 35, y: 46.7 }, { habitat: 'flower', x: 56.25, y: 31.4 },
                     { habitat: 'flower', x: 73.75, y: 44.6 }, { habitat: 'flower', x: 83.75, y: 38.9 },
-                    { habitat: 'leaf', x: 24, y: 63.4 }, { habitat: 'leaf', x: 30.9, y: 74.1 }, { habitat: 'leaf', x: 50.3, y: 58.6 },
-                    { habitat: 'leaf', x: 78.5, y: 67.5 },
+                    { habitat: 'leaf', x: 24, y: 63.4, up: [18.75, 92] }, { habitat: 'leaf', x: 30.9, y: 74.1, up: [35, 92] },
+                    { habitat: 'leaf', x: 50.3, y: 58.6, up: [56.25, 92] }, { habitat: 'leaf', x: 78.5, y: 67.5, up: [73.75, 92] },
                     { habitat: 'thread', x: 44, y: 26 }, { habitat: 'thread', x: 66, y: 20 },
                     { habitat: 'hide', x: 28, y: 90, cover: 'soil' }, { habitat: 'hide', x: 66, y: 91, cover: 'soil' },
                     { habitat: 'ground', x: 16, y: 88 }, { habitat: 'ground', x: 46, y: 90 }, { habitat: 'ground', x: 82, y: 88 },
@@ -166,7 +167,7 @@
                 </svg>`,
                 spots: [
                     { habitat: 'flower', x: 82.5, y: 27.8 }, { habitat: 'flower', x: 84.5, y: 47 },
-                    { habitat: 'leaf', x: 17, y: 81.5 }, { habitat: 'leaf', x: 85, y: 80.5 },
+                    { habitat: 'leaf', x: 17, y: 81.5, up: [8, 92] }, { habitat: 'leaf', x: 85, y: 80.5, up: [95, 92] },
                     { habitat: 'thread', x: 60, y: 30 }, { habitat: 'thread', x: 70, y: 18 },
                     { habitat: 'hide', x: 64, y: 93, cover: 'soil' }, { habitat: 'hide', x: 16, y: 92, cover: 'soil' },
                     { habitat: 'ground', x: 28, y: 48.2 }, { habitat: 'ground', x: 23.3, y: 62.3 }, { habitat: 'ground', x: 32.4, y: 62.3 },
@@ -177,6 +178,7 @@
 
             veg: {
                 name: '🥬 Veg patch',
+                weathers: ['rain', 'wind', 'fog', 'rainbow'],
                 track: 'vegpatch',
                 cast: ['Bee', 'Butterfly', 'Fly', 'Mosquito', 'Ladybird', 'Caterpillar', 'Snail', 'Spider', 'Worm', 'Ant', 'Beetle', 'Cricket'],
                 switchCast: ['Caterpillar', 'Butterfly', 'Snail', 'Worm', 'Bee', 'Ladybird'],
@@ -198,7 +200,7 @@
                 spots: [
                     { habitat: 'flower', x: 74.4, y: 34.4 }, { habitat: 'flower', x: 81.3, y: 30 }, { habitat: 'flower', x: 77, y: 48.4 },
                     { habitat: 'flower', x: 82, y: 56.3 },
-                    { habitat: 'leaf', x: 16.3, y: 71.9 }, { habitat: 'leaf', x: 35, y: 72.7 }, { habitat: 'leaf', x: 53.8, y: 73.4 },
+                    { habitat: 'leaf', x: 16.3, y: 71.9, up: [16.3, 90] }, { habitat: 'leaf', x: 35, y: 72.7, up: [35, 90] }, { habitat: 'leaf', x: 53.8, y: 73.4, up: [53.8, 90] },
                     { habitat: 'thread', x: 44, y: 24 }, { habitat: 'thread', x: 62, y: 32 },
                     { habitat: 'hide', x: 28, y: 94, cover: 'soil' }, { habitat: 'hide', x: 66, y: 93, cover: 'soil' },
                     { habitat: 'ground', x: 45, y: 82 }, { habitat: 'ground', x: 70, y: 84 }, { habitat: 'ground', x: 16, y: 96 },

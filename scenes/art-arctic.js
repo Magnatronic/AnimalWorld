@@ -41,18 +41,19 @@ SceneArt.arctic = (() => {
         move: 'walk',
         fx: 'note',
         animals: {
-            'Snowy Owl':   { habitat: 'perch',  w: 8.5, face: 'f', foot: 86,   move: 'fly' },
-            'Arctic Fox':  { habitat: 'hide',   w: 7,   face: 'f', foot: 94,   move: 'peek' },
+            'Snowy Owl':   { habitat: 'perch',  w: 8.5, face: 'f', foot: 86,   move: 'fly', src: 'scenes/pictures/snowy-owl.svg' },
+            'Arctic Fox':  { habitat: 'hide',   w: 7,   face: 'f', foot: 94,   move: 'peek', src: 'scenes/pictures/arctic-fox.svg' },
             Moose:         { habitat: 'hide',   w: 8.5, face: 'f', foot: 89.5, move: 'peek' },
-            Seal:          { habitat: 'water',  w: 10,  face: 'r', foot: 68 },
-            Whale:         { habitat: 'water',  w: 16,  face: 'l', foot: 64 },
+            Seal:          { habitat: 'water',  w: 10,  face: 'r', foot: 68,   move: 'surface' },
+            Whale:         { habitat: 'water',  w: 16,  face: 'l', foot: 64,   move: 'surface' },
             'Polar Bear':  { habitat: 'ground', w: 15,  face: 'l', foot: 77.5 },
             Penguin:       { habitat: 'ground', w: 7,   face: 'f', foot: 89.8 },
             Reindeer:      { habitat: 'ground', w: 13,  face: 'l', foot: 94.3 },
-            'Arctic Hare': { habitat: 'ground', w: 7.5, face: 'l', foot: 80.5, move: 'bound' },
+            'Arctic Hare': { habitat: 'ground', w: 7.5, face: 'l', foot: 80.5, move: 'bound', src: 'scenes/pictures/arctic-hare.svg' },
         },
         switchCast: ['Polar Bear', 'Penguin', 'Seal', 'Arctic Fox', 'Snowy Owl', 'Whale'],
         weathers: ['snow', 'wind', 'fog', 'aurora'],
+        windCarries: 'snow',       // no leaves up here: the wind blows fine snow
         covers: {
             drift: `<path class="f-lawn ol" d="M4 100 Q10 40 60 22 Q100 8 140 20 Q196 42 196 100Z"/><path class="shade-ball" d="M4 100 Q10 40 60 22 Q100 8 140 20 Q196 42 196 100Z"/>
                     <path class="rim" d="M4 100 Q10 40 60 22 Q100 8 140 20 Q196 42 196 100"/><path class="f-rock" opacity=".5" d="M20 100 Q60 80 110 86 Q160 92 190 100Z"/>`,

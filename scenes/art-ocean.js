@@ -101,7 +101,7 @@
             'Sea Otter':{ habitat: 'swim',   w: 9,   face: 'l', foot: 55 },
             Turtle:     { habitat: 'swim',   w: 11,  face: 'l', foot: 55 },
             Jellyfish:  { habitat: 'swim',   w: 8,   face: 'f', foot: 55 },
-            Clownfish:  { habitat: 'swim',   w: 7,   face: 'r', foot: 55 },
+            Clownfish:  { habitat: 'swim',   w: 7,   face: 'r', foot: 55, src: 'fish/clownfish.svg' },
             Squid:      { habitat: 'swim',   w: 7,   face: 'f', foot: 55 },
             Pufferfish: { habitat: 'swim',   w: 7.5, face: 'l', foot: 55 },
             Crab:       { habitat: 'seabed', w: 7,   face: 'f', foot: 77.5, move: 'walk' },
@@ -121,16 +121,17 @@
                 track: 'seashore',
                 fx: 'note',
                 weathers: ['rain', 'storm', 'wind', 'fog', 'rainbow'],
+                windCarries: 'sand',
                 // Above the water here: on the beach, on the rocks, or at the surface
                 cast: {
-                    Seal:       { habitat: 'perch',  foot: 86 },
+                    Seal:       { habitat: 'perch',  foot: 86, move: 'climb' },      // swims to the rock and hauls up onto it
                     Penguin:    { habitat: 'ground', foot: 89.8, move: 'walk' },
                     Crab:       { habitat: 'ground' },
                     Turtle:     { habitat: 'ground', foot: 78.5, move: 'walk' },
-                    'Sea Otter':{ habitat: 'water',  foot: 62 },
-                    Dolphin:    { habitat: 'water',  foot: 62 },
-                    Whale:      { habitat: 'water',  w: 16, foot: 46 },
-                    Shark:      { habitat: 'water',  foot: 47 },
+                    'Sea Otter':{ habitat: 'water',  foot: 62, move: 'surface' },
+                    Dolphin:    { habitat: 'water',  foot: 62, move: 'surface' },
+                    Whale:      { habitat: 'water',  w: 16, foot: 46, move: 'surface' },
+                    Shark:      { habitat: 'water',  foot: 47, move: 'surface' },
                 },
                 switchCast: ['Dolphin', 'Seal', 'Crab', 'Whale', 'Turtle', 'Penguin'],
                 marks: {
@@ -158,7 +159,7 @@
                   ${tufts([[40, 640], [80, 660]])}
                 </svg>`,
                 spots: [
-                    { habitat: 'perch', x: 76.5, y: 67.8 }, { habitat: 'perch', x: 84, y: 67.2 },
+                    { habitat: 'perch', x: 76.5, y: 67.8, up: [74, 84] }, { habitat: 'perch', x: 84, y: 67.2, up: [74, 84] },
                     { habitat: 'water', x: 50, y: 64 }, { habitat: 'water', x: 64, y: 58 }, { habitat: 'water', x: 58, y: 80 },
                     { habitat: 'water', x: 82, y: 92 },
                     { habitat: 'ground', x: 16, y: 78 }, { habitat: 'ground', x: 28, y: 88 }, { habitat: 'ground', x: 40, y: 96 },

@@ -43,13 +43,13 @@ SceneArt.safari = (() => {
         move: 'walk',
         fx: 'note',
         animals: {
-            Monkey:    { habitat: 'perch',  w: 9,   face: 'l', foot: 87.5, move: 'bound' },
+            Monkey:    { habitat: 'perch',  w: 9,   face: 'l', foot: 87.5, move: 'climb' },
             Eagle:     { habitat: 'perch',  w: 9.5, face: 'l', foot: 90,   move: 'fly' },
-            Leopard:   { habitat: 'perch',  w: 12,  face: 'l', foot: 78.5, move: 'bound' },
-            Chameleon: { habitat: 'perch',  w: 8,   face: 'l', foot: 75.3 },
+            Leopard:   { habitat: 'perch',  w: 12,  face: 'l', foot: 78.5, move: 'climb' },
+            Chameleon: { habitat: 'perch',  w: 8,   face: 'l', foot: 75.3, move: 'climb' },
             Lion:      { habitat: 'hide',   w: 8.5, face: 'f', foot: 95.5, move: 'peek' },
-            Hippo:     { habitat: 'water',  w: 13,  face: 'r', foot: 56 },
-            Crocodile: { habitat: 'water',  w: 13,  face: 'r', foot: 66 },
+            Hippo:     { habitat: 'water',  w: 13,  face: 'r', foot: 56,   move: 'surface' },
+            Crocodile: { habitat: 'water',  w: 13,  face: 'r', foot: 66,   move: 'surface' },
             Flamingo:  { habitat: 'water',  w: 8,   face: 'l', foot: 80,   move: 'fly' },
             Elephant:  { habitat: 'ground', w: 16,  face: 'l', foot: 82.3 },
             Giraffe:   { habitat: 'ground', w: 13,  face: 'l', foot: 93.3 },
@@ -57,7 +57,7 @@ SceneArt.safari = (() => {
             Rhino:     { habitat: 'ground', w: 13,  face: 'l', foot: 83 },
             Gorilla:   { habitat: 'ground', w: 10,  face: 'l', foot: 88 },
             Camel:     { habitat: 'ground', w: 13,  face: 'l', foot: 84.3 },
-            Warthog:   { habitat: 'ground', w: 10,  face: 'l', foot: 80.8 },
+            Warthog:   { habitat: 'ground', w: 10,  face: 'l', foot: 80.8, src: 'scenes/pictures/warthog.svg' },
             Scorpion:  { habitat: 'ground', w: 5.5, face: 'f', foot: 85.3 },
         },
         switchCast: ['Lion', 'Elephant', 'Giraffe', 'Zebra', 'Monkey', 'Hippo'],
@@ -107,8 +107,8 @@ SceneArt.safari = (() => {
                   <g class="sway" style="--d:12s"><ellipse class="f-leaf ol" cx="1420" cy="548" rx="200" ry="40"/><ellipse class="f-leaf2 ol" cx="1400" cy="528" rx="150" ry="30"/><ellipse class="shade-belly" cx="1420" cy="548" rx="200" ry="40"/></g>
                 </svg>`,
                 spots: [
-                    { habitat: 'perch', x: 19, y: 46.6 }, { habitat: 'perch', x: 26, y: 48.3 },
-                    { habitat: 'perch', x: 76, y: 64.4 }, { habitat: 'perch', x: 82, y: 65.3 },
+                    { habitat: 'perch', x: 19, y: 46.6, up: [15.6, 90] }, { habitat: 'perch', x: 26, y: 48.3, up: [15.6, 90] },
+                    { habitat: 'perch', x: 76, y: 64.4, up: [88.5, 84] }, { habitat: 'perch', x: 82, y: 65.3, up: [88.5, 84] },
                     { habitat: 'hide', x: 44, y: 72, cover: 'grass' }, { habitat: 'hide', x: 63, y: 71, cover: 'grass' },
                     { habitat: 'ground', x: 17, y: 94 }, { habitat: 'ground', x: 31, y: 85 }, { habitat: 'ground', x: 48, y: 95 },
                     { habitat: 'ground', x: 56, y: 83 },
@@ -143,7 +143,7 @@ SceneArt.safari = (() => {
                   ${branch(150, 380, 60, 330, 14)}
                 </svg>`,
                 spots: [
-                    { habitat: 'perch', x: 20, y: 43.9 }, { habitat: 'perch', x: 26, y: 42.1 }, { habitat: 'perch', x: 18, y: 60.3 },
+                    { habitat: 'perch', x: 20, y: 43.9, up: [10.2, 88] }, { habitat: 'perch', x: 26, y: 42.1, up: [10.2, 88] }, { habitat: 'perch', x: 18, y: 60.3, up: [10.2, 88] },
                     { habitat: 'hide', x: 45, y: 63, cover: 'grass' }, { habitat: 'hide', x: 68, y: 63, cover: 'rock' },
                     { habitat: 'ground', x: 30, y: 70 }, { habitat: 'ground', x: 16, y: 95 }, { habitat: 'ground', x: 83, y: 80 },
                     { habitat: 'ground', x: 80, y: 97 },
@@ -183,8 +183,8 @@ SceneArt.safari = (() => {
                     ball(i % 2 ? 'f-leaf2' : 'f-leaf', x, y, r)).join('')}</g>
                 </svg>`,
                 spots: [
-                    { habitat: 'perch', x: 26, y: 42.5 }, { habitat: 'perch', x: 37, y: 40.6 }, { habitat: 'perch', x: 25, y: 23 },
-                    { habitat: 'perch', x: 72, y: 30.5 }, { habitat: 'perch', x: 81, y: 31.9 }, { habitat: 'perch', x: 79, y: 58.4 },
+                    { habitat: 'perch', x: 26, y: 42.5, up: [13.75, 88] }, { habitat: 'perch', x: 37, y: 40.6, up: [13.75, 88] }, { habitat: 'perch', x: 25, y: 23, up: [13.75, 88] },
+                    { habitat: 'perch', x: 72, y: 30.5, up: [92.6, 82] }, { habitat: 'perch', x: 81, y: 31.9, up: [92.6, 82] }, { habitat: 'perch', x: 79, y: 58.4, up: [92.6, 82] },
                     { habitat: 'ground', x: 20, y: 92 }, { habitat: 'ground', x: 34, y: 84 }, { habitat: 'ground', x: 48, y: 92 },
                     { habitat: 'ground', x: 58, y: 82 },
                     { habitat: 'water', x: 72, y: 95 }, { habitat: 'water', x: 84, y: 93 },

@@ -174,9 +174,7 @@ function buildScene() {
     art.spots.forEach(s => { if (s.habitat === 'hide') cover(s); });
     spots = art.spots.map(s => ({ ...s, animal: null, mark: placeMark(s) }));
     cast = {};
-    Object.entries(art.animals).forEach(([name, def]) => {
-        const animal = themeAnimals.find(a => a.name === name);
-        if (!animal) return;
+    const addAnimal = (name, def, animal, base) => {
         const el = document.createElement('div');
         el.className = `animal ${def.move || art.move} on-${def.habitat}${def.hang ? ' hang' : ''}`;
         el.style.width = def.w + '%';
@@ -184,11 +182,25 @@ function buildScene() {
         el.hidden = true;
         // Water birds sit in the water: a ring where they meet it, and the picture cut off below.
         el.innerHTML = (def.habitat === 'water' ? '<i class="wake"></i>' : '') +
-            `<span class="body"><img alt="${name}" src="${imgSrc(animal)}"></span>`;
+            `<span class="body"><img alt="${base}" src="${def.src || imgSrc(animal)}"></span>`;
         el.querySelector('img').style.animationDelay = (-Math.random() * 3).toFixed(2) + 's';
         el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started && accept('call')) touched(name); });
         layer.appendChild(el);
-        cast[name] = { el, def, sound: def.sound || animal.sound, spot: null, arrivedAt: 0, calledAt: 0, leaving: false };
+        cast[name] = { el, def, sound: def.sound || animal.sound, spot: null, at: null, arrivedAt: 0, calledAt: 0, leaving: false, copy: name !== base };
+    };
+    Object.entries(art.animals).forEach(([name, def]) => {
+        const animal = themeAnimals.find(a => a.name === name);
+        if (animal) addAnimal(name, def, animal, name);
+    });
+    // Where a scene has more places of a kind than animals that live there, some come twice
+    // ("Snowy Owl 2"), so every place can be filled. Random and touches bring the others first.
+    [...new Set(spots.map(s => s.habitat))].forEach(h => {
+        const kinds = Object.keys(cast).filter(n => cast[n].def.habitat === h);
+        const room = spots.filter(s => s.habitat === h).length;
+        for (let i = 0; kinds.length && kinds.length + i < room; i++) {
+            const base = kinds[i % kinds.length];
+            addAnimal(`${base} ${2 + Math.floor(i / kinds.length)}`, cast[base].def, themeAnimals.find(a => a.name === base), base);
+        }
     });
     art.residents.forEach(name => {
         const spot = freeSpot(cast[name].def.habitat);
@@ -248,7 +260,9 @@ function cover(spot) {
     layer.appendChild(c);
 }
 // Nearer animals are in front; those hiding stay behind their bush (scenes.css).
+// Further back (higher up the scene) is deeper: fog hides those animals more (scenes.css).
 function standAt(a, spot) {
+    a.el.style.setProperty('--depth', Math.max(0, Math.min(1, (92 - spot.y) / 50)).toFixed(2));
     if (a.def.habitat !== 'hide') a.el.style.zIndex = 10 + Math.round(spot.y);
 }
 
@@ -269,6 +283,7 @@ function settle(name, spot) {
     spot.animal = name;
     a.spot = spot;
     a.arrivedAt = a.calledAt = Date.now();
+    a.at = spot;
     a.el.hidden = false;
     a.el.classList.remove('down', 'behind', 'up', 'small');
     a.el.style.left = spot.x + '%';
@@ -312,14 +327,20 @@ function travel(a, spot, coming, done) {
     const move = a.def.move || art.move;
     const el = a.el;
     markPlaces();                                  // a place's glow fades as someone heads for it
+    const arrived = done;
+    done = () => { a.at = spot; arrived(); };
     if (move === 'peek') { peek(a, spot, coming, done); return; }
     if (move === 'pop') { pop(a, spot, coming, done); return; }
+    if (move === 'surface') { surface(a, spot, coming, done); return; }
+    if (move === 'climb' && ((spot && spot.up) || (a.at && a.at.up))) { climb(a, spot, coming, done); return; }
     if (spot) standAt(a, spot);
     const here = { x: parseFloat(el.style.left), y: parseFloat(el.style.top) };
     const drop = move === 'drop';                  // a spider lets itself down on its thread, and climbs back up
     const target = spot || (drop ? { x: here.x, y: -30 } : { x: here.x > 50 ? 112 : -12, y: move === 'fly' ? 4 : here.y });
     if (coming) {
-        const fromLeft = spot.x > 50;              // right-hand spots are reached from the left edge
+        // Fliers cross the sky from the far side; everyone else comes in from the nearer edge
+        // (so a walker needn't cross water it couldn't)
+        const fromLeft = spot.from ? spot.from === 'l' : move === 'fly' ? spot.x > 50 : spot.x < 50;   // `from`: a spot that must be reached from one side
         el.hidden = false;
         el.classList.remove('moving');
         el.style.left = (drop ? spot.x : fromLeft ? -12 : 112) + '%';
@@ -345,6 +366,75 @@ function travel(a, spot, coming, done) {
         finish();
     });
     setTimeout(finish, 3000 * sceneSettings.pace + 400);   // in case the transition never ends (reduced motion)
+}
+
+// Swimmers that surface: they rise up out of the water at their spot (so they needn't cross
+// land to get there), and dive to leave or to move to another spot.
+function surface(a, spot, coming, done) {
+    const el = a.el, ms = 1100 * sceneSettings.pace;
+    el.classList.add('moving');
+    const finish = () => { el.classList.remove('moving'); done(); };
+    const rise = () => {
+        el.style.left = spot.x + '%';
+        el.style.top = spot.y + '%';
+        standAt(a, spot);
+        el.hidden = false;
+        void el.offsetWidth;
+        el.classList.remove('down');
+        setTimeout(finish, ms);
+    };
+    el.classList.add('down');
+    if (coming) { rise(); return; }
+    setTimeout(spot ? rise : finish, ms);
+}
+
+// Climbers (squirrels, monkeys, a cat onto a fence, a snail up a stem) come in along the
+// ground to the foot of their tree or stem (the spot's `up`: [x, y]), climb it, then go
+// along the branch; they leave the same way, by the nearer edge.
+function climb(a, spot, coming, done) {
+    const el = a.el, from = coming ? null : a.at;
+    const pts = [];
+    if (from && from.up) pts.push({ x: from.up[0], y: from.y }, { x: from.up[0], y: from.up[1] });
+    if (spot && spot.up) {
+        if (!pts.length) {
+            pts.push({ x: spot.up[0] < 50 ? -12 : 112, y: spot.up[1] });
+            el.style.left = pts[0].x + '%'; el.style.top = pts[0].y + '%';
+            el.hidden = false;
+        }
+        pts.push({ x: spot.up[0], y: spot.up[1] }, { x: spot.up[0], y: spot.y }, { x: spot.x, y: spot.y });
+        standAt(a, spot);
+    } else {
+        const last = pts[pts.length - 1];
+        pts.push({ x: last.x < 50 ? -12 : 112, y: last.y });
+    }
+    const start = { x: parseFloat(el.style.left), y: parseFloat(el.style.top) };
+    const all = [start, ...pts];
+    const legs = all.slice(1).map((p, i) => Math.hypot((p.x - all[i].x) * 1.6, (p.y - all[i].y) * .9));
+    const total = legs.reduce((m, n) => m + n, 0) || 1;
+    const ms = Math.max(1500, total / 55 * 1000) * sceneSettings.pace;
+    let t = 0;
+    const frames = all.map((p, i) => { if (i) t += legs[i - 1]; return { left: p.x + '%', top: p.y + '%', offset: t / total }; });
+    el.classList.add('moving', 'pathing');
+    // Face the way each stretch goes (up and down a trunk keeps the last way)
+    let at = 0;
+    legs.forEach((len, i) => {
+        const dx = all[i + 1].x - all[i].x;
+        if (Math.abs(dx) > .5) setTimeout(() => el.classList.toggle('flip', a.def.face !== 'f' && a.def.face !== (dx > 0 ? 'r' : 'l')), at / total * ms);
+        at += len;
+    });
+    const anim = el.animate(frames, { duration: ms, easing: 'ease-in-out' });
+    const end = all[all.length - 1];
+    el.style.left = end.x + '%';
+    el.style.top = end.y + '%';
+    let finished = false;
+    const finish = () => {
+        if (finished) return;
+        finished = true;
+        el.classList.remove('moving', 'pathing');
+        done();
+    };
+    anim.onfinish = finish;
+    setTimeout(finish, ms + 400);
 }
 
 // Peeping animals pop up from behind their bush or log, then come forward to sit in
@@ -420,11 +510,16 @@ function sing(name) {
     }
 }
 
+// The animals themselves before their second copies.
+function originalsFirst(list) {
+    const originals = list.filter(n => !cast[n].copy);
+    return originals.length ? originals : list;
+}
 // Random: someone new arrives (preferring a free spot), or someone here calls.
 function anything() {
     const away = Object.keys(cast).filter(n => !cast[n].spot);
-    const fits = away.filter(n => spots.some(s => s.habitat === cast[n].def.habitat && !s.animal));
-    const pool = fits.length ? fits : away;
+    const fits = originalsFirst(away.filter(n => spots.some(s => s.habitat === cast[n].def.habitat && !s.animal)));
+    const pool = fits.length ? fits : originalsFirst(away);
     if (pool.length) { arrive(pool[Math.floor(Math.random() * pool.length)]); return; }
     const here = Object.keys(cast).filter(n => cast[n].spot);
     if (here.length) sing(here[Math.floor(Math.random() * here.length)]);
@@ -614,7 +709,7 @@ function drawWeather(id) {
         rain:  [overcast(false) + splashes() + spray(), rain()],
         storm: [overcast(true) + splashes() + spray(), rain()],
         snow:  [overcast(false), snow()],
-        wind:  ['', leaves() + gusts()],
+        wind:  ['', (art.windCarries === 'snow' ? specks('snowy') : art.windCarries === 'sand' ? specks('dust') : leaves()) + gusts()],
         fog:   [`<div class="haze"></div><div class="haze high lv3"></div>${[[42, 30, 95, ''], [20, 26, 70, 'lv2'], [60, 34, 80, 'lv3'], [8, 30, 60, 'lv4']].map(mist).join('')}`,
                 // Mist in front of the animals, for depth, thickening to a near white-out at 5.
                 // It doesn't stop touches.
@@ -930,7 +1025,7 @@ function placeNear(x, y) {
 }
 function touchPlace(spot) {
     const lives = Object.keys(cast).filter(n => cast[n].def.habitat === spot.habitat);
-    const away = lives.filter(n => !cast[n].spot);
+    const away = originalsFirst(lives.filter(n => !cast[n].spot));
     if (away.length) { arrive(away[Math.floor(Math.random() * away.length)], spot); return true; }
     const longest = lives.filter(n => !cast[n].leaving).sort((m, n) => cast[m].arrivedAt - cast[n].arrivedAt)[0];
     if (longest) moveTo(longest, spot);

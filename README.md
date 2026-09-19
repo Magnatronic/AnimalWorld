@@ -36,8 +36,15 @@ or live on the seabed; coral grows where it's placed). Mini Beasts is close up: 
 itself down on a thread and a worm popping out of the soil. Polar Animals has 🧊 **Sea ice**,
 🌲 **Snowy forest** and ❄️ **Tundra** (the arctic fox and moose pop up from behind snowdrifts). Fish has
 🐠 **Coral reef**, 🐟 **Fish tank** (a castle and a treasure chest) and 🏞️ **River**.
+Animals arrive in ways that make sense: birds, bats and insects fly; climbers (squirrels, monkeys, the
+leopard, snails and caterpillars, a cat onto a fence) run in along the ground and up the trunk or stem;
+swimmers surface in their pool rather than cross dry land; head-only pictures pop up from behind something.
+Where a scene has more places than animals to fill them, a second of the same animal can come. Some
+animals are recoloured to suit their theme (a white snowy owl, arctic fox and arctic hare, a red squirrel,
+a brown wild rabbit and wood mouse, a grey warthog; `scenes/pictures/`, derived from OpenMoji).
 Each scene has its own animals (no camel in the jungle), its own background track, and weather that
-suits it; set-up only offers the tracks of the animals chosen. Set-up shows how many animals each
+suits it (in fog, animals further back fade into the mist; over snow the wind blows fine snow, on the
+beach sand, instead of leaves); set-up only offers the tracks of the animals chosen. Set-up shows how many animals each
 scene has room for, and where. `scenes/art.js` has Birds, Forest and Farm and the shared drawing
 pieces; each other theme is in `scenes/art-<theme>.js`.
 
