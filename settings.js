@@ -12,6 +12,11 @@ const DEFAULT_SETTINGS = {
         loops:          0,   // 0 = continuous, n = stop after n loops
         anyKey:     false,   // true = any keydown acts as switch
     },
+    area: {
+        size:         100,   // % of the screen the app fills: 100, 80 or 60
+        pos:     'centre',   // where a smaller app sits: 'left' | 'centre' | 'right' along the bottom
+        nav:        'top',   // Back button and title bar: 'top' | 'bottom'
+    },
     wam: {
         holes:          9,   // 4, 6 or 9
         relaxedCount:  10,   // animals in a Relaxed round; 0 = until the adult stops it
@@ -45,10 +50,24 @@ function saveSettings() {
 // Set a value by its data-setting path, e.g. setSetting('scan.speed', 3000).
 function setSetting(path, value) {
     const [group, key] = path.split('.');
+    // Shrinking the app is for students who can't reach the top, so bring the
+    // Back button down with it. The adult can put it back up afterwards.
+    if (path === 'area.size' && value < 100 && settings.area.size === 100) settings.area.nav = 'bottom';
     settings[group][key] = value;
     saveSettings();
     renderSettings();
+    if (group === 'area') applyPlayArea();
     if (group === 'sound' && currentAudio) currentAudio.volume = settings.sound.volume;
+}
+
+// The Play area is drawn entirely by these body classes (see PLAY AREA in styles.css);
+// they drive the preview in the settings panel too.
+function applyPlayArea() {
+    const { size, pos, nav } = settings.area;
+    const body = document.body;
+    [80, 60].forEach(n => body.classList.toggle('area-size-' + n, size === n));
+    ['left', 'centre', 'right'].forEach(p => body.classList.toggle('area-pos-' + p, size < 100 && pos === p));
+    body.classList.toggle('nav-bottom', nav === 'bottom');
 }
 
 // data-value is always a string; turn it back into the type the setting holds.
@@ -66,6 +85,7 @@ function renderSettings() {
             btn.classList.toggle('active', parseSettingValue(btn.dataset.value) === settings[group][key]));
     });
     document.getElementById('delay-group').style.display = settings.scan.mode === 'auto' ? '' : 'none';
+    document.getElementById('area-pos-group').style.display = settings.area.size < 100 ? '' : 'none';
 }
 
 function resetSettings() {
@@ -86,6 +106,7 @@ function resetSettings() {
     settings.scan.on = wasScanning;   // the Switch button owns this, not the panel
     saveSettings();
     renderSettings();
+    applyPlayArea();
 }
 
 function showSettingsTab(name) {
@@ -105,6 +126,8 @@ document.getElementById('settings-panel').addEventListener('click', e => {
     const tab = e.target.closest('.settings-tab');
     if (tab) showSettingsTab(tab.dataset.tab);
 });
+
+applyPlayArea();
 
 /* ── HOLD TO OPEN ── */
 const SETTINGS_HOLD_MS = 2000;

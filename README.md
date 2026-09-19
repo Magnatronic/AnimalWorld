@@ -5,14 +5,25 @@ An interactive animal learning app for classroom use. Plain HTML, CSS and JavaSc
 ## Activities
 - **Explore Animals** — tap each animal to hear its sound
 - **Memory Game** — find the matching pairs, with four difficulty levels
-- **Whack-a-Mole** — tap the animals before they disappear
+- **Whack-a-Mole** — tap the animals before they disappear, or play the untimed Relaxed level
 - **Find the Animal** — listen to the animal name and tap the correct picture
 
 ## Themes
 Forest 🌲 · Safari 🌅 · Ocean 🌊 · Mini Beasts 🐛 · Polar ❄️ · Fish 🐠 · Birds 🐦
 
-## Accessibility
-Built-in switch scanning support for AAC users, with configurable speed, start delay, scan mode, and switch key settings.
+## Settings
+Press and hold the ⚙ button (bottom right) for two seconds to open Settings. A quick tap only
+shows a reminder, so students can't open it by accident. Changes are saved in the browser, so
+each computer remembers its own setup.
+
+- **Switch** — switch scanning for AAC users: scan mode, speed, start delay, loops and switch key.
+  Whether scanning is on is remembered too.
+- **Play area** — shrinks the app into a box at the bottom left, centre or right of the screen,
+  for students who can't reach the top of a large touchscreen. The Back button can move to the
+  bottom, and the Switch and ⚙ buttons move up out of reach.
+- **Games** — Whack-a-Mole hole count (4, 6 or 9), how many animals a Relaxed round has, and
+  how long the timed levels last.
+- **Sound** — volume, and whether every animal's name is spoken after its sound.
 
 ## Usage
 Open `index.html` in any modern browser. An internet connection is required to load animal images.
@@ -25,6 +36,7 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `index.html` | The screens and buttons |
 | `styles.css` | All styling, including each theme's colours |
 | `themes.js` | The themes and their animals — start here to add or change a theme |
+| `settings.js` | The Settings panel: defaults, saving and the Play area |
 | `app.js` | The activities, sound playback and switch scanning |
 | `sounds/` | One `.mp3` per animal — see `sounds/_Adding Sounds.md` |
 | `fish/` | Artwork for the Fish theme |

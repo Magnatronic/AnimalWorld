@@ -976,6 +976,91 @@ body {
 }
 .settings-reset.confirm { border-color: #e53935; color: #e53935; }
 
+.setting-intro {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 18px;
+}
+
+/* Play area preview: a tiny screen showing where the app will sit */
+.area-preview {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    max-width: 300px;
+    margin: 4px auto 0;
+    background: repeating-linear-gradient(45deg, #2a2a40 0 10px, #24243a 10px 20px);
+    border-radius: 12px;
+    border: 3px solid #1a1a2e;
+    overflow: hidden;
+}
+.area-preview-box {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(170deg, #ad1457, #f06292);
+    border-radius: 6px 6px 0 0;
+}
+.area-preview-bar {
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 8px;
+}
+.area-preview-label {
+    margin: auto;
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.95rem;
+}
+.nav-bottom .area-preview-bar { order: 2; }
+.area-size-80 .area-preview-box { width: 80%; height: 80%; }
+.area-size-60 .area-preview-box { width: 60%; height: 60%; }
+.area-pos-centre .area-preview-box { left: 50%; transform: translateX(-50%); }
+.area-pos-right  .area-preview-box { left: auto; right: 0; }
+
+/* ── PLAY AREA ── */
+/* An adult can shrink the whole app into a box along the bottom of the screen
+   for students who can't reach the top. #stage is scaled as one piece, so every
+   screen keeps its layout. The transform also makes #stage the containing block
+   for the fixed-position win overlays, which keeps them inside the box. */
+body.area-size-80, body.area-size-60 {
+    overflow: hidden;
+    background: repeating-linear-gradient(45deg, #15152a 0 24px, #111124 24px 48px);
+}
+.area-size-80 #stage, .area-size-60 #stage {
+    position: fixed;
+    inset: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-shadow: 0 0 0 6px rgba(255,255,255,0.18), 0 20px 60px rgba(0,0,0,0.6);
+}
+.area-size-80 #stage { transform: scale(0.8); }
+.area-size-60 #stage { transform: scale(0.6); }
+.area-pos-left   #stage { transform-origin: bottom left; }
+.area-pos-centre #stage { transform-origin: bottom center; }
+.area-pos-right  #stage { transform-origin: bottom right; }
+
+/* The adult controls move up out of the students' reach. */
+.area-size-80 .scan-bar, .area-size-60 .scan-bar { top: 16px; bottom: auto; }
+.area-size-80 .hold-hint, .area-size-60 .hold-hint { bottom: auto; top: calc(100% + 10px); }
+.area-size-80 .credit, .area-size-60 .credit, .nav-bottom .credit { top: 6px; bottom: auto; }
+
+/* Title bar and Back button along the bottom, where they can be reached */
+.nav-bottom .screen-header {
+    order: 99;
+    margin-top: auto;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+}
+
 /* ── THEME COLOURS ── */
 .theme-forest .screen-header { background: linear-gradient(135deg, #1b5e3b, #43a06b); }
 .theme-forest { background: linear-gradient(170deg, #1b5e3b 0%, #52b788 40%, #d8f3dc 100%); }
