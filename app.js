@@ -1,11 +1,5 @@
 /* ── SWITCH SCANNING ENGINE ── */
-let scanCfg = {
-    mode:       'auto',  // 'auto' | 'press'
-    speed:       1800,   // ms per item
-    startDelay:  1000,   // ms before auto-scan begins
-    loops:          0,   // 0 = continuous, n = stop after n loops
-    anyKey:     false,   // true = any keydown acts as switch
-};
+// Scan options live in settings.scan (see settings.js).
 
 let scanMode      = false;
 let scanItems     = [];
@@ -18,25 +12,13 @@ let _navigated    = false;
 
 function toggleScanMode() {
     scanMode = !scanMode;
+    settings.scan.on = scanMode;
+    saveSettings();
     const btn = document.getElementById('scan-toggle');
     btn.textContent = scanMode ? '♿ Switch: ON' : '♿ Switch: OFF';
     btn.classList.toggle('scan-on', scanMode);
-    document.getElementById('scan-settings-btn').classList.toggle('visible', scanMode);
     if (!scanMode) stopScan();
     else           setScanForScreen(document.querySelector('.screen.active')?.id);
-}
-
-function openSettings()  { document.getElementById('scan-settings-panel').classList.add('open'); }
-function closeSettings() { document.getElementById('scan-settings-panel').classList.remove('open'); }
-
-function setSetting(key, value, el) {
-    scanCfg[key] = value;
-    el.closest('.setting-opts').querySelectorAll('.setting-opt')
-      .forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-    if (key === 'mode') {
-        document.getElementById('delay-group').style.display = value === 'auto' ? '' : 'none';
-    }
 }
 
 function stopScan() {
@@ -54,8 +36,8 @@ function startScan(items) {
     if (!scanMode) return;
     scanItems = items.filter(Boolean);
     if (!scanItems.length) return;
-    if (scanCfg.mode === 'auto') {
-        scanDelayTimer = setTimeout(beginCycling, scanCfg.startDelay);
+    if (settings.scan.mode === 'auto') {
+        scanDelayTimer = setTimeout(beginCycling, settings.scan.startDelay);
     }
     // press mode: wait for keypress to begin
 }
@@ -71,13 +53,13 @@ function beginCycling() {
         scanIndex++;
         if (scanIndex >= scanItems.length) {
             scanLoopCount++;
-            if (scanCfg.loops > 0 && scanLoopCount >= scanCfg.loops) {
+            if (settings.scan.loops > 0 && scanLoopCount >= settings.scan.loops) {
                 stopScan(); return;
             }
             scanIndex = 0;
         }
         applyFocus();
-    }, scanCfg.speed);
+    }, settings.scan.speed);
 }
 
 function applyFocus() {
@@ -91,7 +73,7 @@ function selectCurrent() {
     stopScan();
     target?.click();
     // Auto mode: if no navigation happened (e.g. animal sound), restart scan
-    if (scanCfg.mode === 'auto') {
+    if (settings.scan.mode === 'auto') {
         setTimeout(() => {
             if (!_navigated) setScanForScreen(document.querySelector('.screen.active')?.id);
         }, 200);
@@ -101,12 +83,12 @@ function selectCurrent() {
 document.addEventListener('keydown', e => {
     if (!scanMode) return;
     // Ignore keydown inside the settings panel
-    if (document.getElementById('scan-settings-panel').classList.contains('open')) return;
-    const isSwitch = scanCfg.anyKey || e.code === 'Space' || e.code === 'Enter';
+    if (document.getElementById('settings-panel').classList.contains('open')) return;
+    const isSwitch = settings.scan.anyKey || e.code === 'Space' || e.code === 'Enter';
     if (!isSwitch) return;
     e.preventDefault();
 
-    if (scanCfg.mode === 'press') {
+    if (settings.scan.mode === 'press') {
         if (!scanRunning) { clearTimeout(scanDelayTimer); beginCycling(); }
         else              { selectCurrent(); }
     } else {
@@ -185,6 +167,7 @@ function shuffle(arr) {
 function playSound(soundName, card, spoken) {
     stopAudio();
     const audio = new Audio('sounds/' + soundName + '.mp3');
+    audio.volume = settings.sound.volume;
 
     audio.addEventListener('canplaythrough', () => {
         if (card) card.classList.add('has-sound', 'playing');
@@ -200,13 +183,14 @@ function playSound(soundName, card, spoken) {
         if (spoken) speak(spoken);
     }, { once: true });
 
-    // No recording for this animal. Themes that name their animals still get
-    // a cue — a synthesised bubble — followed by the name, so the fish theme
-    // works even with no sound files installed.
+    // No recording for this animal. If its name is to be spoken, still say it;
+    // the fish theme leads with a synthesised bubble, so it works even with
+    // no sound files installed.
     audio.addEventListener('error', () => {
         if (!spoken) { if (card) card.classList.remove('playing'); return; }
         if (card) card.classList.add('has-sound', 'playing');
-        bubbleCue(() => {
+        const cue = themes[currentThemeKey]?.speakName ? bubbleCue : done => done();
+        cue(() => {
             if (card) card.classList.remove('playing');
             speak(spoken);
         });
@@ -232,7 +216,7 @@ function bubbleCue(onDone) {
             osc.frequency.setValueAtTime(240 + i * 90, t);
             osc.frequency.exponentialRampToValueAtTime(700 + i * 220, t + 0.1);
             gain.gain.setValueAtTime(0.0001, t);
-            gain.gain.exponentialRampToValueAtTime(0.3, t + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.3 * settings.sound.volume, t + 0.015);
             gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
             osc.connect(gain).connect(bubbleCtx.destination);
             osc.start(t);
@@ -242,10 +226,11 @@ function bubbleCue(onDone) {
     } catch (e) { onDone(); }
 }
 
-// The name to speak after a card's sound, or null for themes that don't.
+// The name to speak after a card's sound, or null when names aren't spoken:
+// always for themes that ask (fish), otherwise only if the setting is on.
 function spokenName(name) {
     const theme = themes[currentThemeKey];
-    return theme && theme.speakName ? name : null;
+    return (theme && theme.speakName) || settings.sound.speakNames ? name : null;
 }
 
 /* ── NAVIGATION ── */
@@ -666,7 +651,7 @@ function speak(text, onDone) {
     if (ftaVoice) utt.voice = ftaVoice;
     utt.rate   = 0.88;
     utt.pitch  = 1.15;
-    utt.volume = 1;
+    utt.volume = settings.sound.volume;
     if (onDone) utt.addEventListener('end', onDone, { once: true });
     speechSynthesis.speak(utt);
 }
@@ -702,6 +687,7 @@ function ftaTap(card, animal) {
             else ftaRound();
         }, 400);
         ftaRewardAudio = new Audio('sounds/' + ftaCurrent.sound + '.mp3');
+        ftaRewardAudio.volume = settings.sound.volume;
         const praise = ftaPraise();
         ftaRewardAudio.addEventListener('ended', () => speak(praise, advance), { once: true });
         ftaRewardAudio.addEventListener('error', () => speak(praise, advance), { once: true });
@@ -739,3 +725,6 @@ function endWam() {
         if (scanMode) startScan([...wamOv.querySelectorAll('.win-btn')]);
     }, 500);
 }
+
+// Pick up where the last session left off.
+if (settings.scan.on) toggleScanMode();

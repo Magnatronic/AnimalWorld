@@ -313,71 +313,110 @@
     </div>
 </div>
 
-<!-- ══ SCAN SETTINGS PANEL ══ -->
-<div id="scan-settings-panel" class="scan-settings-overlay">
-    <div class="scan-settings-box">
-        <div class="scan-settings-title">♿ Switch Access Settings</div>
+<!-- ══ SETTINGS PANEL ══ -->
+<!-- Each .setting-opts row is wired up by settings.js: data-setting names the
+     value it changes and each button's data-value is what it sets. -->
+<div id="settings-panel" class="settings-overlay">
+    <div class="settings-box">
+        <div class="settings-head">
+            <div class="settings-title">⚙ Settings</div>
+            <button class="setting-done" onclick="closeSettings()">✓ Done</button>
+        </div>
+        <div class="settings-tabs">
+            <button class="settings-tab active" data-tab="switch">♿ Switch</button>
+            <button class="settings-tab" data-tab="sound">🔊 Sound</button>
+        </div>
 
-        <div class="setting-group">
-            <span class="setting-label">Scan Mode</span>
-            <div class="setting-opts">
-                <button class="setting-opt active" onclick="setSetting('mode','auto',this)">Auto</button>
-                <button class="setting-opt" onclick="setSetting('mode','press',this)">Press to Start</button>
+        <div class="settings-pane active" data-pane="switch">
+            <div class="setting-group">
+                <span class="setting-label">Scan Mode</span>
+                <div class="setting-opts" data-setting="scan.mode">
+                    <button class="setting-opt" data-value="auto">Auto</button>
+                    <button class="setting-opt" data-value="press">Press to Start</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-label">Scan Speed</span>
+                <div class="setting-opts" data-setting="scan.speed">
+                    <button class="setting-opt" data-value="3000">Slow<br><small>3s</small></button>
+                    <button class="setting-opt" data-value="1800">Medium<br><small>1.8s</small></button>
+                    <button class="setting-opt" data-value="1200">Fast<br><small>1.2s</small></button>
+                    <button class="setting-opt" data-value="800">Very Fast<br><small>0.8s</small></button>
+                </div>
+            </div>
+
+            <div class="setting-group" id="delay-group">
+                <span class="setting-label">Start Delay</span>
+                <div class="setting-opts" data-setting="scan.startDelay">
+                    <button class="setting-opt" data-value="0">None</button>
+                    <button class="setting-opt" data-value="1000">1 second</button>
+                    <button class="setting-opt" data-value="2000">2 seconds</button>
+                    <button class="setting-opt" data-value="3000">3 seconds</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-label">Loops</span>
+                <div class="setting-opts" data-setting="scan.loops">
+                    <button class="setting-opt" data-value="1">1 loop</button>
+                    <button class="setting-opt" data-value="2">2 loops</button>
+                    <button class="setting-opt" data-value="0">Continuous</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-label">Switch Key</span>
+                <div class="setting-opts" data-setting="scan.anyKey">
+                    <button class="setting-opt" data-value="false">Space / Enter</button>
+                    <button class="setting-opt" data-value="true">Any Key</button>
+                </div>
             </div>
         </div>
 
-        <div class="setting-group">
-            <span class="setting-label">Scan Speed</span>
-            <div class="setting-opts">
-                <button class="setting-opt" onclick="setSetting('speed',3000,this)">Slow<br><small>3s</small></button>
-                <button class="setting-opt active" onclick="setSetting('speed',1800,this)">Medium<br><small>1.8s</small></button>
-                <button class="setting-opt" onclick="setSetting('speed',1200,this)">Fast<br><small>1.2s</small></button>
-                <button class="setting-opt" onclick="setSetting('speed',800,this)">Very Fast<br><small>0.8s</small></button>
+        <div class="settings-pane" data-pane="sound">
+            <div class="setting-group">
+                <span class="setting-label">Volume</span>
+                <div class="setting-opts" data-setting="sound.volume">
+                    <button class="setting-opt" data-value="0.3">Quiet</button>
+                    <button class="setting-opt" data-value="0.6">Medium</button>
+                    <button class="setting-opt" data-value="1">Loud</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-label">Say the animal's name after its sound</span>
+                <div class="setting-opts" data-setting="sound.speakNames">
+                    <button class="setting-opt" data-value="false">Off</button>
+                    <button class="setting-opt" data-value="true">On</button>
+                </div>
+                <p class="setting-note">The Fish theme always says names, because fish are silent.</p>
             </div>
         </div>
 
-        <div class="setting-group" id="delay-group">
-            <span class="setting-label">Start Delay</span>
-            <div class="setting-opts">
-                <button class="setting-opt" onclick="setSetting('startDelay',0,this)">None</button>
-                <button class="setting-opt active" onclick="setSetting('startDelay',1000,this)">1 second</button>
-                <button class="setting-opt" onclick="setSetting('startDelay',2000,this)">2 seconds</button>
-                <button class="setting-opt" onclick="setSetting('startDelay',3000,this)">3 seconds</button>
-            </div>
+        <div class="settings-foot">
+            <span class="settings-saved">Changes are saved on this device</span>
+            <button class="settings-reset" id="settings-reset" onclick="resetSettings()">Reset to defaults</button>
         </div>
-
-        <div class="setting-group">
-            <span class="setting-label">Loops</span>
-            <div class="setting-opts">
-                <button class="setting-opt" onclick="setSetting('loops',1,this)">1 loop</button>
-                <button class="setting-opt" onclick="setSetting('loops',2,this)">2 loops</button>
-                <button class="setting-opt active" onclick="setSetting('loops',0,this)">Continuous</button>
-            </div>
-        </div>
-
-        <div class="setting-group">
-            <span class="setting-label">Switch Key</span>
-            <div class="setting-opts">
-                <button class="setting-opt active" onclick="setSetting('anyKey',false,this)">Space / Enter</button>
-                <button class="setting-opt" onclick="setSetting('anyKey',true,this)">Any Key</button>
-            </div>
-        </div>
-
-        <button class="setting-done" onclick="closeSettings()">✓ Done</button>
     </div>
 </div>
 
 <!-- ══ CREDIT ══ -->
-<div style="position:fixed;bottom:6px;left:12px;font-size:0.65rem;color:rgba(255,255,255,0.4);font-family:sans-serif;z-index:200;pointer-events:none;">
-    Animal images: <a href="https://openmoji.org" target="_blank" style="color:rgba(255,255,255,0.4);pointer-events:all;">OpenMoji</a> CC BY-SA 4.0
+<div class="credit">
+    Animal images: <a href="https://openmoji.org" target="_blank">OpenMoji</a> CC BY-SA 4.0
 </div>
 
 <!-- ══ SWITCH ACCESS BAR ══ -->
 <div class="scan-bar">
     <button id="scan-toggle" class="scan-toggle" onclick="toggleScanMode()">♿ Switch: OFF</button>
-    <button id="scan-settings-btn" class="scan-settings-btn" onclick="openSettings()">⚙</button>
+    <!-- Opens on a two-second hold so a passing tap from a student does nothing. -->
+    <button id="settings-btn" class="settings-btn" aria-label="Settings — press and hold">
+        <svg class="hold-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16"/></svg>⚙
+    </button>
+    <div class="hold-hint" id="hold-hint">Hold ⚙ to open settings</div>
 </div>
 <script src="themes.js"></script>
+<script src="settings.js"></script>
 <script src="app.js"></script>
 
 </body>

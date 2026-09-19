@@ -755,19 +755,69 @@ body {
     border-color: #FFD700;
     color: #FFD700;
 }
-.scan-settings-btn {
-    display: none;
+/* Settings button: opens on a hold, with a ring that fills while held */
+.settings-btn {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
     background: rgba(0,0,0,0.55);
     color: rgba(255,255,255,0.8);
     border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 14px;
-    padding: 10px 14px;
-    font-family: inherit;
-    font-size: 1.1rem;
-    font-weight: 800;
+    font-size: 1.4rem;
+    line-height: 1;
     cursor: pointer;
+    touch-action: none;
+    -webkit-touch-callout: none;
 }
-.scan-settings-btn.visible { display: block; }
+.hold-ring {
+    position: absolute;
+    inset: -6px;
+    width: calc(100% + 12px);
+    height: calc(100% + 12px);
+    transform: rotate(-90deg);
+    pointer-events: none;
+}
+.hold-ring circle {
+    fill: none;
+    stroke: #FFD700;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 100.6;
+    stroke-dashoffset: 100.6;
+}
+.settings-btn.holding .hold-ring circle {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 2s linear;
+}
+.hold-hint {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 10px);
+    white-space: nowrap;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    padding: 8px 14px;
+    border-radius: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.hold-hint.visible { opacity: 1; }
+
+.credit {
+    position: fixed;
+    bottom: 6px;
+    left: 12px;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.4);
+    font-family: sans-serif;
+    z-index: 200;
+    pointer-events: none;
+}
+.credit a { color: inherit; pointer-events: all; }
 
 .scan-focus {
     outline: 5px solid #FFD700 !important;
@@ -780,7 +830,7 @@ body {
 }
 
 /* Settings panel */
-.scan-settings-overlay {
+.settings-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.72);
@@ -792,23 +842,65 @@ body {
     pointer-events: none;
     transition: opacity 0.25s;
 }
-.scan-settings-overlay.open { opacity: 1; pointer-events: all; }
+.settings-overlay.open { opacity: 1; pointer-events: all; }
 
-.scan-settings-box {
+.settings-box {
     background: #fff;
     border-radius: 28px;
-    padding: 28px 24px 24px;
-    width: min(480px, 92vw);
-    max-height: 90vh;
-    overflow-y: auto;
+    width: min(640px, 94vw);
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
-.scan-settings-title {
-    font-size: 1.4rem;
+.settings-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 22px 14px;
+}
+.settings-title {
+    font-size: 1.5rem;
     font-weight: 900;
     color: #222;
-    margin-bottom: 22px;
-    text-align: center;
+}
+.settings-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 0 22px;
+    border-bottom: 3px solid #eee;
+    flex-wrap: wrap;
+}
+.settings-tab {
+    flex: 1;
+    min-width: 110px;
+    padding: 12px 10px;
+    border: none;
+    border-bottom: 4px solid transparent;
+    margin-bottom: -3px;
+    background: none;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #888;
+    cursor: pointer;
+}
+.settings-tab.active { color: #1a1a2e; border-bottom-color: #1a1a2e; }
+
+.settings-pane {
+    display: none;
+    padding: 22px;
+    overflow-y: auto;
+    flex: 1;
+}
+.settings-pane.active { display: block; }
+.setting-section {
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: #1a1a2e;
+    margin: 4px 0 14px;
 }
 .setting-group { margin-bottom: 20px; }
 .setting-label {
@@ -819,6 +911,12 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.8px;
     margin-bottom: 10px;
+}
+.setting-note {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #888;
 }
 .setting-opts { display: flex; gap: 8px; flex-wrap: wrap; }
 .setting-opt {
@@ -843,19 +941,39 @@ body {
     color: #fff;
 }
 .setting-done {
-    width: 100%;
-    margin-top: 6px;
-    padding: 16px;
+    padding: 12px 26px;
     border: none;
-    border-radius: 18px;
+    border-radius: 16px;
     background: linear-gradient(135deg, #4caf50, #81c784);
     color: #fff;
     font-family: inherit;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 900;
     cursor: pointer;
     border-bottom: 4px solid rgba(0,0,0,0.2);
 }
+.settings-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 22px 18px;
+    border-top: 3px solid #eee;
+}
+.settings-saved { font-size: 0.85rem; font-weight: 700; color: #999; }
+.settings-reset {
+    padding: 10px 16px;
+    border: 3px solid #ddd;
+    border-radius: 14px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #777;
+    cursor: pointer;
+}
+.settings-reset.confirm { border-color: #e53935; color: #e53935; }
 
 /* ── THEME COLOURS ── */
 .theme-forest .screen-header { background: linear-gradient(135deg, #1b5e3b, #43a06b); }
