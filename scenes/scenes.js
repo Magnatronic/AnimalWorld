@@ -319,18 +319,21 @@ function trackUrl() {
     return (SceneTracks[id] || SceneTracks[art.track]).file;
 }
 
-// Change to another of this theme's scenes, fading through a soft veil.
-function changeScene(id) {
+// Change to another of this theme's scenes, fading through a soft veil; or at
+// once (`now`) when set-up is covering the scene, so set-up answers straight away.
+function changeScene(id, now) {
     sceneSettings.scenes[sceneSettings.theme] = id;
     saveSceneSettings();
     const veil = document.getElementById('veil');
     const trackBefore = trackUrl();
-    veil.classList.add('on');
-    setTimeout(() => {
+    const change = () => {
         buildScene();
         if (started && trackUrl() !== trackBefore) Ambient.start(trackUrl(), sceneSettings.ambientVolume);
         veil.classList.remove('on');
-    }, 900);
+    };
+    if (now) { change(); return; }
+    veil.classList.add('on');
+    setTimeout(change, 900);
 }
 
 // The animal that has been here longest leaves.

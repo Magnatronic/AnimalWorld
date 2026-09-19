@@ -116,7 +116,7 @@ document.getElementById('setup-tabs').addEventListener('click', e => {
 });
 
 function setScene(key, value) {
-    if (key === 'scene') { changeScene(value); setTimeout(renderSetup, 950); return; }
+    if (key === 'scene') { changeScene(value, true); renderSetup(); renderLabels(); return; }
     const trackBefore = key === 'track' ? trackUrl() : null;
     sceneSettings[key] = value;
     saveSceneSettings();
