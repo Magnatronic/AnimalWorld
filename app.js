@@ -148,6 +148,7 @@ let memMoves        = 0;
 
 /* ── HELPERS ── */
 function show(id, skipScan) {
+    hideWin();   // any end-of-game pop-up belongs to the screen we're leaving
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     if (!skipScan) setScanForScreen(id);
@@ -410,7 +411,7 @@ function showWin() {
 }
 
 function hideWin() {
-    document.getElementById('win-overlay').classList.remove('visible');
+    document.querySelectorAll('.win-overlay').forEach(o => o.classList.remove('visible'));
 }
 
 /* ══ WHACK-A-MOLE ══ */
@@ -763,6 +764,8 @@ function endWam() {
 
     setTimeout(() => {
         // Star thresholds are set for a 30-second round; scale them to the round played.
+        // Left the game in the half-second since it ended: no pop-up on another screen.
+        if (!document.getElementById('wam-game').classList.contains('active')) return;
         let stars = '⭐⭐⭐';
         if (!wamRelaxed) {
             const scale = settings.wam.roundSecs / 30;
