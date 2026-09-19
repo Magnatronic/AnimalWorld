@@ -94,7 +94,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .f-star { fill: #fff8d8; }
 .ring { fill: none; stroke: var(--ring); stroke-width: 3; }
 
-/* ── Look changes fade rather than jump ──
+/* ── Look changes fade rather than jump (over --fade, the "Look changes" setting) ──
    The colours are registered as real colours so the browser can blend them;
    the sun, moon and stars fade; outlines grow in; the animals' night glow fades. */
 @property --sky1   { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
@@ -112,18 +112,18 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @property --ring   { syntax: '<color>'; inherits: true; initial-value: transparent; }
 .stage {
     transition-property: --sky1, --sky2, --sun, --moon, --cloud, --hill, --lawn, --trunk, --leaf, --leaf2, --pond, --flower, --ring;
-    transition-duration: 3s;
+    transition-duration: var(--fade, 5s);
     transition-timing-function: ease-in-out;
 }
-.night-only, .day-only { transition: opacity 3s ease-in-out; }
+.night-only, .day-only { transition: opacity var(--fade, 5s) ease-in-out; }
 .night-only { opacity: 0; }
 .look-night .night-only { opacity: 1; }
 .look-night .day-only { opacity: 0; }
-.animal { transition: filter 3s ease-in-out; }
+.animal { transition: filter var(--fade, 5s) ease-in-out; }
 .look-night .animal { filter: drop-shadow(0 0 10px rgba(170,200,255,.45)); }
 
 /* Matching outlines: the same black line OpenMoji draws with */
-.ol { stroke: #1b1b1b; stroke-width: 0; stroke-linejoin: round; stroke-linecap: round; transition: stroke-width 3s ease-in-out; }
+.ol { stroke: #1b1b1b; stroke-width: 0; stroke-linejoin: round; stroke-linecap: round; transition: stroke-width var(--fade, 5s) ease-in-out; }
 .look-line .ol { stroke-width: 5; }
 
 .scene-birds.look-soft  { --sky1:#b9e0f4; --sky2:#eef8fc; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#bfdcae; --lawn:#a3d08e; --trunk:#a78461; --leaf:#86bf7f; --leaf2:#a9d494; --pond:#a6d8ea; --flower:#f6b9c9; --ring:rgba(255,255,255,.7); }

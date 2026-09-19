@@ -47,6 +47,13 @@ function jobHint(job) {
 // Set-up has three tabs; it reopens on the one last used.
 let setupTab = 'scene';
 
+function leaveHint() {
+    const s = sceneSettings.stay;
+    if (s === 0)  return 'Animals stay. When every spot is full, the one that has been there longest makes room for a new arrival.';
+    if (s === -1) return 'Touch an animal, or press its switch, and it calls and then leaves.';
+    return `An animal leaves after ${s < 60 ? s + ' seconds' : s / 60 + (s === 60 ? ' minute' : ' minutes')} without being touched or called.`;
+}
+
 function renderSetup() {
     const full = Switches.slots.length >= Switches.MAX;
     document.querySelectorAll('#setup-tabs .setup-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === setupTab));
@@ -56,8 +63,10 @@ function renderSetup() {
             <h3>${themes[sceneSettings.theme].label}</h3>
             ${optRow('Look', 'look', [['soft', 'Soft flat'], ['line', 'Matching outlines'], ['night', 'Night-light']])}
             ${optRow('Speed', 'pace', [[1.7, 'Slower'], [1, 'Normal'], [0.6, 'Faster']])}
-            ${optRow('Animals stay', 'stay', [[0, 'Until replaced'], [120, '2 minutes'], [60, '1 minute'], [30, '30 seconds']])}
-            <p class="setup-note">The time starts again whenever an animal is touched or called.</p>
+            ${optRow('Animals leave', 'stay', [[0, 'Never'], [-1, 'When touched'], [30, 'After 30 seconds'], [60, 'After 1 minute'], [120, 'After 2 minutes']])}
+            <p class="setup-note">${leaveHint()}</p>
+            ${optRow('Look changes', 'fade', [[2, 'Quick (2 s)'], [5, 'Gentle (5 s)'], [10, 'Slow (10 s)'], [20, 'Very slow (20 s)']])}
+            <p class="setup-note">How long Day / night and Next look take to fade.</p>
         </section>`,
         switches: `
         <section>

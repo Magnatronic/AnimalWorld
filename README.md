@@ -15,8 +15,9 @@ there longest leaves. A quiet background loop (garden birdsong for Birds) plays 
 
 Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
 screen too):
-- **Scene** — the look (Soft flat, Matching outlines, Night-light), speed, and how long animals stay
-  (until replaced, or they leave after 30 seconds to 2 minutes without being touched or called).
+- **Scene** — the look (Soft flat, Matching outlines, Night-light), speed, when animals leave (never,
+  when touched, or after 30 seconds to 2 minutes without being touched or called), and how long look
+  changes take to fade (2 to 20 seconds).
 - **Switches** — add up to twelve switches: tap Learn and press the switch (SimplyWorks, Bluetooth,
   keyboard, Xbox Adaptive Controller), pick a colour to match the real switch, and give each a job:
   bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 👋 Goodbye (the longest-

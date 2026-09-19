@@ -12,7 +12,9 @@ const SCENE_DEFAULTS = {
     pace:          1,          // 1.7 slower, 1 normal, 0.6 faster
     labels:        false,      // show each switch's colour and job on screen
     others:        'anything', // what keys and buttons that aren't numbered switches do: 'anything' (Random) | 'nothing'
-    stay:          0,          // seconds an animal stays after it last arrived or called; 0 = until replaced
+    stay:          0,          // when animals leave: 0 never (unless a newcomer needs the spot), -1 when touched,
+                               // or seconds after they were last touched or called
+    fade:          5,          // seconds a change of look takes
     animalVolume:  1,
     ambientVolume: 0.5,        // the background loop; 0 = off
     jobs:          {},         // { theme: { switchId: animal name | a scene job (see SCENE_JOBS) | 'nothing' } }
@@ -99,6 +101,7 @@ let calling = null;         // the animal sound playing now; one at a time
 function applyLook() {
     stage.className = `stage scene-${sceneSettings.theme} look-${liveLook || sceneSettings.look}`;
     stage.style.setProperty('--pace', sceneSettings.pace);
+    stage.style.setProperty('--fade', sceneSettings.fade + 's');
 }
 
 function buildScene() {
@@ -120,7 +123,7 @@ function buildScene() {
         el.hidden = true;
         el.innerHTML = `<img alt="${name}" src="${imgSrc(animal)}">`;
         el.querySelector('img').style.animationDelay = (-Math.random() * 3).toFixed(2) + 's';
-        el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started) sing(name); });
+        el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started) touched(name); });
         layer.appendChild(el);
         cast[name] = { el, def, sound: animal.sound, spot: null, arrivedAt: 0, calledAt: 0, leaving: false };
     });
@@ -152,7 +155,7 @@ function settle(name, spot) {
 function arrive(name) {
     const a = cast[name];
     if (!a) return;
-    if (a.spot && !a.leaving) { sing(name); return; }
+    if (a.spot && !a.leaving) { touched(name); return; }
     let spot = freeSpot(a.def.habitat);
     if (!spot) {
         const oldest = spots.filter(s => s.habitat === a.def.habitat && s.animal)
@@ -294,14 +297,21 @@ function doJob(job) {
     else if (job !== 'nothing') arrive(job);
 }
 
-// "Animals stay" in set-up: an animal leaves once it has been left alone that long.
+// An animal touched on screen, or its own switch pressed while it's here: it calls,
+// and with "Animals leave: When touched" it then goes.
+function touched(name) {
+    sing(name);
+    if (sceneSettings.stay === -1) setTimeout(() => { if (cast[name].spot) leave(name); }, 1200);
+}
+
+// "Animals leave" after a time: an animal goes once it has been left alone that long.
 // The clock only runs while the scene is playing, so it restarts when the scene
 // starts and when set-up closes.
 function restartStayClock() {
     Object.values(cast).forEach(a => { if (a.spot) a.calledAt = Date.now(); });
 }
 setInterval(() => {
-    if (!started || setupOpen() || !sceneSettings.stay) return;
+    if (!started || setupOpen() || !(sceneSettings.stay > 0)) return;
     const limit = sceneSettings.stay * 1000;
     Object.keys(cast).forEach(n => {
         const a = cast[n];
