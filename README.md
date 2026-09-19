@@ -5,7 +5,24 @@ An interactive animal learning app for classroom use. Plain HTML, CSS and JavaSc
 The front page offers two parts:
 - **Animal Activities** — pick a theme, then an activity (below). Open it directly at `index.html#activities`.
 - **Animal Scenes** — calm, interactive animal scenes for touch screens and switches, for sensory rooms
-  and large touch projectors. Open it directly at `scenes.html`. *(In progress.)*
+  and large touch projectors. Open it directly at `scenes.html`. *(Birds so far; more themes coming.)*
+
+## Animal Scenes
+A full-screen scene drawn in code, so it fills any screen shape and works offline. Tap to start (the
+first tap or key press starts the sound and goes full screen). Touch an animal to hear it, or anywhere
+for a ripple. Animals fly, walk or swim in; when every spot for them is taken, the one that has been
+there longest leaves. A quiet background loop (garden birdsong for Birds) plays under the calls.
+
+Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
+screen too):
+- **Scene** — the look (Soft flat, Matching outlines, Night-light) and speed.
+- **Switches** — add up to twelve switches: tap Learn and press the switch (SimplyWorks, Bluetooth,
+  keyboard, Xbox Adaptive Controller), pick a colour to match the real switch, and give each a job:
+  bring in a particular animal, anything happens, day / night, or nothing. Switch labels in those
+  colours can be shown on screen. Keys and buttons that aren't learned make anything happen (or
+  nothing), so any switch works straight away.
+- **Sound** — animal sounds and background sound, each Off, Quiet, Medium or Loud.
+
 
 ## Activities
 - **Explore Animals** — tap each animal to hear its sound
@@ -49,6 +66,10 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 |------|---------------|
 | `index.html` | Animal World's front page and Animal Activities' screens |
 | `scenes.html` | Animal Scenes |
+| `scenes/art.js` | Each scene's drawing, spots and how its animals behave |
+| `scenes/scenes.js`, `scenes/setup.js`, `scenes/scenes.css` | Animal Scenes itself and its set-up screen |
+| `sounds/ambient/` | Background loops for Animal Scenes |
+| `shared/hold.js`, `shared/hold.css` | The hold-to-open ⚙ button, used by both parts |
 | `styles.css` | Animal Activities' styling, including each theme's colours |
 | `shared/themes.js` | The themes and their animals, used by both parts — start here to add or change a theme |
 | `shared/fonts.css` | The Nunito font, used by both parts |

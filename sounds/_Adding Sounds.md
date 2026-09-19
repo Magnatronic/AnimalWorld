@@ -149,6 +149,17 @@ Llamas mostly hum quietly, and no clear llama recording was available, so `llama
 
 ---
 
+## 🌈 Background loops for Animal Scenes (`ambient/`)
+
+Quiet, steady recordings played under the animal calls, levelled to about −26 LUFS (well below the
+calls). The app crossfades each loop into itself, so the join isn't heard.
+
+| Save as | Source | Section used |
+|---------|--------|--------------|
+| `ambient/birds.mp3` | [Birdsong with Blackcap, Nightingale, Robin, Chaffinch…](https://freesound.org/s/853112/) by hoshisato (CC0) | 0.3–98.5 s |
+
+---
+
 ## 🐞 Ladybird and Worm
 
 Ladybirds and worms make no sound anyone could record, so each plays a short sound of the
