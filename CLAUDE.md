@@ -48,8 +48,9 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
 - Gentle by design: slow motion, fades not jumps, nothing flashing; respect `prefers-reduced-motion`.
   (Lightning: thin bolts fading in over ~0.25 s, no flicker, never two within 0.8 s (BOLT_GAP), and a
   "Thunder only" setting; keep those limits for photosensitive users.)
-- Presses and touches are paced by `accept()` (the "Wait between presses" setting, plus a longer
-  wait for big changes); new input paths should go through it.
+- Presses and touches are paced by `accept(job)` (the "Wait between presses" setting: 1–3 s, or -1
+  "When finished" using `takesMs(job)`; plus a longer wait for big changes); new input paths should go
+  through it. Old settings are tidied in `tidySettings()`.
 - Weather sits in two layers around the animals (`#wx-back`, `#wx-front`), neither catching touches;
   the rainbow goes into the scene's SVG just after the moon, so scenery is in front of it; lightning is
   in `#wx-back` above the darkened sky, masked to fade out towards the horizon.

@@ -162,10 +162,11 @@ function renderSetup() {
             <button class="sw-add"${full ? ' disabled' : ''}>${full ? `Twelve switches is the most` : '+ Add a switch'}</button>
             ${optRow('Switch labels on screen', 'labels', [[false, 'Hide'], [true, 'Show']])}
             ${optRow('Other keys and buttons', 'others', [['anything', '🎲 Random'], ['nothing', 'Nothing']])}
-            ${optRow('Wait between presses', 'pressGap', [[0, 'None'], [0.5, '½ second'], [1, '1 second'], [2, '2 seconds'], [3, '3 seconds']])}
-            <p class="setup-note">After a press or a touch does something, others are ignored for this long, so lots of
-                presses at once don't set everything off together. Changing the scene, the look or the weather also waits for
-                the last change to finish. Touches always make a ripple.</p>
+            ${optRow('Wait between presses', 'pressGap', [[1, '1 second'], [2, '2 seconds'], [3, '3 seconds'], [-1, 'When finished']])}
+            <p class="setup-note">${sceneSettings.pressGap === -1
+                ? 'After a press or a touch does something, nothing else happens until it has finished: an animal has arrived, or a look or weather change has faded in.'
+                : 'After a press or a touch does something, others are ignored for this long, so lots of presses at once don\'t set everything off together. Changing the scene, the look or the weather also waits for the last change to finish.'}
+                Touches always make a ripple.</p>
         </section>`,
         sound: `
         <section>

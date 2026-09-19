@@ -58,6 +58,7 @@ function presetDiffers(p) {
 function usePreset(p) {
     const trackBefore = trackUrl();
     PRESET_KEYS.forEach(k => { sceneSettings[k] = presetValue(p, k); });
+    tidySettings(sceneSettings);
     if (!SceneArt[sceneSettings.theme] || !themes[sceneSettings.theme]) sceneSettings.theme = SCENE_DEFAULTS.theme;
     if (typeof p.scene === 'string') sceneSettings.scenes[sceneSettings.theme] = p.scene;
     const jobs = {};

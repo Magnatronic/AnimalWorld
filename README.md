@@ -48,8 +48,9 @@ screen too):
   bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 🗺️ Next scene, 👋 Goodbye
   (the longest-staying animal leaves), 🌙 Everyone leaves, a weather, 🌦️ Next weather, ⚡ Thunder, or
   nothing. Five switches are always ready to learn.
-  Switch labels in those colours can be shown along the top of the screen. A short wait between presses
-  (1 second by default, adjustable) stops a flurry of presses setting everything off at once. Keys and buttons that
+  Switch labels in those colours can be shown along the top of the screen. A wait between presses (1, 2 or 3
+  seconds, or "When finished": until an animal has arrived or a change has faded in) stops a flurry of
+  presses setting everything off at once. Keys and buttons that
   aren't learned do something random (or nothing), so any switch works straight away. Look changes
   fade gently rather than jump.
 - **Sound** — animal sounds, background sound and weather sounds, each Off, Quiet, Medium or Loud, and the

@@ -22,7 +22,8 @@ const SCENE_DEFAULTS = {
     weatherPress:  'build',    // weather switches: 'build' (each press stronger, eases off) | 'toggle' (on / off)
     weatherEase:   20,         // building up: seconds each step lasts once nobody presses or touches the sky
     lightning:     true,       // storms show lightning bolts (false: thunder only)
-    pressGap:      1,          // seconds after a press or touch does something before another can
+    pressGap:      1,          // seconds after a press or touch does something before another can (1, 2 or 3),
+                               // or -1: until what it started has finished
     animalVolume:  1,
     ambientVolume: 0.5,        // the background loop; 0 = off
     weatherVolume: 0.5,        // rain, wind and thunder; 0 = off
@@ -41,7 +42,13 @@ function loadSceneSettings() {
         const saved = JSON.parse(localStorage.getItem(SCENES_KEY));
         for (const key in s) if (saved && typeof saved[key] === typeof s[key] && saved[key] !== null) s[key] = saved[key];
     } catch (e) { /* private window or blocked storage: run on defaults */ }
+    tidySettings(s);
     return s;
+}
+// Values that are no longer offered move to the nearest that is (a wait under a second
+// used to be allowed).
+function tidySettings(s) {
+    if (s.pressGap !== -1 && !(s.pressGap >= 1)) s.pressGap = 1;
 }
 function saveSceneSettings() {
     try { localStorage.setItem(SCENES_KEY, JSON.stringify(sceneSettings)); } catch (e) {}
@@ -167,7 +174,7 @@ function buildScene() {
         el.hidden = true;
         el.innerHTML = `<img alt="${name}" src="${imgSrc(animal)}">`;
         el.querySelector('img').style.animationDelay = (-Math.random() * 3).toFixed(2) + 's';
-        el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started && accept(false)) touched(name); });
+        el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started && accept('call')) touched(name); });
         layer.appendChild(el);
         cast[name] = { el, def, sound: animal.sound, spot: null, arrivedAt: 0, calledAt: 0, leaving: false };
     });
@@ -399,9 +406,9 @@ function drawWeather(id) {
     const rain = () => `<div class="rain">${levels([20, 40, 70, 110, 160], (level, lv) => {
         const d = rand(1.1, 1.4) * speed(level);
         return `<i class="${lv}" style="left:${rand(-5, 105).toFixed(1)}%;--d:${d.toFixed(2)}s;--len:${4 + level * 2.5}%;animation-delay:${rand(-d, 0).toFixed(2)}s"></i>`;
-    })}</div>` +
-        // A downpour: grey sheets of rain sweeping through
-        '<div class="sheets lv4"></div><div class="sheets lv5 more"></div>';
+    })}</div>`;
+    // A downpour throws up a low spray of mist over the ground and water.
+    const spray = () => '<div class="spray lv4"></div><div class="spray lv5"></div>';
     // The sky darkens at each step; a storm has a deeper, darker layer from the start and another from 3.
     const overcast = storm => `<div class="overcast"></div><div class="overcast deep${storm ? '' : ' lv4'}"></div>` +
         (storm ? '<div class="overcast deeper lv3"></div>' : '');
@@ -433,8 +440,8 @@ function drawWeather(id) {
     const mist = ([top, h, d, lv], i) =>
         `<div class="mist${lv ? ' ' + lv : ''}" style="top:${top}%;height:${h}%;--d:${d}s;animation-delay:${-d * (0.2 + i * 0.3)}s"></div>`;
     const parts = {
-        rain:  [overcast(false) + splashes(), rain()],
-        storm: [overcast(true) + splashes(), rain()],
+        rain:  [overcast(false) + splashes() + spray(), rain()],
+        storm: [overcast(true) + splashes() + spray(), rain()],
         snow:  [overcast(false), snow()],
         wind:  ['', leaves() + gusts()],
         fog:   [`<div class="haze"></div><div class="haze high lv3"></div>${[[42, 30, 95, ''], [20, 26, 70, 'lv2'], [60, 34, 80, 'lv3'], [8, 30, 60, 'lv4']].map(mist).join('')}`,
@@ -610,22 +617,42 @@ setInterval(() => {
 }, 500);
 
 // ── A calm pace, however fast the presses come ──
-// After a switch press or a touch does something, others wait `pressGap` seconds,
-// so a flurry of presses doesn't set everything off at once. Big changes (a scene,
-// a look, a different weather, everyone leaving) also wait for the last one to
-// finish. Ripples always show, so a touch is always seen.
+// After a switch press or a touch does something, others wait: `pressGap` seconds,
+// or with "When finished" until what it started has finished (a bird has landed, a
+// look or weather has faded in). So a flurry of presses doesn't set everything off at
+// once. Big changes (a scene, a look, a different weather, everyone leaving) also
+// wait for the last big change to finish. Ripples always show, so a touch is seen.
+// `job` is a switch job, or 'call' (an animal touched), 'place' (an empty place
+// touched) or 'sky' (open sky touched, building the weather).
 let quietUntil = 0, bigQuietUntil = 0;
-function accept(big) {
-    const now = Date.now();
+function accept(job) {
+    const now = Date.now(), big = isBig(job);
     if (now < quietUntil || (big && now < bigQuietUntil)) return false;
-    quietUntil = now + sceneSettings.pressGap * 1000;
-    if (big) bigQuietUntil = now + Math.max(2, Math.min(sceneSettings.fade, 5)) * 1000;
+    const takes = takesMs(job);
+    quietUntil = now + (sceneSettings.pressGap === -1 ? takes : sceneSettings.pressGap * 1000);
+    if (big) bigQuietUntil = now + (sceneSettings.pressGap === -1 ? takes : Math.max(2, Math.min(sceneSettings.fade, 5)) * 1000);
     return true;
 }
 const BIG_JOBS = ['daynight', 'nextlook', 'nextscene', 'clear', 'nextweather'];
 // Making the same weather stronger is small; changing the weather is big.
 function isBig(job) {
     return BIG_JOBS.includes(job) || (!!SceneWeather[job] && (liveWeather !== job || !building()));
+}
+// Roughly how long a job takes to play out, for "When finished".
+function takesMs(job) {
+    const journey = 3000 * sceneSettings.pace + 1000;        // fly, walk or swim in, then call
+    const fade = sceneSettings.fade * 1000;
+    if (job === 'call') return 1500;
+    if (job === 'place' || job === 'anything') return journey;
+    if (job === 'sky') return 1500;
+    if (SceneWeather[job]) return isBig(job) ? fade : 1500;
+    if (job === 'daynight' || job === 'nextlook' || job === 'nextweather') return fade;
+    if (job === 'nextscene') return 2000;
+    if (job === 'thunder') return 2500;
+    if (job === 'goodbye') return journey;
+    if (job === 'clear') return journey + 350 * Object.values(cast).filter(a => a.spot).length;
+    if (job === 'nothing') return 0;
+    return cast[job] && cast[job].spot && !cast[job].leaving ? 1500 : journey;   // an animal: calls, or comes in
 }
 
 function doJob(job) {
@@ -688,7 +715,7 @@ function setupOpen() { return !document.getElementById('setup').hidden; }
 Switches.onPress(slot => {
     if (!started || setupOpen()) return;
     const job = jobFor(slot);
-    if (accept(isBig(job))) doJob(job);
+    if (accept(job)) doJob(job);
 });
 // Keys and buttons that aren't numbered switches: start the scene, or something random.
 Switches.onAnyPress(binding => {
@@ -700,7 +727,7 @@ Switches.onAnyPress(binding => {
     }
     if (Switches.slotOf(binding) >= 0) return false;       // a numbered switch: onPress does its job
     if (sceneSettings.others !== 'anything') return false;
-    if (accept(false)) anything();
+    if (accept('anything')) anything();
     return true;
 });
 
@@ -744,9 +771,9 @@ stage.addEventListener('pointerdown', e => {
     setTimeout(() => r.remove(), 1900);
     const x = (e.clientX - s.left) / s.width * 100, y = (e.clientY - s.top) / s.height * 100;
     const spot = sceneSettings.touchPlaces && placeNear(x, y);
-    if (spot) { if (accept(false)) touchPlace(spot); return; }
+    if (spot) { if (accept('place')) touchPlace(spot); return; }
     // Building up: touching the sky (not an animal or a place) works like pressing the weather's switch.
-    if (building() && liveWeather !== 'clear' && y < 50 && accept(false)) pressWeather(liveWeather);
+    if (building() && liveWeather !== 'clear' && y < 50 && accept('sky')) pressWeather(liveWeather);
 });
 
 /* ── Start: the first tap or key press starts the sound and goes full screen ── */
