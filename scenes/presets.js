@@ -38,6 +38,10 @@ function savePresets() {
     try { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)); } catch (e) {}
 }
 const presetById = id => presets.find(p => p.id === id) || null;
+// Each preset belongs to one set of animals (its theme); set-up only shows those for the
+// animals chosen on the start screen, so Birds and Forest presets never mix.
+const presetTheme = p => SceneArt[p.theme] && themes[p.theme] ? p.theme : SCENE_DEFAULTS.theme;
+const themePresets = () => presets.filter(p => presetTheme(p) === sceneSettings.theme);
 
 // The set-up as it is now, as a preset.
 function presetFromSettings(id, name) {
@@ -111,7 +115,7 @@ function deletePreset(id) {
     const i = presets.findIndex(p => p.id === id);
     if (i >= 0) { presets.splice(i, 1); savePresets(); }
 }
-const missingReadyPresets = () => READY_PRESETS.filter(r => !presetById(r.id));
+const missingReadyPresets = () => READY_PRESETS.filter(r => r.theme === sceneSettings.theme && !presetById(r.id));
 function restoreReadyPresets() {
     missingReadyPresets().forEach(r => presets.splice(READY_PRESETS.indexOf(r), 0, JSON.parse(JSON.stringify(r))));
     savePresets();

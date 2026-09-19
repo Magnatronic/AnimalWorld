@@ -926,6 +926,7 @@ function start() {
     started = true;
     restartStayClock();
     document.getElementById('start').hidden = true;
+    document.getElementById('back-corner').hidden = false;
     const root = document.documentElement;
     if (root.requestFullscreen && !document.fullscreenElement) root.requestFullscreen().catch(() => {});
     Ambient.start(trackUrl(), sceneSettings.ambientVolume);
@@ -937,10 +938,12 @@ document.getElementById('start').addEventListener('click', e => {
     if (pick) { changeTheme(pick.dataset.theme); start(); }
     else if (!document.getElementById('start').classList.contains('choosing')) start();
 });
-// From set-up: back to the start screen to choose other animals (the scene goes quiet meanwhile).
+// From set-up, or holding ← in the corner: back to the start screen to choose other
+// animals (the scene goes quiet meanwhile).
 function chooseAnimals() {
     closeSetup();
     started = false;
+    document.getElementById('back-corner').hidden = true;
     Ambient.stop();
     Object.values(weatherLoops).forEach(loop => loop.stop());
     if (calling) { calling.pause(); calling = null; }
@@ -967,6 +970,7 @@ function leaveScenes() {
     location.href = 'index.html';
 }
 holdToOpen(document.getElementById('settings-btn'), document.getElementById('hold-hint'), openSetup);
+holdToOpen(document.getElementById('back-btn'), document.getElementById('back-hint'), chooseAnimals);
 
 while (Switches.slots.length < SCENE_SWITCHES_MIN) Switches.add();
 buildScene();

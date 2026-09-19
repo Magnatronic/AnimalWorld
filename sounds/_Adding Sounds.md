@@ -159,6 +159,12 @@ calls). The app crossfades each loop into itself, so the join isn't heard.
 | `ambient/garden.mp3` | [Birdsong with Blackcap, Nightingale, Robin, Chaffinch…](https://freesound.org/s/853112/) by hoshisato (CC0) | 0.3–98.5 s |
 | `ambient/woodland.mp3` | [Woods ambience, summer, UK birds, light wind through trees](https://freesound.org/s/523372/) by nickmaysoundmusic (CC0) | from 1 s |
 | `ambient/lake.mp3` | [Gentle waves on a lake](https://freesound.org/s/614299/) by TheFlyFishingFilmmaker (CC0) | 0.5–150 s (a louder splashy ending left out) |
+| `ambient/forest.mp3` | [Birds In Forest (Scotland)](https://freesound.org/s/490846/) by BurghRecords (CC0) | 0.5–112.5 s (Forest Animals' Woodland) |
+| `ambient/river.mp3` | [Small stream in the woods, Few birds](https://freesound.org/s/796191/) by fran_marenco (CC0) | 0.5–179.5 s (Forest Animals' Riverbank) |
+| `ambient/clearing.mp3` | [Summer afternoon Meadow ATM birds and crickets](https://freesound.org/s/414907/) by DanGasior (CC0) | 0.5–120.5 s (Forest Animals' Clearing) |
+
+Each is mixed down to mono (like the others). Every scene has its own; set-up's Sound tab can
+choose any of them instead.
 
 ---
 

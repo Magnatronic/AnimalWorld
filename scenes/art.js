@@ -17,6 +17,9 @@ const SceneTracks = {
     garden:   { label: 'Garden birdsong', file: 'sounds/ambient/garden.mp3' },
     woodland: { label: 'Woodland',        file: 'sounds/ambient/woodland.mp3' },
     lake:     { label: 'Lakeside water',  file: 'sounds/ambient/lake.mp3' },
+    forest:   { label: 'Forest birds and breeze', file: 'sounds/ambient/forest.mp3' },
+    river:    { label: 'Woodland stream', file: 'sounds/ambient/river.mp3' },
+    clearing: { label: 'Summer meadow',   file: 'sounds/ambient/clearing.mp3' },
 };
 
 // Weather: one at a time over any scene, fading in and out (drawn by scenes.js and
@@ -346,7 +349,7 @@ const SceneArt = (() => {
             scenes: {
                 woodland: {
                     name: '🌲 Woodland',
-                    track: 'woodland',
+                    track: 'forest',
                     places: { perch: 'on the branches', hide: 'behind the bushes', ground: 'on the forest floor', water: 'in the stream' },
                     residents: ['Owl', 'Hedgehog'],
                     svg: () => woodland(toadstools([[560, 815, 1], [120, 872, .8], [650, 752, .9], [420, 885, 1.1]]) +
@@ -365,7 +368,7 @@ const SceneArt = (() => {
 
                 river: {
                     name: '🏞️ Riverbank',
-                    track: 'lake',
+                    track: 'river',
                     places: { perch: 'on the branches', hide: 'behind the bushes', ground: 'on the riverbank', water: 'in the river' },
                     residents: ['Beaver', 'Deer'],
                     svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
@@ -408,7 +411,7 @@ const SceneArt = (() => {
 
                 clearing: {
                     name: '🍄 Clearing',
-                    track: 'garden',
+                    track: 'clearing',
                     places: { perch: 'on the branches', hide: 'behind the log and the bush', ground: 'in the clearing', water: 'in the pond' },
                     residents: ['Rabbit', 'Squirrel'],
                     svg: () => `<svg class="bg" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">

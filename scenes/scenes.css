@@ -167,6 +167,11 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .corner .settings-btn { opacity: .45; transition: opacity .2s; }
 .corner .settings-btn:hover, .corner .settings-btn.holding { opacity: 1; }
 .corner .hold-hint { bottom: auto; top: calc(100% + 10px); }
+/* ← back to the choice of animals: the top-left corner, only while a scene is playing,
+   under the start screen and set-up; clear of the switch labels (padded 90px each side) */
+.corner.corner-left { left: 16px; right: auto; z-index: 15; }
+.corner.corner-left[hidden] { display: none; }
+.corner-left .hold-hint { right: auto; left: 0; }
 
 /* ── Scene colours: every shape takes its fill from these, per look ── */
 .f-sky1 { stop-color: var(--sky1); } .f-sky2 { stop-color: var(--sky2); }

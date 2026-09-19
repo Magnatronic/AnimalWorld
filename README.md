@@ -37,10 +37,13 @@ which sits in the middle. A strong storm brings bigger, brighter bolts every few
 seconds (never two within a second, and set-up can switch lightning off), a blizzard frosts the trees
 and freezes the pond, and thick fog becomes a near white-out.
 
-Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
-screen too):
-- **Presets** — saved set-ups (scene, look, speed, weather, switch jobs). Seven are ready-made: 🌳 Calm
-  garden, 🌦️ Weather play, 🦉 Night owls, 🏞️ Busy lake, 🦊 Peek-a-boo, 🦫 Riverbank and 🦇 Forest at night. Use one, save the set-up as a new preset,
+While a scene plays, hold the dimmed **←** in the top-left corner for two seconds to go back to the
+choice of animals. Hold the dimmed ⚙ in the top-right corner for two seconds to open **Set-up** (it
+works from the start screen too):
+- **Presets** — saved set-ups (scene, look, speed, weather, switch jobs). Each set of animals has its
+  own, and set-up shows only those for the animals chosen. Ready-made for Birds: 🌳 Calm garden,
+  🌦️ Weather play, 🦉 Night owls and 🏞️ Busy lake; for Forest Animals: 🦊 Peek-a-boo, 🦫 Riverbank and
+  🦇 Forest at night. Use one, save the set-up as a new preset,
   save changes into a preset, rename or delete (deleted ready-made ones can be brought back). Each has
   a link, `scenes.html#preset=<name>`, that opens straight into it — handy as a desktop shortcut.
 - **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, whether touching an
@@ -60,7 +63,7 @@ screen too):
   aren't learned do something random (or nothing), so any switch works straight away. Look changes
   fade gently rather than jump.
 - **Sound** — animal sounds, background sound and weather sounds, each Off, Quiet, Medium or Loud, and the
-  background track: the scene's own, or any of Garden birdsong, Woodland and Lakeside water.
+  background track: the scene's own (each scene has its own), or any of the others.
 
 
 ## Activities

@@ -58,8 +58,7 @@ function presetSummary(p) {
     const scene = theme.scenes[p.scene] || Object.values(theme.scenes)[0];
     const weather = SceneWeather[presetValue(p, 'weather')];
     const jobs = (p.jobs || []).slice(0, Switches.slots.length).map(jobLabel);
-    const label = (themes[p.theme] || themes.birds).label;
-    return [label, scene.name, LOOK_NAMES[presetValue(p, 'look')], weather ? weather.label : '☀️ Clear'].join(' · ') +
+    return [scene.name, LOOK_NAMES[presetValue(p, 'look')], weather ? weather.label : '☀️ Clear'].join(' · ') +
         (jobs.length ? ` · Switches: ${jobs.join(', ')}` : '');
 }
 
@@ -123,11 +122,12 @@ function renderSetup() {
         presets: `
         <section>
             <div class="preset-new">
-                <input type="text" id="preset-name" maxlength="40" value="Preset ${presets.length + 1}" aria-label="Name for the new preset">
+                <input type="text" id="preset-name" maxlength="40" value="Preset ${themePresets().length + 1}" aria-label="Name for the new preset">
                 <button class="preset-add">+ Save as a new preset</button>
             </div>
-            <div class="preset-list">${presets.map(presetCard).join('') || '<p class="setup-note">No presets.</p>'}</div>
-            <p class="setup-note">A preset is a saved set-up: scene, look, speed, weather and what each switch does (sound
+            <div class="preset-list">${themePresets().map(presetCard).join('') || '<p class="setup-note">No presets for these animals yet.</p>'}</div>
+            <p class="setup-note">These are the presets for ${themes[sceneSettings.theme].label}; each set of animals has its own
+                (choose other animals on the start screen to see theirs). A preset is a saved set-up: scene, look, speed, weather and what each switch does (sound
                 levels and the switches themselves stay as they are on this computer). To change one: use it, change what you
                 like, then tap <strong>Save changes here</strong>. <strong>⋯</strong> has Rename, Delete and a <strong>Link</strong>
                 that opens Animal Scenes straight into the preset, handy as a shortcut on the sensory-room computer.</p>
