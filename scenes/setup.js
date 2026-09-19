@@ -31,6 +31,7 @@ function switchRow(slot, i) {
                 <select>
                     <optgroup label="Animals">${Object.keys(art.animals).map(n => option(n, n)).join('')}</optgroup>
                     <optgroup label="Scene">${Object.entries(SCENE_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
+                    <optgroup label="Weather">${Object.entries(WEATHER_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
                     ${option('nothing', 'Nothing')}
                 </select>
             </label>
@@ -39,7 +40,7 @@ function switchRow(slot, i) {
 }
 
 function jobHint(job) {
-    if (SCENE_JOBS[job]) return SCENE_JOBS[job].hint;
+    if (jobInfo(job)) return jobInfo(job).hint;
     if (job === 'nothing') return 'This switch does nothing in this scene.';
     return `The ${job.toLowerCase()} comes into the scene, or calls if it's already here.`;
 }
@@ -77,8 +78,10 @@ function renderSetup() {
             ${optRow('Speed', 'pace', [[1.7, 'Slower'], [1, 'Normal'], [0.6, 'Faster']])}
             ${optRow('Animals leave', 'stay', [[0, 'Never'], [-1, 'When touched'], [30, 'After 30 seconds'], [60, 'After 1 minute'], [120, 'After 2 minutes']])}
             <p class="setup-note">${leaveHint()}</p>
+            ${optRow('Weather', 'weather', [['clear', '☀️ Clear'], ...Object.entries(SceneWeather).map(([id, w]) => [id, w.label])])}
+            <p class="setup-note">The weather the scene starts with. Give a switch a weather job to change it while playing.</p>
             ${optRow('Look changes', 'fade', [[2, 'Quick (2 s)'], [5, 'Gentle (5 s)'], [10, 'Slow (10 s)'], [20, 'Very slow (20 s)']])}
-            <p class="setup-note">How long Day / night and Next look take to fade.</p>
+            <p class="setup-note">How long Day / night, Next look and the weather take to fade.</p>
         </section>`,
         switches: `
         <section>
@@ -94,6 +97,8 @@ function renderSetup() {
         <section>
             ${optRow('Animal sounds', 'animalVolume', [[0, 'Off'], [0.3, 'Quiet'], [0.6, 'Medium'], [1, 'Loud']])}
             ${optRow('Background sound', 'ambientVolume', [[0, 'Off'], [0.25, 'Quiet'], [0.5, 'Medium'], [1, 'Loud']])}
+            ${optRow('Weather sounds', 'weatherVolume', [[0, 'Off'], [0.25, 'Quiet'], [0.5, 'Medium'], [1, 'Loud']])}
+            <p class="setup-note">Rain, wind and far-off thunder.</p>
             ${optRow('Background track', 'track', [['scene', `Matches the scene (${SceneTracks[art.track].label})`],
                 ...Object.entries(SceneTracks).map(([id, t]) => [id, t.label])])}
         </section>`,
@@ -119,6 +124,8 @@ function setScene(key, value) {
     if (key === 'look') liveLook = value;
     if (key === 'look' || key === 'pace') applyLook();
     if (key === 'ambientVolume' && started) Ambient.setLevel(value, trackUrl());
+    if (key === 'weather') setWeather(value);
+    if (key === 'weatherVolume') weatherSound();
     renderLabels();
     renderSetup();
 }

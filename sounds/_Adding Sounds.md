@@ -162,6 +162,22 @@ calls). The app crossfades each loop into itself, so the join isn't heard.
 
 ---
 
+## 🌦️ Weather for Animal Scenes (`weather/`)
+
+Rain and wind loop (crossfaded like the background loops) at about −27 LUFS; each thunder file is one
+distant rumble with a gentle fade in and a long fade out, levelled to about −28 LUFS. All from
+far-away recordings, so nothing cracks or bangs.
+
+| Save as | Source | Section used |
+|---------|--------|--------------|
+| `weather/rain.mp3` | [gentle rainfall.wav](https://freesound.org/s/416227/) by rasunter255 (CC0) | 0.5–120 s |
+| `weather/wind.mp3` | [a gentle breeze, wind 1](https://freesound.org/s/181250/) by mario1298 (CC0) | 0.5–120 s |
+| `weather/thunder-1.mp3` | [Distant rumbles](https://freesound.org/s/584946/) by richwise (CC0) | 3.5–16.5 s |
+| `weather/thunder-2.mp3` | the same recording | 38–51 s |
+| `weather/thunder-3.mp3` | the same recording | 54.5–67.5 s |
+
+---
+
 ## 🐞 Ladybird and Worm
 
 Ladybirds and worms make no sound anyone could record, so each plays a short sound of the

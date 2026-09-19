@@ -112,8 +112,14 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @property --pond   { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
 @property --flower { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
 @property --ring   { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --rain     { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --mist     { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --overcast { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --storm    { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --lean     { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
 .stage {
-    transition-property: --sky1, --sky2, --sun, --moon, --cloud, --hill, --lawn, --trunk, --leaf, --leaf2, --pond, --flower, --ring;
+    transition-property: --sky1, --sky2, --sun, --moon, --cloud, --hill, --lawn, --trunk, --leaf, --leaf2, --pond, --flower, --ring,
+                         --rain, --mist, --overcast, --storm, --lean;
     transition-duration: var(--fade, 5s);
     transition-timing-function: ease-in-out;
 }
@@ -147,8 +153,13 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 /* Gentle ambient motion only: slow drift, sway and twinkle; nothing flashes */
 .cloud { animation: drift calc(var(--d) * var(--pace)) linear infinite; }
 @keyframes drift { from { transform: translateX(-420px); } to { transform: translateX(1900px); } }
-.sway { transform-box: fill-box; transform-origin: 50% 100%; animation: sway calc(var(--d, 7s) * var(--pace)) ease-in-out infinite alternate; }
+/* In the wind, trees and reeds also lean over (--lean fades in) and gust (--gust) */
+@property --gust { syntax: '<number>'; inherits: false; initial-value: 1; }
+.sway { transform-box: fill-box; transform-origin: 50% 100%; rotate: calc(var(--lean) * var(--gust));
+    animation: sway calc(var(--d, 7s) * var(--pace)) ease-in-out infinite alternate,
+               gust calc(var(--d, 7s) * .7 * var(--pace)) ease-in-out infinite alternate; }
 @keyframes sway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+@keyframes gust { from { --gust: .5; } to { --gust: 1.4; } }
 .ring { transform-box: fill-box; transform-origin: center; animation: ring calc(6s * var(--pace)) ease-out infinite; }
 @keyframes ring { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
 .f-star { animation: twinkle calc(5s * var(--pace)) ease-in-out infinite alternate; }
@@ -156,10 +167,79 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @keyframes glow { from { opacity: .35; } to { opacity: 1; } }
 @keyframes twinkle { from { opacity: .35; } to { opacity: 1; } }
 
+/* ── Weather: fades in and out over --fade; see "Weather" in scenes.js ── */
+.look-soft, .look-line { --rain: rgba(90,125,165,.55); --mist: rgba(246,248,251,.85); --overcast: rgba(95,110,135,.38); --storm: rgba(50,60,85,.42); }
+.look-line  { --rain: rgba(55,120,190,.7); }
+.look-night { --rain: rgba(190,210,255,.5); --mist: rgba(140,160,210,.4); --overcast: rgba(4,8,22,.4); --storm: rgba(0,0,8,.4); }
+.wx-wind { --lean: 3deg; }
+.wx-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; isolation: isolate; }
+.wx { position: absolute; inset: 0; opacity: 0; transition: opacity var(--fade, 5s) ease-in-out; }
+.wx.on { opacity: 1; }
+.wx-layer i, .wx-layer b { position: absolute; display: block; }
+
+/* A greyer sky (rain, snow), darker still in a storm; the sun goes pale behind cloud and mist */
+.wx-rain:not(.look-night) .f-sun, .wx-storm:not(.look-night) .f-sun,
+.wx-snow:not(.look-night) .f-sun, .wx-fog:not(.look-night) .f-sun { opacity: .3; }
+.overcast { position: absolute; inset: 0; background: linear-gradient(var(--overcast), transparent 78%); }
+.overcast.deep { background: linear-gradient(var(--storm), transparent 90%); }
+
+/* Rain: each drop's track is the height of the scene, tilted a little */
+.rain { position: absolute; inset: -15% -10%; rotate: 10deg; }
+.rain i { top: 0; height: 100%; width: max(2px, .12vw);
+    background: linear-gradient(transparent 92%, var(--rain)); border-radius: 2px;
+    animation: fall calc(var(--d) * var(--pace)) linear infinite; }
+@keyframes fall { from { transform: translateY(-100%); } to { transform: translateY(10%); } }
+.splash { width: 4.5%; aspect-ratio: 4 / 1; margin: -1% 0 0 -2.25%; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.7); animation: splash calc(1.8s * var(--pace)) ease-out infinite; }
+@keyframes splash { from { transform: scale(.15); opacity: 1; } to { transform: scale(1); opacity: 0; } }
+
+/* Snow: slow, drifting from side to side */
+.snow { position: absolute; inset: -5% 0; }
+.snow i { top: 0; height: 100%; width: 0; animation: fall calc(var(--d) * var(--pace)) linear infinite; }
+.snow b { bottom: 0; width: var(--s); height: var(--s); border-radius: 50%; background: #fff;
+    box-shadow: 0 0 3px rgba(40,60,90,.35); animation: waver calc(var(--w) * var(--pace)) ease-in-out infinite alternate; }
+.look-line .snow b { border: 1.5px solid #1b1b1b; box-shadow: none; }
+@keyframes waver { from { transform: translateX(-1.4vw); } to { transform: translateX(1.4vw); } }
+
+/* Wind: leaves blown across, tumbling; each track is the width of the scene */
+.leaves i { left: 0; width: 100%; height: 0; animation: blow calc(var(--d) * var(--pace)) linear infinite; }
+@keyframes blow { from { transform: translateX(-6%); } to { transform: translateX(106%); } }
+.leaves b { left: 0; width: 2.2vw; aspect-ratio: 5 / 3; border-radius: 0 100% 0 100%; border: 0 solid #1b1b1b;
+    animation: tumble calc(var(--w) * var(--pace)) ease-in-out infinite; }
+.leaves b.c0 { background: var(--leaf); } .leaves b.c1 { background: var(--leaf2); } .leaves b.c2 { background: var(--flower); }
+.look-line .leaves b { border-width: 2px; }
+@keyframes tumble { 0% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4vw) rotate(200deg); } 100% { transform: translateY(0) rotate(360deg); } }
+
+/* Fog: a haze, and wide bands of mist drifting slowly (each band repeats, so it loops seamlessly) */
+.haze { position: absolute; inset: 0; background: linear-gradient(transparent 10%, var(--mist) 140%); opacity: .8; }
+.mist { position: absolute; left: 0; width: 200%;
+    background: radial-gradient(closest-side, var(--mist), transparent) 0 0 / 25% 100% repeat-x;
+    animation: mist calc(var(--d) * var(--pace)) linear infinite; }
+@keyframes mist { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Rainbow: in the sky behind the scenery, fading out towards the horizon; fainter at night */
+.rainbow.on { opacity: .7; }
+.rainbow path { fill: none; stroke-width: 17; }
+.rainbow path:nth-child(1) { stroke: #f19a8f; } .rainbow path:nth-child(2) { stroke: #f7c47c; } .rainbow path:nth-child(3) { stroke: #f6e48d; }
+.rainbow path:nth-child(4) { stroke: #a9dc98; } .rainbow path:nth-child(5) { stroke: #95c8ee; } .rainbow path:nth-child(6) { stroke: #c0a6e6; }
+.look-line .rainbow.on { opacity: .85; }
+.look-line .rainbow path:nth-child(1) { stroke: #ea5a47; } .look-line .rainbow path:nth-child(2) { stroke: #f4aa41; } .look-line .rainbow path:nth-child(3) { stroke: #fcea2b; }
+.look-line .rainbow path:nth-child(4) { stroke: #5c9e31; } .look-line .rainbow path:nth-child(5) { stroke: #61b2e4; } .look-line .rainbow path:nth-child(6) { stroke: #b399c8; }
+.look-night .rainbow.on { opacity: .3; }
+
+/* Thunder: one slow, soft glow in the sky (a second to brighten), never a flash; above the
+   darker sky but behind the animals */
+.glow { left: var(--gx, 50%); top: -35%; width: 70%; height: 95%; transform: translateX(-50%); opacity: 0; z-index: 1;
+    background: radial-gradient(closest-side, rgba(255,250,232,.55), transparent); }
+.glow.strike { animation: strike 4s ease-in-out; }
+@keyframes strike { 0% { opacity: 0; } 25% { opacity: 1; } 40% { opacity: .8; } 100% { opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) {
-    .cloud, .sway, .ring, .f-star, .ray, .animal img { animation: none !important; }
+    .cloud, .sway, .ring, .f-star, .ray, .animal img, .mist { animation: none !important; }
     .stage, .night-only, .day-only, .ol { transition-duration: .01s !important; }
     .animal.moving { transition-duration: .01s; }
+    /* Weather that only makes sense moving is left out; the sky, mist and rainbow stay */
+    .rain, .snow, .leaves, .splash, .glow { display: none !important; }
 }
 
 /* ── Set-up: the adult's full screen, over the scene ── */

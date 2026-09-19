@@ -19,20 +19,26 @@ Birds has three scenes, each with its own track: 🌳 **Garden** (room for 10 bi
 Set-up shows how many birds each scene has room for, and where. Birds is the template for the other
 themes: a theme's animals and switch jobs are shared by all its scenes (`scenes/art.js`).
 
+Any scene can have **weather**, one at a time, fading in and out: 🌧️ Rain (with rings on the water),
+⛈️ Storm (rain, a darker sky, and now and then a slow soft glow in the sky and far-off thunder, never a
+sharp flash), ❄️ Snow, 🍃 Wind (leaves blow across and the trees lean), 🌫️ Fog and 🌈 Rainbow. Rain and
+wind have their own quiet sounds.
+
 Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
 screen too):
 - **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, when animals leave (never,
-  when touched, or after 30 seconds to 2 minutes without being touched or called), and how long look
-  changes take to fade (2 to 20 seconds).
+  when touched, or after 30 seconds to 2 minutes without being touched or called), the weather it starts
+  with (Clear by default), and how long look and weather changes take to fade (2 to 20 seconds).
 - **Switches** — add up to twelve switches: tap Learn and press the switch (SimplyWorks, Bluetooth,
   keyboard, Xbox Adaptive Controller), pick a colour to match the real switch, and give each a job:
   bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 🗺️ Next scene, 👋 Goodbye
-  (the longest-staying animal leaves), 🌙 Everyone leaves, or nothing. Five switches are always ready to learn.
+  (the longest-staying animal leaves), 🌙 Everyone leaves, a weather (each starts it, or stops it if it's
+  already there), 🌦️ Next weather, ⚡ Thunder, or nothing. Five switches are always ready to learn.
   Switch labels in those colours can be shown along the top of the screen. Keys and buttons that
   aren't learned do something random (or nothing), so any switch works straight away. Look changes
   fade gently rather than jump.
-- **Sound** — animal sounds and background sound, each Off, Quiet, Medium or Loud, and the background
-  track: the scene's own, or any of Garden birdsong, Woodland and Lakeside water.
+- **Sound** — animal sounds, background sound and weather sounds, each Off, Quiet, Medium or Loud, and the
+  background track: the scene's own, or any of Garden birdsong, Woodland and Lakeside water.
 
 
 ## Activities
@@ -80,6 +86,7 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `scenes/art.js` | Each scene's drawing, spots and how its animals behave |
 | `scenes/scenes.js`, `scenes/setup.js`, `scenes/scenes.css` | Animal Scenes itself and its set-up screen |
 | `sounds/ambient/` | Background loops for Animal Scenes |
+| `sounds/weather/` | Rain, wind and thunder for Animal Scenes' weather |
 | `shared/hold.js`, `shared/hold.css` | The hold-to-open ⚙ button, used by both parts |
 | `dev/` | A test server and a walk-through of every theme and activity, for development (see `CLAUDE.md`) |
 | `styles.css` | Animal Activities' styling, including each theme's colours |

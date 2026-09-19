@@ -8,13 +8,26 @@
 // screens trim the sides, so spots stay between x 15% and 85%. Every shape takes
 // its colour from CSS variables per scene and look (Soft flat, Matching outlines,
 // Night-light) in scenes.css; `ol` marks shapes that get OpenMoji's black outline
-// in the Matching outlines look.
+// in the Matching outlines look. `splashes` are points on the water where rain
+// makes rings.
 
 // Background tracks: any scene can play any of them.
 const SceneTracks = {
     garden:   { label: 'Garden birdsong', file: 'sounds/ambient/garden.mp3' },
     woodland: { label: 'Woodland',        file: 'sounds/ambient/woodland.mp3' },
     lake:     { label: 'Lakeside water',  file: 'sounds/ambient/lake.mp3' },
+};
+
+// Weather: one at a time over any scene, fading in and out (drawn by scenes.js and
+// scenes.css). `sound` loops while it lasts, under the background track.
+const SceneWeather = {
+    rain:    { label: '🌧️ Rain',    sound: 'sounds/weather/rain.mp3', hint: "Rain starts falling, or stops if it's raining." },
+    storm:   { label: '⛈️ Storm',   sound: 'sounds/weather/rain.mp3',
+               hint: 'Rain and a darker sky; now and then the sky glows softly and thunder rumbles far away. Press again and the storm passes.' },
+    snow:    { label: '❄️ Snow',    hint: 'Snow starts falling, or stops.' },
+    wind:    { label: '🍃 Wind',    sound: 'sounds/weather/wind.mp3', hint: 'Leaves blow across and the trees lean, or the wind drops.' },
+    fog:     { label: '🌫️ Fog',     hint: 'Mist rolls in, or clears.' },
+    rainbow: { label: '🌈 Rainbow', hint: 'A rainbow fades in, or fades away.' },
 };
 
 const SceneArt = (() => {
@@ -110,6 +123,7 @@ const SceneArt = (() => {
                         { habitat: 'ground', x: 45, y: 88 }, { habitat: 'ground', x: 52, y: 78 },
                         { habitat: 'water', x: 70, y: 86 },  { habitat: 'water', x: 83, y: 87.5 },
                     ],
+                    splashes: [[62.5, 87.8], [70, 84.4], [78.8, 88.9], [86.3, 85.6], [75, 91]],
                 },
 
                 woodland: {
@@ -145,6 +159,7 @@ const SceneArt = (() => {
                         { habitat: 'ground', x: 25, y: 88 }, { habitat: 'ground', x: 36, y: 82 }, { habitat: 'ground', x: 48, y: 87 },
                         { habitat: 'water', x: 72.5, y: 94 }, { habitat: 'water', x: 82, y: 93 },
                     ],
+                    splashes: [[56, 97.5], [65.5, 94.5], [74, 96], [84.5, 92.5], [92.5, 90]],
                 },
 
                 lake: {
@@ -172,6 +187,7 @@ const SceneArt = (() => {
                         { habitat: 'water', x: 31, y: 73 },     { habitat: 'water', x: 44, y: 82 },   { habitat: 'water', x: 54, y: 92 },
                         { habitat: 'water', x: 57, y: 70 },     { habitat: 'water', x: 72, y: 88 },
                     ],
+                    splashes: [[37.5, 66.7], [43.8, 71], [53, 77.8], [68.8, 73.3], [59.4, 91], [81, 86.7]],
                 },
             },
         },

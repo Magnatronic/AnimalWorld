@@ -16,9 +16,11 @@ const SCENE_DEFAULTS = {
     others:        'anything', // what keys and buttons that aren't numbered switches do: 'anything' (Random) | 'nothing'
     stay:          0,          // when animals leave: 0 never (unless a newcomer needs the spot), -1 when touched,
                                // or seconds after they were last touched or called
-    fade:          5,          // seconds a change of look takes
+    fade:          5,          // seconds a change of look or weather takes
+    weather:       'clear',    // the weather a scene starts with: 'clear' or a SceneWeather id
     animalVolume:  1,
     ambientVolume: 0.5,        // the background loop; 0 = off
+    weatherVolume: 0.5,        // rain, wind and thunder; 0 = off
     jobs:          {},         // { theme: { switchId: animal name | a scene job (see SCENE_JOBS) | 'nothing' } }
 };
 const sceneSettings = loadSceneSettings();
@@ -39,11 +41,14 @@ function saveSceneSettings() {
     try { localStorage.setItem(SCENES_KEY, JSON.stringify(sceneSettings)); } catch (e) {}
 }
 
-/* ── The background loop: two players crossfading, so the join is never heard ── */
-const Ambient = (() => {
+/* ── Background loops: two players crossfading, so the join is never heard ── */
+// Used for the scene's track and for each weather sound. Fades take `seconds`.
+function makeLooper() {
     const CROSSFADE = 3;              // seconds
-    let players = [], active = 0, level = 0, timer = null;
+    let players = [], active = 0, level = 0, timer = null, step = 0, url = null;
 
+    // Set how fast volumes move, so a fade across `span` takes `seconds`.
+    function ramp(seconds, span) { step = Math.max(span, 0.05) / (Math.max(seconds, 0.1) * 10); }
     function begin(i) {
         const p = players[i];
         active = i;
@@ -53,23 +58,27 @@ const Ambient = (() => {
     }
     function tick() {
         const cur = players[active];
-        if (cur.duration && cur.currentTime >= cur.duration - CROSSFADE) {
+        if (level && cur.duration && cur.currentTime >= cur.duration - CROSSFADE) {
             cur.target = 0;           // this play fades out as the next starts from the top
+            ramp(CROSSFADE, level);
             begin(1 - active);
         }
-        const step = Math.max(level, 0.05) / (CROSSFADE * 10);
         players.forEach(p => {
             const v = p.volume + Math.max(-step, Math.min(step, p.target - p.volume));
             p.volume = Math.max(0, Math.min(1, v));
             if (p.volume === 0 && p.target === 0 && !p.paused) p.pause();
         });
+        if (!level && players.every(p => p.paused)) stop();
     }
-    function start(url, volume) {
+    function start(file, volume, seconds = CROSSFADE) {
+        if (file === url && players.length) { setLevel(volume, file, seconds); return; }
         stop();
         level = volume;
-        if (!url || !level) return;
-        players = [new Audio(url), new Audio(url)];
+        if (!file || !level) return;
+        url = file;
+        players = [new Audio(file), new Audio(file)];
         players.forEach(p => { p.volume = 0; p.target = 0; });
+        ramp(seconds, level);
         begin(0);
         timer = setInterval(tick, 100);
     }
@@ -78,15 +87,25 @@ const Ambient = (() => {
         timer = null;
         players.forEach(p => p.pause());
         players = [];
+        url = null;
     }
-    function setLevel(volume, url) {
-        if (!players.length) { start(url, volume); return; }
+    function setLevel(volume, file, seconds = CROSSFADE) {
+        if (!players.length) { start(file, volume, seconds); return; }
+        ramp(seconds, Math.max(level, volume));
         level = volume;
-        if (!level) { stop(); return; }
         players[active].target = level;
+        players[1 - active].target = 0;
     }
-    return { start, stop, setLevel };
-})();
+    // Fade to silence, then stop.
+    function fadeOut(seconds = CROSSFADE) {
+        if (!players.length) return;
+        ramp(seconds, Math.max(...players.map(p => p.volume)));
+        level = 0;
+        players.forEach(p => { p.target = 0; });
+    }
+    return { start, stop, setLevel, fadeOut };
+}
+const Ambient = makeLooper();
 
 /* ── The scene ── */
 const stage  = document.getElementById('stage');
@@ -96,13 +115,14 @@ let art = null;             // the theme's SceneArt merged with the chosen scene
 let cast = {};              // name → { el, def, sound, spot, arrivedAt, calledAt, leaving }
 let spots = [];             // art.spots, each with .animal = name or null
 let liveLook = null;        // the look on screen: set-up's choice, changed by the Day / night and Next look jobs
+let liveWeather = SceneWeather[sceneSettings.weather] ? sceneSettings.weather : 'clear';   // changed by weather jobs
 let started = false;
 let calling = null;         // the animal sound playing now; one at a time
 
-// Changing the class fades the scene to the new look (see "look changes" in scenes.css).
+// Changing the class fades the scene to the new look and weather (see "look changes" in scenes.css).
 function applyLook() {
     const t = sceneSettings.theme;
-    stage.className = `stage scene-${t} scene-${t}-${art.id} look-${liveLook || sceneSettings.look}`;
+    stage.className = `stage scene-${t} scene-${t}-${art.id} look-${liveLook || sceneSettings.look} wx-${liveWeather}`;
     stage.style.setProperty('--pace', sceneSettings.pace);
     stage.style.setProperty('--fade', sceneSettings.fade + 's');
 }
@@ -148,6 +168,7 @@ function buildScene() {
         const spot = freeSpot(cast[name].def.habitat);
         if (spot) settle(name, spot);
     });
+    showWeather(false);
     renderLabels();
 }
 
@@ -287,8 +308,9 @@ const SCENE_JOBS = {
     clear:    { label: '🌙 Everyone leaves', hint: 'All the animals leave. Other switches bring them back.' },
     nextscene:{ label: '🗺️ Next scene',      hint: 'Fades to the next scene for this theme.' },
 };
+function jobInfo(job) { return SCENE_JOBS[job] || WEATHER_JOBS[job]; }
 function jobLabel(job) {
-    return job === 'nothing' ? 'Nothing' : SCENE_JOBS[job] ? SCENE_JOBS[job].label : job;
+    return job === 'nothing' ? 'Nothing' : jobInfo(job) ? jobInfo(job).label : job;
 }
 
 // The background track playing: the scene's own, or the one chosen in set-up.
@@ -321,8 +343,133 @@ function everyoneLeaves() {
     Object.keys(cast).filter(n => cast[n].spot).forEach((n, i) => setTimeout(() => leave(n), i * 350));
 }
 
+/* ── Weather ── */
+// One weather at a time. Some of it is behind the animals (a darker sky, mist, rings
+// on the water; a rainbow goes into the sky itself, behind the scenery) and some in
+// front (raindrops, snowflakes, leaves), so the animals stay clear. Each fades in and out over the "Look changes" time,
+// and is only on the page while it shows. Thunder is a slow, soft glow in the sky
+// and a distant rumble: never a sharp flash.
+const WEATHER_JOBS = {
+    ...Object.fromEntries(Object.entries(SceneWeather).map(([id, w]) => [id, { label: w.label, hint: w.hint }])),
+    nextweather: { label: '🌦️ Next weather', hint: 'Fades to the next weather: clear, rain, rainbow, wind, fog, snow. (Storm only comes from its own job.)' },
+    thunder:     { label: '⚡ Thunder',       hint: 'The sky glows softly and thunder rumbles far away, whatever the weather.' },
+};
+const WEATHER_CYCLE = ['clear', 'rain', 'rainbow', 'wind', 'fog', 'snow'];
+const weatherLoops = {};    // sound file → its looper
+let weatherShown = [];      // the live weather's elements
+let nextThunder = 0;
+let lastThunder = 0;
+let rumble = null;
+
+function drawWeather(id) {
+    const n = (count, make) => Array.from({ length: count }, (_, i) => make(i)).join('');
+    // Each falling or blowing thing runs along a track the size of the scene, so
+    // its motion is a transform (smooth, and cheap for the browser).
+    const rain = count => `<div class="rain">${n(count, () =>
+        `<i style="left:${rand(-5, 105).toFixed(1)}%;--d:${rand(0.75, 1.1).toFixed(2)}s;animation-delay:${rand(-2, 0).toFixed(2)}s"></i>`)}</div>`;
+    const overcast = deep => `<div class="overcast"></div>${deep ? '<div class="overcast deep"></div>' : ''}`;
+    const splashes = () => (art.splashes || []).map(([x, y]) => [0, 1].map(k =>
+        `<i class="splash" style="left:${(x + k * 2.5).toFixed(1)}%;top:${(y - k).toFixed(1)}%;animation-delay:${rand(-2, 0).toFixed(2)}s"></i>`).join('')).join('');
+    const parts = {
+        rain:  [overcast(false) + splashes(), rain(70)],
+        storm: [overcast(true) + splashes(), rain(90)],
+        snow:  [overcast(false), `<div class="snow">${n(70, () =>
+            `<i style="left:${rand(-3, 103).toFixed(1)}%;--d:${rand(11, 19).toFixed(1)}s;animation-delay:${rand(-19, 0).toFixed(1)}s"><b style="--s:${rand(0.4, 0.95).toFixed(2)}vw;--w:${rand(2.5, 4.5).toFixed(1)}s"></b></i>`)}</div>`],
+        wind:  ['', `<div class="leaves">${n(22, i =>
+            `<i style="top:${rand(8, 80).toFixed(1)}%;--d:${rand(6, 10).toFixed(1)}s;animation-delay:${rand(-10, 0).toFixed(1)}s"><b class="c${i % 3}" style="--w:${rand(2.5, 4).toFixed(1)}s"></b></i>`)}</div>`],
+        fog:   [`<div class="haze"></div>${[[20, 26, 70], [42, 30, 95], [60, 34, 80]].map(([top, h, d], i) =>
+            `<div class="mist" style="top:${top}%;height:${h}%;--d:${d}s;animation-delay:${-d * (0.2 + i * 0.3)}s"></div>`).join('')}`, ''],
+        rainbow: ['', ''],
+    };
+    const [back, front] = parts[id] || ['', ''];
+    const shown = [];
+    if (id === 'rainbow') {
+        // Into the scene's drawing, just after the sun and moon, so clouds, hills and trees are in front.
+        const svg = document.querySelector('#bg svg');
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'wx rainbow');
+        g.setAttribute('mask', 'url(#rainbow-fade)');
+        g.innerHTML = `<defs><linearGradient id="rainbow-grad" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="0" y2="700">
+            <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>
+            <mask id="rainbow-fade"><rect width="1600" height="900" fill="url(#rainbow-grad)"/></mask></defs>` +
+            n(6, i => `<path d="M${240 + i * 16} 740 A ${560 - i * 16} ${560 - i * 16} 0 0 1 ${1360 - i * 16} 740"/>`);
+        const moon = svg.querySelector('.f-moon').parentNode;
+        moon.after(g);
+        shown.push(g);
+    }
+    [[back, 'wx-back'], [front, 'wx-front']].forEach(([html, where]) => {
+        if (!html) return;
+        const el = document.createElement('div');
+        el.className = 'wx';
+        el.innerHTML = html;
+        document.getElementById(where).appendChild(el);
+        shown.push(el);
+    });
+    return shown;
+}
+
+// Show the live weather: at once (a new scene), or fading from the last.
+function showWeather(fade) {
+    const ms = sceneSettings.fade * 1000;
+    weatherShown.forEach(el => {
+        if (!fade) { el.remove(); return; }
+        el.classList.remove('on');
+        setTimeout(() => el.remove(), ms + 500);
+    });
+    weatherShown = drawWeather(liveWeather);
+    if (fade) void stage.offsetWidth;          // so the new weather fades in from nothing
+    weatherShown.forEach(el => el.classList.add('on'));
+    applyLook();
+    weatherSound();
+}
+
+// Rain and wind have sounds; they fade with the weather, under the background track.
+function weatherSound() {
+    const w = SceneWeather[liveWeather];
+    const file = started && w && w.sound && sceneSettings.weatherVolume > 0 ? w.sound : null;
+    const fade = Math.max(sceneSettings.fade, 2);
+    Object.entries(weatherLoops).forEach(([f, loop]) => { if (f !== file) loop.fadeOut(fade); });
+    if (file) (weatherLoops[file] = weatherLoops[file] || makeLooper()).start(file, sceneSettings.weatherVolume, fade);
+}
+
+function setWeather(id) {
+    liveWeather = SceneWeather[id] ? id : 'clear';
+    // A new storm's first thunder comes once it has mostly faded in.
+    if (liveWeather === 'storm') nextThunder = Date.now() + Math.min(sceneSettings.fade, 8) * 1000 + 2000;
+    showWeather(true);
+}
+
+// A slow glow somewhere in the sky, then a rumble a moment later, as if far away.
+// Never more than one glow every few seconds, however often a switch is pressed,
+// so it can't build into flashing.
+function thunder() {
+    if (Date.now() - lastThunder < 6000) return;
+    lastThunder = Date.now();
+    const glow = document.getElementById('glow');
+    glow.style.setProperty('--gx', rand(20, 80).toFixed(0) + '%');
+    glow.classList.remove('strike'); void glow.offsetWidth; glow.classList.add('strike');
+    setTimeout(() => {
+        if (!(sceneSettings.weatherVolume > 0)) return;
+        if (rumble) rumble.pause();
+        rumble = new Audio(`sounds/weather/thunder-${1 + Math.floor(Math.random() * 3)}.mp3`);
+        rumble.volume = sceneSettings.weatherVolume;
+        rumble.play().catch(() => {});
+    }, rand(900, 2400));
+}
+function rand(a, b) { return a + Math.random() * (b - a); }
+
+// In a storm, thunder every 20 to 40 seconds (longer at the Slower speed, never shorter).
+setInterval(() => {
+    if (!started || setupOpen() || liveWeather !== 'storm' || Date.now() < nextThunder) return;
+    thunder();
+    nextThunder = Date.now() + rand(20, 40) * 1000 * Math.max(1, sceneSettings.pace);
+}, 1000);
+
 function doJob(job) {
     if (job === 'anything') anything();
+    else if (SceneWeather[job]) setWeather(liveWeather === job ? 'clear' : job);
+    else if (job === 'nextweather') setWeather(WEATHER_CYCLE[(WEATHER_CYCLE.indexOf(liveWeather) + 1) % WEATHER_CYCLE.length]);
+    else if (job === 'thunder') thunder();
     else if (job === 'daynight') {
         const day = sceneSettings.look === 'night' ? 'soft' : sceneSettings.look;
         liveLook = liveLook === 'night' ? day : 'night';
@@ -410,6 +557,7 @@ function start() {
     const root = document.documentElement;
     if (root.requestFullscreen && !document.fullscreenElement) root.requestFullscreen().catch(() => {});
     Ambient.start(trackUrl(), sceneSettings.ambientVolume);
+    weatherSound();
 }
 document.getElementById('start').addEventListener('click', start);
 
@@ -427,6 +575,7 @@ function closeSetup() {
 }
 function leaveScenes() {
     Ambient.stop();
+    Object.values(weatherLoops).forEach(loop => loop.stop());
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     location.href = 'index.html';
 }
