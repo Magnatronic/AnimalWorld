@@ -109,7 +109,16 @@ function setScanForScreen(id) {
         case 'difficulty':     startScan([q('#difficulty .back-btn'),     ...qa('#difficulty .diff-btn')]); break;
         case 'memory':         startScan([q('#memory .back-btn'),         ...qa('#memory-grid .mem-card')]); break;
         case 'wam-difficulty': startScan([q('#wam-difficulty .back-btn'), ...qa('#wam-difficulty .diff-btn')]); break;
-        case 'wam-game':       startScan([q('#wam-game .back-btn'),       ...qa('.wam-hole')]); break;
+        case 'wam-game':
+            // Relaxed: scan just the waiting animal, then Back, so one press whacks it.
+            // Between animals nothing is highlighted, so a press can't land on Back by accident.
+            if (wamRelaxed) {
+                const animal = q('.wam-hole.active:not(.whacked)');
+                if (animal) startScan([animal, q('#wam-game .back-btn')]); else stopScan();
+            } else {
+                startScan([q('#wam-game .back-btn'), ...qa('.wam-hole')]);
+            }
+            break;
         case 'fta-difficulty': startScan([q('#fta-difficulty .back-btn'), ...qa('#fta-difficulty .diff-btn')]); break;
         case 'fta-game':       startScan([q('#fta-game .back-btn'),        ...qa('#fta-grid .fta-card')]); break;
     }
@@ -402,31 +411,52 @@ function hideWin() {
 }
 
 /* ══ WHACK-A-MOLE ══ */
+// Relaxed has no clock and no auto-hide: each animal waits to be tapped.
 const WAM_CONFIGS = {
+    relaxed: { simultaneous: 1, relaxed: true },
     starter: { simultaneous: 1, showMs: 3500, tickMs: 2000, stars: [5, 10, 16] },
     easy:    { simultaneous: 1, showMs: 2500, tickMs: 1500, stars: [8, 14, 20] },
     medium:  { simultaneous: 2, showMs: 2000, tickMs: 1100, stars: [12, 20, 28] },
     hard:    { simultaneous: 3, showMs: 1500, tickMs:  750, stars: [16, 26, 36] },
 };
 
-const WAM_HOLES = 9;
+// Grid shape for each hole count the Games settings offer.
+const WAM_LAYOUTS = { 4: [2, 2], 6: [3, 2], 9: [3, 3] };
+
 let wamConfigKey = null;
+let wamRelaxed   = false;
+let wamRunning   = false;
 let wamScore     = 0;
+let wamTarget    = 0;     // Relaxed: animals in the round, 0 = no limit
 let wamTimeLeft  = 30;
 let wamTimer     = null;
 let wamPopper    = null;
 
 function showWamDifficulty() {
+    const count = settings.wam.relaxedCount;
+    document.getElementById('wam-relaxed-sub').textContent =
+        'No timer · ' + (count ? count + ' animals' : 'keeps going') + ' · waits for you';
     const theme = themes[currentThemeKey];
     const screen = document.getElementById('wam-difficulty');
     screen.className = 'screen active ' + theme.css;
     show('wam-difficulty');
 }
 
+function stopWamTimers() {
+    wamRunning = false;
+    clearInterval(wamTimer);
+    clearInterval(wamPopper);   // also clears Relaxed's setTimeout; they share one id pool
+}
+
 function startWam(configKey) {
+    stopWamTimers();
+    const cfg    = WAM_CONFIGS[configKey];
     wamConfigKey = configKey;
+    wamRelaxed   = !!cfg.relaxed;
+    wamRunning   = true;
     wamScore     = 0;
-    wamTimeLeft  = 30;
+    wamTarget    = wamRelaxed ? settings.wam.relaxedCount : 0;
+    wamTimeLeft  = settings.wam.roundSecs;
 
     const theme  = themes[currentThemeKey];
     const screen = document.getElementById('wam-game');
@@ -435,9 +465,13 @@ function startWam(configKey) {
     document.getElementById('wam-overlay').classList.remove('visible');
 
     // Build holes
+    const holes = settings.wam.holes;
+    const [cols, rows] = WAM_LAYOUTS[holes] || WAM_LAYOUTS[9];
     const grid = document.getElementById('wam-grid');
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    grid.style.gridTemplateRows    = `repeat(${rows}, 1fr)`;
     grid.innerHTML = '';
-    for (let i = 0; i < WAM_HOLES; i++) {
+    for (let i = 0; i < cols * rows; i++) {
         const hole = document.createElement('div');
         hole.className = 'wam-hole';
         hole.innerHTML = `
@@ -453,9 +487,12 @@ function startWam(configKey) {
     updateWamHud();
     show('wam-game');
 
-    const cfg = WAM_CONFIGS[configKey];
-    wamTimer  = setInterval(wamTick, 1000);
-    wamPopper = setInterval(() => popAnimal(cfg), cfg.tickMs);
+    if (wamRelaxed) {
+        wamPopper = setTimeout(() => popAnimal(cfg), 800);
+    } else {
+        wamTimer  = setInterval(wamTick, 1000);
+        wamPopper = setInterval(() => popAnimal(cfg), cfg.tickMs);
+    }
 }
 
 function replayWam() {
@@ -464,14 +501,14 @@ function replayWam() {
 }
 
 function stopWam() {
-    clearInterval(wamTimer);
-    clearInterval(wamPopper);
+    stopWamTimers();
     document.querySelectorAll('.wam-hole').forEach(h => retractHole(h));
     document.getElementById('wam-overlay').classList.remove('visible');
     showWamDifficulty();
 }
 
 function popAnimal(cfg) {
+    if (!wamRunning) return;
     const active = document.querySelectorAll('.wam-hole.active').length;
     if (active >= cfg.simultaneous) return;
 
@@ -491,8 +528,9 @@ function popAnimal(cfg) {
     hole.dataset.name  = animal.name;
     hole.classList.add('active');
 
-    // Auto-retract after showMs
-    hole._wamTimer = setTimeout(() => retractHole(hole), cfg.showMs);
+    // Auto-retract after showMs; Relaxed animals wait for the tap instead.
+    if (cfg.relaxed) setScanForScreen('wam-game');
+    else hole._wamTimer = setTimeout(() => retractHole(hole), cfg.showMs);
 }
 
 function retractHole(hole) {
@@ -517,7 +555,12 @@ function whackHole(hole) {
     void scoreEl.offsetWidth;
     scoreEl.classList.add('pulse');
 
-    setTimeout(() => retractHole(hole), 380);
+    setTimeout(() => {
+        retractHole(hole);
+        if (!wamRelaxed || !wamRunning) return;
+        if (wamTarget && wamScore >= wamTarget) endWam();
+        else wamPopper = setTimeout(() => popAnimal(WAM_CONFIGS.relaxed), 600);
+    }, 380);
 }
 
 function wamTick() {
@@ -528,7 +571,10 @@ function wamTick() {
 
 function updateWamHud() {
     document.getElementById('wam-score').textContent = wamScore;
-    document.getElementById('wam-timer').textContent = wamTimeLeft;
+    // The second box counts down the clock, or the animals left in a Relaxed round.
+    document.getElementById('wam-timer-stat').style.display = wamRelaxed && !wamTarget ? 'none' : '';
+    document.getElementById('wam-timer-label').textContent  = wamRelaxed ? 'To go' : 'Time';
+    document.getElementById('wam-timer').textContent        = wamRelaxed ? (wamTarget ? wamTarget - wamScore : '') : wamTimeLeft;
 }
 
 /* ── FIND THE ANIMAL ── */
@@ -709,15 +755,18 @@ function ftaComplete() {
 }
 
 function endWam() {
-    clearInterval(wamTimer);
-    clearInterval(wamPopper);
+    stopWamTimers();
     document.querySelectorAll('.wam-hole').forEach(h => retractHole(h));
 
     setTimeout(() => {
-        const thresholds = WAM_CONFIGS[wamConfigKey].stars;
-        const stars = wamScore >= thresholds[2] ? '⭐⭐⭐'
-                    : wamScore >= thresholds[1] ? '⭐⭐'
-                    : '⭐';
+        // Star thresholds are set for a 30-second round; scale them to the round played.
+        let stars = '⭐⭐⭐';
+        if (!wamRelaxed) {
+            const scale = settings.wam.roundSecs / 30;
+            const [, two, three] = WAM_CONFIGS[wamConfigKey].stars.map(n => Math.round(n * scale));
+            stars = wamScore >= three ? '⭐⭐⭐' : wamScore >= two ? '⭐⭐' : '⭐';
+        }
+        document.getElementById('wam-end-title').textContent = wamRelaxed ? 'All done!' : "Time's up!";
         document.getElementById('wam-stars').textContent = stars;
         document.getElementById('wam-final-score').textContent = wamScore;
         const wamOv = document.getElementById('wam-overlay');

@@ -176,6 +176,13 @@
         <h2 class="screen-title">Choose difficulty</h2>
     </div>
     <div class="diff-list">
+        <button class="diff-btn diff-relaxed" onclick="startWam('relaxed')">
+            <span class="diff-icon">🐢</span>
+            <span class="diff-text">
+                <span class="diff-title">Relaxed</span>
+                <span class="diff-sub" id="wam-relaxed-sub">No timer · waits for you</span>
+            </span>
+        </button>
         <button class="diff-btn diff-starter" onclick="startWam('starter')">
             <span class="diff-icon">🟢</span>
             <span class="diff-text">
@@ -218,8 +225,8 @@
             <div class="wam-stat-label">Score</div>
             <div class="wam-stat-value" id="wam-score">0</div>
         </div>
-        <div class="wam-stat">
-            <div class="wam-stat-label">Time</div>
+        <div class="wam-stat" id="wam-timer-stat">
+            <div class="wam-stat-label" id="wam-timer-label">Time</div>
             <div class="wam-stat-value" id="wam-timer">30</div>
         </div>
     </div>
@@ -230,7 +237,7 @@
 <div class="win-overlay" id="wam-overlay">
     <div class="win-box">
         <div class="win-stars" id="wam-stars">⭐⭐⭐</div>
-        <div class="win-title">Time's up!</div>
+        <div class="win-title" id="wam-end-title">Time's up!</div>
         <div class="wam-score-big" id="wam-final-score">0</div>
         <div class="wam-score-label">animals whacked</div>
         <div class="win-buttons">
@@ -324,6 +331,7 @@
         </div>
         <div class="settings-tabs">
             <button class="settings-tab active" data-tab="switch">♿ Switch</button>
+            <button class="settings-tab" data-tab="games">🎮 Games</button>
             <button class="settings-tab" data-tab="sound">🔊 Sound</button>
         </div>
 
@@ -370,6 +378,39 @@
                 <div class="setting-opts" data-setting="scan.anyKey">
                     <button class="setting-opt" data-value="false">Space / Enter</button>
                     <button class="setting-opt" data-value="true">Any Key</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-pane" data-pane="games">
+            <div class="setting-section">🔨 Whack-a-Mole</div>
+
+            <div class="setting-group">
+                <span class="setting-label">Holes</span>
+                <div class="setting-opts" data-setting="wam.holes">
+                    <button class="setting-opt" data-value="4">4</button>
+                    <button class="setting-opt" data-value="6">6</button>
+                    <button class="setting-opt" data-value="9">9</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-label">Relaxed level: animals per round</span>
+                <div class="setting-opts" data-setting="wam.relaxedCount">
+                    <button class="setting-opt" data-value="5">5</button>
+                    <button class="setting-opt" data-value="10">10</button>
+                    <button class="setting-opt" data-value="15">15</button>
+                    <button class="setting-opt" data-value="0">Until I stop</button>
+                </div>
+                <p class="setting-note">Relaxed has no timer: each animal waits until it is tapped.</p>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-label">Timed levels: round length</span>
+                <div class="setting-opts" data-setting="wam.roundSecs">
+                    <button class="setting-opt" data-value="30">30 seconds</button>
+                    <button class="setting-opt" data-value="60">60 seconds</button>
+                    <button class="setting-opt" data-value="90">90 seconds</button>
                 </div>
             </div>
         </div>

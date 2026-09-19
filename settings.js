@@ -12,6 +12,11 @@ const DEFAULT_SETTINGS = {
         loops:          0,   // 0 = continuous, n = stop after n loops
         anyKey:     false,   // true = any keydown acts as switch
     },
+    wam: {
+        holes:          9,   // 4, 6 or 9
+        relaxedCount:  10,   // animals in a Relaxed round; 0 = until the adult stops it
+        roundSecs:     30,   // length of a timed round
+    },
     sound: {
         volume:         1,   // 0.3 quiet, 0.6 medium, 1 loud
         speakNames: false,   // say every animal's name after its sound, not just fish
