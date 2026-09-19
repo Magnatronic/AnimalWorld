@@ -188,18 +188,19 @@ body {
 .activity-btn .act-sub   { display: block; font-size: 0.65em; opacity: 0.8; font-weight: 700; margin-top: 2px; }
 
 /* ── ANIMAL EXPLORER ── */
+/* fitAnimalGrid() in app.js sets the columns and rows that give the biggest
+   cards for this many animals on this screen. .scroll is its fallback when
+   even the best fit would make cards too small: fixed-size cards that scroll. */
 .animal-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(220px, 44vw), 1fr));
     gap: clamp(10px, 1.8vw, 18px);
     padding: 10px 16px 28px;
     flex: 1;
     min-height: 0;
-    align-content: stretch;
 }
-
-.animal-card {
-    max-height: 260px;
+.animal-grid.scroll {
+    grid-template-columns: repeat(auto-fill, minmax(min(200px, 44vw), 1fr));
+    grid-auto-rows: 230px;
 }
 
 .animal-card {
@@ -218,7 +219,10 @@ body {
     position: relative;
     outline: 4px solid transparent;
     outline-offset: 2px;
-    container-type: inline-size;
+    /* size, not just width, so the picture can fit whichever way the card is longer */
+    container-type: size;
+    min-width: 0;
+    min-height: 0;
 }
 .animal-card:active { transform: scale(0.93); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 .animal-card.playing { outline-color: #FFD700; animation: pulse-ring 0.6s ease-out; }
@@ -246,14 +250,14 @@ body {
 }
 
 .animal-img {
-    width: 60%;
+    width: min(70cqw, 62cqh);
     aspect-ratio: 1;
     object-fit: contain;
     pointer-events: none;
 }
 
 .animal-name {
-    font-size: clamp(0.8rem, 3cqi, 1.2rem);
+    font-size: clamp(0.8rem, 7cqmin, 1.6rem);
     font-weight: 900;
     text-align: center;
     line-height: 1.2;
@@ -1069,7 +1073,9 @@ body.area-size-80, body.area-size-60 {
 /* The adult controls move up out of the students' reach. */
 .area-size-80 .scan-bar, .area-size-60 .scan-bar { top: 16px; bottom: auto; }
 .area-size-80 .hold-hint, .area-size-60 .hold-hint { bottom: auto; top: calc(100% + 10px); }
-.area-size-80 .credit, .area-size-60 .credit, .nav-bottom .credit { top: 6px; bottom: auto; }
+.area-size-80 .credit, .area-size-60 .credit { top: 6px; bottom: auto; }
+/* Full size with the bar at the bottom: sit in the empty middle of that bar, clear of the cards */
+body.nav-bottom:not(.area-size-80):not(.area-size-60) .credit { left: 50%; transform: translateX(-50%); }
 
 /* Title bar and Back button along the bottom, where they can be reached */
 .nav-bottom .screen-header {

@@ -291,8 +291,47 @@ function showAnimals() {
     });
 
     show('animals', true);
+    fitAnimalGrid();
     setScanForScreen('animals');
 }
+
+// Lay the explorer out as the grid that gives the biggest cards for this many
+// animals on this screen: 12 fish on a wide screen become 6 × 2, not 8 + 4.
+const CARD_ASPECT = 1.1;   // card height : width that suits a picture above a name
+const MIN_CARD    = 150;   // px; below this, fall back to scrolling cards
+
+function fitAnimalGrid() {
+    const grid  = document.getElementById('animal-grid');
+    const count = grid.children.length;
+    if (!count) return;
+    const css    = getComputedStyle(grid);
+    const gap    = parseFloat(css.columnGap) || 0;
+    const header = document.querySelector('#animals .screen-header');
+    const width  = grid.clientWidth - parseFloat(css.paddingLeft) - parseFloat(css.paddingRight);
+    const height = window.innerHeight - header.offsetHeight - parseFloat(css.paddingTop) - parseFloat(css.paddingBottom);
+
+    let best = null;
+    for (let cols = 1; cols <= count; cols++) {
+        const rows  = Math.ceil(count / cols);
+        const cellW = (width  - gap * (cols - 1)) / cols;
+        const cellH = (height - gap * (rows - 1)) / rows;
+        const size  = Math.min(cellW, cellH / CARD_ASPECT);   // widest card that fits a cell
+        const empty = cols * rows - count;
+        // Bigger cards win; on a near tie, prefer the fuller last row.
+        if (!best || size > best.size + 1 || (size > best.size - 1 && empty < best.empty)) {
+            best = { cols, rows, size, empty };
+        }
+    }
+
+    const scroll = best.size < MIN_CARD;
+    grid.classList.toggle('scroll', scroll);
+    grid.style.gridTemplateColumns = scroll ? '' : `repeat(${best.cols}, 1fr)`;
+    grid.style.gridTemplateRows    = scroll ? '' : `repeat(${best.rows}, 1fr)`;
+}
+
+window.addEventListener('resize', () => {
+    if (document.getElementById('animals').classList.contains('active')) fitAnimalGrid();
+});
 
 function showDifficulty() {
     hideWin();
