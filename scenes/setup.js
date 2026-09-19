@@ -40,13 +40,52 @@ function switchRow(slot, i) {
 }
 
 function jobHint(job) {
+    if (SceneWeather[job]) return SceneWeather[job].hint + (building()
+        ? ` Each press makes it stronger, in three steps${job === 'storm' ? ', with thunder' : ''}; left alone, it eases off.`
+        : ' Press again to stop it.');
     if (jobInfo(job)) return jobInfo(job).hint;
     if (job === 'nothing') return 'This switch does nothing in this scene.';
     return `The ${job.toLowerCase()} comes into the scene, or calls if it's already here.`;
 }
 
-// Set-up has three tabs; it reopens on the one last used.
-let setupTab = 'scene';
+// Set-up has five tabs; it opens on Presets, then reopens on the one last used.
+let setupTab = 'presets';
+
+const LOOK_NAMES = { soft: 'Soft flat', line: 'Matching outlines', night: 'Night-light' };
+
+// One line saying what a preset does.
+function presetSummary(p) {
+    const theme = SceneArt[p.theme] || SceneArt.birds;
+    const scene = theme.scenes[p.scene] || Object.values(theme.scenes)[0];
+    const weather = SceneWeather[presetValue(p, 'weather')];
+    const jobs = (p.jobs || []).slice(0, Switches.slots.length).map(jobLabel);
+    return [scene.name, LOOK_NAMES[presetValue(p, 'look')], weather ? weather.label : '☀️ Clear'].join(' · ') +
+        (jobs.length ? `<br>Switches: ${jobs.join(', ')}` : '');
+}
+
+function presetCard(p) {
+    const inUse = sceneSettings.preset === p.id;
+    const changed = inUse && presetDiffers(p);
+    return `
+        <div class="preset${inUse ? ' in-use' : ''}" data-id="${p.id}">
+            <div class="preset-top">
+                <span class="preset-name">${escapeHtml(p.name)}</span>
+                ${inUse ? `<span class="preset-state">${changed ? 'In use, changed since' : '✓ In use'}</span>` : ''}
+                <button class="preset-use">${inUse ? 'Start again' : 'Use'}</button>
+            </div>
+            <p class="preset-sum">${presetSummary(p)}</p>
+            <div class="preset-tools">
+                <button class="preset-update">Save changes here</button>
+                <button class="preset-rename">Rename</button>
+                <button class="preset-link">Link</button>
+                <button class="preset-delete">Delete</button>
+            </div>
+            <p class="preset-linkline" hidden></p>
+        </div>`;
+}
+function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
 // How many animals the scene has room for, and where.
 function roomText() {
@@ -68,6 +107,32 @@ function renderSetup() {
     const full = Switches.slots.length >= Switches.MAX;
     document.querySelectorAll('#setup-tabs .setup-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === setupTab));
     const sections = {
+        presets: `
+        <section>
+            <p class="setup-note">A preset is a saved set-up: scene, look, speed, weather and what each switch does.
+                Sound levels and the switches themselves stay as they are on this computer.</p>
+            <div class="preset-list">${presets.map(presetCard).join('') || '<p class="setup-note">No presets.</p>'}</div>
+            <div class="preset-new">
+                <input type="text" id="preset-name" maxlength="40" value="Preset ${presets.length + 1}" aria-label="Name for the new preset">
+                <button class="preset-add">+ Save as a new preset</button>
+            </div>
+            <p class="setup-note">Saves everything as it is set now. To change a preset: use it, change what you like, then tap
+                <strong>Save changes here</strong>. Each preset has a <strong>Link</strong> that opens Animal Scenes straight
+                into it, handy as a shortcut on the sensory-room computer.</p>
+            ${missingReadyPresets().length ? '<button class="preset-restore">Bring back the ready-made presets</button>' : ''}
+        </section>`,
+        weather: `
+        <section>
+            ${optRow("The scene's own weather", 'weather', [['clear', '☀️ Clear'], ...Object.entries(SceneWeather).map(([id, w]) => [id, w.label])])}
+            <p class="setup-note">The scene starts with this weather${building() ? ', and goes back to it when left alone' : ''}.
+                Give switches weather jobs (Switches tab) to change it while playing.</p>
+            ${optRow('Weather switches', 'weatherPress', [['build', 'Build up'], ['toggle', 'On / off']])}
+            <p class="setup-note">${building()
+                ? 'Each press makes the weather stronger, in three steps, and touching the sky does the same. Left alone, it eases back a step at a time.'
+                : 'A press turns that weather on; another press turns it off.'}</p>
+            ${building() ? optRow('Each step lasts', 'weatherEase', [[10, '10 seconds'], [20, '20 seconds'], [60, '1 minute']]) +
+                '<p class="setup-note">How long before the weather eases off a step, once nobody is pressing or touching the sky.</p>' : ''}
+        </section>`,
         scene: `
         <section>
             <h3>${themes[sceneSettings.theme].label}</h3>
@@ -78,8 +143,6 @@ function renderSetup() {
             ${optRow('Speed', 'pace', [[1.7, 'Slower'], [1, 'Normal'], [0.6, 'Faster']])}
             ${optRow('Animals leave', 'stay', [[0, 'Never'], [-1, 'When touched'], [30, 'After 30 seconds'], [60, 'After 1 minute'], [120, 'After 2 minutes']])}
             <p class="setup-note">${leaveHint()}</p>
-            ${optRow('Weather', 'weather', [['clear', '☀️ Clear'], ...Object.entries(SceneWeather).map(([id, w]) => [id, w.label])])}
-            <p class="setup-note">The weather the scene starts with. Give a switch a weather job to change it while playing.</p>
             ${optRow('Look changes', 'fade', [[2, 'Quick (2 s)'], [5, 'Gentle (5 s)'], [10, 'Slow (10 s)'], [20, 'Very slow (20 s)']])}
             <p class="setup-note">How long Day / night, Next look and the weather take to fade.</p>
         </section>`,
@@ -124,7 +187,7 @@ function setScene(key, value) {
     if (key === 'look') liveLook = value;
     if (key === 'look' || key === 'pace') applyLook();
     if (key === 'ambientVolume' && started) Ambient.setLevel(value, trackUrl());
-    if (key === 'weather') setWeather(value);
+    if (key === 'weather') { lastWeatherPress = Date.now(); setWeather(value); }
     if (key === 'weatherVolume') weatherSound();
     renderLabels();
     renderSetup();
@@ -141,9 +204,55 @@ async function learnInSetup(row) {
     renderLabels();
 }
 
+// Buttons that need two taps, so a stray one can't delete or overwrite anything.
+function confirmTap(btn, text) {
+    if (btn.classList.contains('confirm')) return true;
+    const before = btn.textContent;
+    btn.classList.add('confirm');
+    btn.textContent = text;
+    setTimeout(() => { if (btn.isConnected) { btn.classList.remove('confirm'); btn.textContent = before; } }, 3000);
+    return false;
+}
+
+function presetClick(e) {
+    if (e.target.closest('.preset-add')) {
+        addPreset(document.getElementById('preset-name').value);
+        renderSetup();
+        return true;
+    }
+    if (e.target.closest('.preset-restore')) { restoreReadyPresets(); renderSetup(); return true; }
+    const card = e.target.closest('.preset');
+    if (!card) return false;
+    const id = card.dataset.id;
+    const btn = e.target.closest('button');
+    if (!btn) return true;
+    if (btn.classList.contains('preset-use')) { usePreset(presetById(id)); renderLabels(); renderSetup(); }
+    else if (btn.classList.contains('preset-update')) { if (confirmTap(btn, 'Save over it?')) { updatePreset(id); renderSetup(); } }
+    else if (btn.classList.contains('preset-delete')) { if (confirmTap(btn, 'Delete?')) { deletePreset(id); renderSetup(); } }
+    else if (btn.classList.contains('preset-rename')) {
+        const name = card.querySelector('.preset-name');
+        name.innerHTML = `<input type="text" maxlength="40" value="${escapeHtml(presetById(id).name)}" aria-label="New name">`;
+        const input = name.querySelector('input');
+        input.focus();
+        input.select();
+        let finished = false;
+        const done = keep => { if (finished) return; finished = true; if (keep) renamePreset(id, input.value); renderSetup(); };
+        input.addEventListener('keydown', ev => { if (ev.key === 'Enter') done(true); if (ev.key === 'Escape') done(false); });
+        input.addEventListener('blur', () => done(true));
+    } else if (btn.classList.contains('preset-link')) {
+        const line = card.querySelector('.preset-linkline');
+        const link = presetLink(id);
+        line.hidden = false;
+        line.textContent = link;
+        if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => { line.textContent = 'Link copied: ' + link; }).catch(() => {});
+    }
+    return true;
+}
+
 document.getElementById('setup-body').addEventListener('click', e => {
     const opt = e.target.closest('.opt');
     if (opt) { setScene(opt.dataset.key, JSON.parse(opt.dataset.value)); return; }
+    if (presetClick(e)) return;
 
     if (e.target.closest('.sw-add')) {
         const slot = Switches.add();

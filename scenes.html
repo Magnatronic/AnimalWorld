@@ -13,7 +13,7 @@
 <!-- ══ THE SCENE ══ -->
 <div class="stage" id="stage" aria-label="Animal scene">
     <div id="bg"></div>
-    <div class="wx-layer" id="wx-back"><i class="glow" id="glow"></i></div>
+    <div class="wx-layer" id="wx-back"></div>
     <div id="layer"></div>
     <div class="wx-layer" id="wx-front"></div>
 </div>
@@ -44,7 +44,9 @@
             <button class="setup-done" onclick="closeSetup()">✓ Done</button>
         </div>
         <div class="setup-tabs" id="setup-tabs">
+            <button class="setup-tab" data-tab="presets">⭐ Presets</button>
             <button class="setup-tab" data-tab="scene">🎨 Scene</button>
+            <button class="setup-tab" data-tab="weather">🌦️ Weather</button>
             <button class="setup-tab" data-tab="switches">🎛️ Switches</button>
             <button class="setup-tab" data-tab="sound">🔊 Sound</button>
         </div>
@@ -61,6 +63,7 @@
 <script src="shared/hold.js"></script>
 <script src="scenes/art.js"></script>
 <script src="scenes/scenes.js"></script>
+<script src="scenes/presets.js"></script>
 <script src="scenes/setup.js"></script>
 
 </body>

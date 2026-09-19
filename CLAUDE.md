@@ -12,7 +12,7 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
   picker → Explore, Memory, Whack-a-Mole, Find the Animal. Settings panel (hold ⚙ 2 s): Scanning,
   Play area, Games, Sound.
 - **Animal Scenes** — `scenes.html`, `scenes/`. A calm full-screen scene; touch and switches bring
-  animals in. Set-up (hold ⚙ 2 s): Scene, Switches, Sound tabs.
+  animals in. Set-up (hold ⚙ 2 s): Presets, Scene, Weather, Switches, Sound tabs.
 
 ## Where things live
 | Path | What |
@@ -21,12 +21,13 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 | `shared/switches.js` | Learning/reading switches: keys + Gamepad API. Numbered switch list for Scenes (min 5 in Scenes, max 12, id + colour); `capture()` for one-off learning (Activities' scanning switches) |
 | `shared/hold.js/.css`, `shared/fonts.css` | Hold-to-open ⚙; bundled Nunito |
 | `scenes/art.js` | Per theme: `animals` (habitat perch/ground/water, width %, facing r/l/f, move), `switchCast`, and `scenes` (each: SVG drawing, `spots`, `places`, `residents`, `track`, `splashes` = rain-ring points on its water). `SceneTracks` = background loops; `SceneWeather` = the weathers (label, hint, optional sound) |
-| `scenes/scenes.js` | Scene engine, settings (`animalScenes.settings`), jobs, `makeLooper()` crossfading loops (track and weather sounds), weather (`drawWeather`, `setWeather`, thunder) |
+| `scenes/scenes.js` | Scene engine, settings (`animalScenes.settings`), jobs, `makeLooper()` crossfading loops (track and weather sounds), weather (`drawWeather`, `setWeather`, `pressWeather`, strength 1–3 as `wx-s1..3` + `.lv2/.lv3`, easing off, thunder) |
+| `scenes/presets.js` | Presets (`animalScenes.presets`): ready-made list, save/update/rename/delete, `usePreset()`, `#preset=<id>` links. Jobs stored by switch number, not switch id |
 | `scenes/setup.js` | Set-up screen |
 | `openmoji/`, `fish/`, `sounds/`, `sounds/ambient/`, `sounds/weather/` | All assets are local (offline) |
 | `dev/` | Test server and walk-through (see Testing) |
 
-localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (shared), `animalScenes.settings`.
+localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (shared), `animalScenes.settings`, `animalScenes.presets`.
 
 ## Adding things
 - **A theme's animal**: add to `shared/themes.js`; download its SVG to `openmoji/` (see README).
@@ -45,10 +46,10 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
 - Settings loaders keep only known keys of the right type, so old saves can't break new defaults.
   When a setting changes meaning, migrate old values (see `loadSettings()` in `settings.js`).
 - Gentle by design: slow motion, fades not jumps, nothing flashing; respect `prefers-reduced-motion`.
-  (Thunder is a single slow glow, a second to brighten, every 20 s or more; keep it that way for
-  photosensitive users.)
-- Weather sits in two layers around the animals (`#wx-back`, `#wx-front`) so animals stay clear; the
-  rainbow goes into the scene's SVG just after the moon, so scenery is in front of it.
+  (Lightning is a faint thin bolt fading in over ~0.25 s, no flicker, at most one per 6 s however
+  often it's asked for; keep it that way for photosensitive users.)
+- Weather sits in two layers around the animals (`#wx-back`, `#wx-front`), neither catching touches;
+  the rainbow and lightning go into the scene's SVG just after the moon, so scenery is in front of them.
 
 ## Testing
 `python dev/serve.py`, then drive headless Chrome:

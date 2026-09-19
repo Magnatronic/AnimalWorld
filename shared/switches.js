@@ -152,6 +152,8 @@ const Switches = (() => {
             return;
         }
         if (e.repeat) return;
+        // Typing in a text box (a preset's name) is typing, even with keys that are switches.
+        if (e.target.matches && e.target.matches('input[type="text"], textarea')) return;
         const binding = { type: 'key', code: e.code };
         const used = emitAny(binding);
         const i = indexOf(binding);

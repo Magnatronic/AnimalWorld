@@ -20,20 +20,29 @@ Set-up shows how many birds each scene has room for, and where. Birds is the tem
 themes: a theme's animals and switch jobs are shared by all its scenes (`scenes/art.js`).
 
 Any scene can have **weather**, one at a time, fading in and out: 🌧️ Rain (with rings on the water),
-⛈️ Storm (rain, a darker sky, and now and then a slow soft glow in the sky and far-off thunder, never a
-sharp flash), ❄️ Snow, 🍃 Wind (leaves blow across and the trees lean), 🌫️ Fog and 🌈 Rainbow. Rain and
-wind have their own quiet sounds.
+⛈️ Storm (rain, a darker sky, and now and then a faint bolt of lightning and far-off thunder), ❄️ Snow
+(near and far, with slowly turning crystals; heavy snow whitens the ground), 🍃 Wind (leaves blow across
+and the trees lean), 🌫️ Fog (some drifting in front of the animals) and 🌈 Rainbow (a second one at full
+strength). Rain and wind have their own quiet sounds. Weather has three strengths: by default each press
+of a weather switch, or a touch on the sky, makes it stronger, and left alone it eases back to the
+scene's own weather.
 
 Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
 screen too):
+- **Presets** — saved set-ups (scene, look, speed, weather, switch jobs). Four are ready-made: 🌳 Calm
+  garden, 🌦️ Weather play, 🦉 Night owls and 🏞️ Busy lake. Use one, save the set-up as a new preset,
+  save changes into a preset, rename or delete (deleted ready-made ones can be brought back). Each has
+  a link, `scenes.html#preset=<name>`, that opens straight into it — handy as a desktop shortcut.
 - **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, when animals leave (never,
-  when touched, or after 30 seconds to 2 minutes without being touched or called), the weather it starts
-  with (Clear by default), and how long look and weather changes take to fade (2 to 20 seconds).
+  when touched, or after 30 seconds to 2 minutes without being touched or called), and how long look
+  and weather changes take to fade (2 to 20 seconds).
+- **Weather** — the scene's own weather (Clear by default), whether weather switches build up (the
+  default) or turn weather on and off, and how long each step lasts before it eases off.
 - **Switches** — add up to twelve switches: tap Learn and press the switch (SimplyWorks, Bluetooth,
   keyboard, Xbox Adaptive Controller), pick a colour to match the real switch, and give each a job:
   bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 🗺️ Next scene, 👋 Goodbye
-  (the longest-staying animal leaves), 🌙 Everyone leaves, a weather (each starts it, or stops it if it's
-  already there), 🌦️ Next weather, ⚡ Thunder, or nothing. Five switches are always ready to learn.
+  (the longest-staying animal leaves), 🌙 Everyone leaves, a weather, 🌦️ Next weather, ⚡ Thunder, or
+  nothing. Five switches are always ready to learn.
   Switch labels in those colours can be shown along the top of the screen. Keys and buttons that
   aren't learned do something random (or nothing), so any switch works straight away. Look changes
   fade gently rather than jump.
@@ -84,7 +93,7 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `index.html` | Animal World's front page and Animal Activities' screens |
 | `scenes.html` | Animal Scenes |
 | `scenes/art.js` | Each scene's drawing, spots and how its animals behave |
-| `scenes/scenes.js`, `scenes/setup.js`, `scenes/scenes.css` | Animal Scenes itself and its set-up screen |
+| `scenes/scenes.js`, `scenes/setup.js`, `scenes/presets.js`, `scenes/scenes.css` | Animal Scenes itself, its set-up screen and presets |
 | `sounds/ambient/` | Background loops for Animal Scenes |
 | `sounds/weather/` | Rain, wind and thunder for Animal Scenes' weather |
 | `shared/hold.js`, `shared/hold.css` | The hold-to-open ⚙ button, used by both parts |

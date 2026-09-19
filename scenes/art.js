@@ -21,13 +21,13 @@ const SceneTracks = {
 // Weather: one at a time over any scene, fading in and out (drawn by scenes.js and
 // scenes.css). `sound` loops while it lasts, under the background track.
 const SceneWeather = {
-    rain:    { label: '🌧️ Rain',    sound: 'sounds/weather/rain.mp3', hint: "Rain starts falling, or stops if it's raining." },
+    rain:    { label: '🌧️ Rain',    sound: 'sounds/weather/rain.mp3', hint: 'Rain falls, with rings on the water.' },
     storm:   { label: '⛈️ Storm',   sound: 'sounds/weather/rain.mp3',
-               hint: 'Rain and a darker sky; now and then the sky glows softly and thunder rumbles far away. Press again and the storm passes.' },
-    snow:    { label: '❄️ Snow',    hint: 'Snow starts falling, or stops.' },
-    wind:    { label: '🍃 Wind',    sound: 'sounds/weather/wind.mp3', hint: 'Leaves blow across and the trees lean, or the wind drops.' },
-    fog:     { label: '🌫️ Fog',     hint: 'Mist rolls in, or clears.' },
-    rainbow: { label: '🌈 Rainbow', hint: 'A rainbow fades in, or fades away.' },
+               hint: 'Rain and a darker sky, with a faint flash of lightning and far-off thunder now and then.' },
+    snow:    { label: '❄️ Snow',    hint: 'Snow falls, near and far; when it is heavy the ground turns white.' },
+    wind:    { label: '🍃 Wind',    sound: 'sounds/weather/wind.mp3', hint: 'Leaves blow across and the trees lean.' },
+    fog:     { label: '🌫️ Fog',     hint: 'Mist rolls in, some of it drifting low in front of the animals.' },
+    rainbow: { label: '🌈 Rainbow', hint: 'A rainbow fades in; at its strongest, a second one above it.' },
 };
 
 const SceneArt = (() => {
