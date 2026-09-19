@@ -195,15 +195,16 @@ function playSound(soundName, card, name) {
         if (spoken) speak(spoken);
     }, { once: true });
 
-    // No recording for this animal: say its name rather than stay silent. The
-    // fish theme leads with a synthesised bubble, so it works even with no
-    // sound files installed.
+    // No recording for this animal. If its name is to be spoken, still say it;
+    // the fish theme leads with a synthesised bubble, so it works even with
+    // no sound files installed.
     audio.addEventListener('error', () => {
+        if (!spoken) { if (card) card.classList.remove('playing'); return; }
         if (card) card.classList.add('has-sound', 'playing');
         const cue = themes[currentThemeKey]?.speakName ? bubbleCue : done => done();
         cue(() => {
             if (card) card.classList.remove('playing');
-            speak(name);
+            speak(spoken);
         });
     }, { once: true });
 
@@ -238,12 +239,10 @@ function bubbleCue(onDone) {
 }
 
 // The name to speak after a card's sound, or null when names aren't spoken:
-// always for themes or animals that ask (fish, and silent creatures such as
-// the worm), otherwise only if the setting is on.
+// always for themes that ask (fish), otherwise only if the setting is on.
 function spokenName(name) {
-    const theme  = themes[currentThemeKey];
-    const animal = theme && theme.animals.find(a => a.name === name);
-    return (theme && theme.speakName) || (animal && animal.speakName) || settings.sound.speakNames ? name : null;
+    const theme = themes[currentThemeKey];
+    return (theme && theme.speakName) || settings.sound.speakNames ? name : null;
 }
 
 /* ── NAVIGATION ── */
