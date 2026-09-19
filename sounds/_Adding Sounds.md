@@ -166,8 +166,25 @@ calls). The app crossfades each loop into itself, so the join isn't heard.
 | `ambient/farmyard.mp3` | [farm_chicken_rooster_sheep_210410_0061](https://freesound.org/s/567523/) by titi2 (CC0) | 0.5–74.5 s (Farm Animals' Farmyard) |
 | `ambient/fields.mp3` | [Small sheep bells, cows and some birds singing in a field](https://freesound.org/s/136248/) by felix.blume (CC0) | 0.5–119.5 s (Farm Animals' Fields) |
 | `ambient/duckpond.mp3` | [pond, ducks](https://freesound.org/s/254683/) by monotraum (CC0) | 0.5–83.5 s (Farm Animals' Duck pond) |
+| `ambient/savanna.mp3` | [Veld ambience](https://freesound.org/s/408516/) by PasekaM (CC0) | from 0.5 s, up to 150 s (Safari's Savanna) |
+| `ambient/waterhole.mp3` | [Tarangire national Park Tanzania, birds and animals](https://freesound.org/s/718412/) by chechemtungi (CC0) | from 0.5 s, up to 150 s (Safari's Waterhole) |
+| `ambient/jungle.mp3` | [Birdsong In Northern NSW Hinterland](https://freesound.org/s/812609/) by Alex_hears_things (CC0) | from 0.5 s, up to 150 s (Safari's Jungle) |
+| `ambient/seaice.mp3` | [Water moving under ice, lake ambience in a windy forest](https://freesound.org/s/790541/) by vhio (CC0) | from 0.5 s, up to 150 s (Polar's Sea ice) |
+| `ambient/snowforest.mp3` | [Appalachian Snowy Afternoon 1](https://freesound.org/s/719851/) by lakewoodsound (CC0) | from 0.5 s, up to 150 s (Polar's Snowy forest) |
+| `ambient/tundra.mp3` | [Quiet Winter Night with Light Snow & Wind](https://freesound.org/s/845502/) by TSP-Talk (CC0) | from 0.5 s, up to 150 s (Polar's Tundra) |
+| `ambient/seashore.mp3` | [Gentle waves at Priory Bay, Isle of Wight](https://freesound.org/s/848039/) by richwise (CC0) | from 0.5 s, up to 150 s (Ocean's Seashore) |
+| `ambient/reef.mp3` | [Underwater Ambience](https://freesound.org/s/393819/) by Kinoton (CC0) | from 0.5 s, up to 150 s (Ocean's Coral reef) |
+| `ambient/kelp.mp3` | [Underwater Ambiance](https://freesound.org/s/406623/) by Xemptful (CC0) | from 0.5 s, up to 150 s (Ocean's Kelp forest) |
+| `ambient/fishreef.mp3` | [Underwater Bubble Flow Loop](https://freesound.org/s/852478/) by KolbyRFX (CC0) | from 0.5 s, up to 150 s (Fish's Coral reef) |
+| `ambient/tank.mp3` | [aquarium filter bubbling close](https://freesound.org/s/635477/) by kyles (CC0) | from 0.5 s, up to 150 s (Fish's Fish tank) |
+| `ambient/riverbed.mp3` | [Underwater (small river)](https://freesound.org/s/48408/) by melarancida (CC0) | from 0.5 s, up to 150 s (Fish's River) |
+| `ambient/flowerbed.mp3` | [Bees gallore - garden hedge full of bees](https://freesound.org/s/859809/) by myrinvp (CC0) | from 0.5 s, up to 150 s (Mini Beasts' Flower bed) |
+| `ambient/logpile.mp3` | [mountain forest ambience](https://freesound.org/s/398233/) by chromakei (CC0) | from 0.5 s, up to 150 s (Mini Beasts' Log pile) |
+| `ambient/vegpatch.mp3` | [Bees Crickets Insects Birds](https://freesound.org/s/536338/) by mpuffenbarger (CC0) | from 0.5 s, up to 150 s (Mini Beasts' Veg patch) |
 
-Each is mixed down to mono (like the others). The farm recordings are also gently compressed
+The newer tracks were taken from Freesound's high-quality previews. The quietest recordings (Waterhole,
+Sea ice, Snowy forest) are levelled a little lower, about −30 LUFS, with a gentle hiss filter, rather than
+boosting their background noise. Each is mixed down to mono (like the others). The farm recordings are also gently compressed
 (ffmpeg `acompressor`, then `loudnorm` to −26 LUFS), so a moo or a crow never jumps out. Every
 scene has its own; set-up's Sound tab offers the other tracks of the same theme.
 
@@ -186,6 +203,17 @@ far-away recordings, so nothing cracks or bangs.
 | `weather/thunder-1.mp3` | [Distant rumbles](https://freesound.org/s/584946/) by richwise (CC0) | 3.5–16.5 s |
 | `weather/thunder-2.mp3` | the same recording | 38–51 s |
 | `weather/thunder-3.mp3` | the same recording | 54.5–67.5 s |
+
+---
+
+## 🫧 Fish in Animal Scenes
+
+Fish in Animal Scenes play a short bubbling sound when they arrive or are touched. Animal Activities
+doesn't use it (it keeps its own synthesised bubble and spoken names).
+
+| Save as | Source | Section used |
+|---------|--------|--------------|
+| `scene-bubbles.mp3` | [Bubbles 001](https://freesound.org/s/539823/) by ristooooo1 (CC0) | 0–2.6 s, faded out, about −18 LUFS |
 
 ---
 
