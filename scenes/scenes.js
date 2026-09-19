@@ -157,6 +157,7 @@ function buildScene() {
     const themeArt = SceneArt[sceneSettings.theme] || SceneArt.birds;
     const id = chosenScene();
     art = { ...themeArt, ...themeArt.scenes[id], id };
+    art.animals = sceneAnimals(themeArt, themeArt.scenes[id]);
     // A track or weather chosen for other animals doesn't carry over
     if (sceneSettings.track !== 'scene' && !themeTracks().includes(sceneSettings.track)) sceneSettings.track = 'scene';
     if (sceneSettings.weather !== 'clear' && !weatherFits(sceneSettings.weather)) sceneSettings.weather = 'clear';
@@ -187,7 +188,7 @@ function buildScene() {
         el.querySelector('img').style.animationDelay = (-Math.random() * 3).toFixed(2) + 's';
         el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started && accept('call')) touched(name); });
         layer.appendChild(el);
-        cast[name] = { el, def, sound: animal.sound, spot: null, arrivedAt: 0, calledAt: 0, leaving: false };
+        cast[name] = { el, def, sound: def.sound || animal.sound, spot: null, arrivedAt: 0, calledAt: 0, leaving: false };
     });
     art.residents.forEach(name => {
         const spot = freeSpot(cast[name].def.habitat);
@@ -196,6 +197,17 @@ function buildScene() {
     markPlaces();
     showWeather(false);
     renderLabels();
+}
+
+// The animals in a scene: all the theme's, or the scene's own `cast`: a list of names, or
+// names with changes for this scene (e.g. { Dolphin: { habitat: 'swim' } }), so a camel
+// isn't in the jungle and a dolphin can swim underwater in one scene and leap in another.
+function sceneAnimals(themeArt, scene) {
+    const c = scene.cast;
+    if (!c) return themeArt.animals;
+    const names = Array.isArray(c) ? c : Object.keys(c);
+    return Object.fromEntries(names.filter(n => themeArt.animals[n])
+        .map(n => [n, { ...themeArt.animals[n], ...(Array.isArray(c) ? {} : c[n]) }]));
 }
 
 // Each empty place shows something that belongs there, so it's clear where touching
@@ -232,7 +244,7 @@ function cover(spot) {
     c.className = 'cover';
     c.style.left = spot.x + '%';
     c.style.top = spot.y + '%';
-    c.innerHTML = `<svg viewBox="0 0 200 100" aria-hidden="true">${art.covers[spot.cover || 'bush']}</svg>`;
+    c.innerHTML = `<svg viewBox="0 0 200 100" aria-hidden="true">${art.covers[spot.cover] || Object.values(art.covers)[0]}</svg>`;
     layer.appendChild(c);
 }
 // Nearer animals are in front; those hiding stay behind their bush (scenes.css).
@@ -258,7 +270,7 @@ function settle(name, spot) {
     a.spot = spot;
     a.arrivedAt = a.calledAt = Date.now();
     a.el.hidden = false;
-    a.el.classList.remove('down', 'behind', 'up');
+    a.el.classList.remove('down', 'behind', 'up', 'small');
     a.el.style.left = spot.x + '%';
     a.el.style.top = spot.y + '%';
     standAt(a, spot);
@@ -301,15 +313,17 @@ function travel(a, spot, coming, done) {
     const el = a.el;
     markPlaces();                                  // a place's glow fades as someone heads for it
     if (move === 'peek') { peek(a, spot, coming, done); return; }
+    if (move === 'pop') { pop(a, spot, coming, done); return; }
     if (spot) standAt(a, spot);
     const here = { x: parseFloat(el.style.left), y: parseFloat(el.style.top) };
-    const target = spot || { x: here.x > 50 ? 112 : -12, y: move === 'fly' ? 4 : here.y };
+    const drop = move === 'drop';                  // a spider lets itself down on its thread, and climbs back up
+    const target = spot || (drop ? { x: here.x, y: -30 } : { x: here.x > 50 ? 112 : -12, y: move === 'fly' ? 4 : here.y });
     if (coming) {
         const fromLeft = spot.x > 50;              // right-hand spots are reached from the left edge
         el.hidden = false;
         el.classList.remove('moving');
-        el.style.left = (fromLeft ? -12 : 112) + '%';
-        el.style.top  = (move === 'fly' ? 4 : spot.y) + '%';
+        el.style.left = (drop ? spot.x : fromLeft ? -12 : 112) + '%';
+        el.style.top  = (drop ? -30 : move === 'fly' ? 4 : spot.y) + '%';
         void el.offsetWidth;
     }
     const heading = target.x > parseFloat(el.style.left) ? 'r' : 'l';
@@ -361,6 +375,25 @@ function peek(a, spot, coming, done) {
     }, ms);
 }
 
+// Things that grow where they are (coral): they swell up from nothing at their spot, and
+// shrink away to leave (or to move, growing again at the new spot).
+function pop(a, spot, coming, done) {
+    const el = a.el, ms = 900 * sceneSettings.pace;
+    el.classList.add('moving');
+    const finish = () => { el.classList.remove('moving'); done(); };
+    const grow = () => {
+        el.style.left = spot.x + '%';
+        el.style.top = spot.y + '%';
+        el.hidden = false;
+        void el.offsetWidth;
+        el.classList.remove('small');
+        setTimeout(finish, ms);
+    };
+    if (coming) { el.classList.add('small'); grow(); return; }
+    el.classList.add('small');
+    setTimeout(spot ? grow : finish, ms);
+}
+
 // An animal calls: its sound, a hop, and notes (or bubbles) rising.
 function sing(name) {
     const a = cast[name];
@@ -403,7 +436,8 @@ function anything() {
 function jobFor(slot) {
     const saved = sceneSettings.jobs[sceneSettings.theme]?.[slot.id];
     if (saved && (!WEATHER_JOBS[saved] || themeWeatherJobs().includes(saved))) return saved;
-    return art.switchCast[Switches.slots.indexOf(slot)] || 'anything';
+    const first = art.switchCast[Switches.slots.indexOf(slot)];
+    return first && (cast[first] || jobInfo(first)) ? first : 'anything';
 }
 
 // Jobs that change the scene rather than bring in one animal. Set-up lists these
@@ -489,7 +523,7 @@ const WEATHER_JOBS = {
     nextweather: { label: '🌦️ Next weather', hint: "Fades to the next of this theme's weathers, starting from clear. (Storm only comes from its own job.)" },
     thunder:     { label: '⚡ Thunder',       hint: 'A faint flash of lightning, then thunder rumbles far away, whatever the weather.' },
 };
-const WEATHER_CYCLE = ['clear', 'rain', 'rainbow', 'wind', 'leaves', 'fog', 'snow'];
+const WEATHER_CYCLE = ['clear', 'rain', 'rainbow', 'wind', 'dust', 'leaves', 'fog', 'snow', 'aurora', 'sunbeams', 'bubbles', 'current', 'glow'];
 const weatherLoops = {};    // sound file → its looper
 let weatherShown = [];      // the live weather's elements
 let strength = BASE_STRENGTH;
@@ -499,7 +533,8 @@ let lastThunder = 0;
 
 function building() { return sceneSettings.weatherPress !== 'toggle'; }
 // Each theme has the weathers that suit it (`weathers` in art.js): no snow in a jungle.
-function themeWeathers() { return (SceneArt[sceneSettings.theme] || SceneArt.birds).weathers || Object.keys(SceneWeather); }
+// A scene can have its own (`weathers` in the scene: underwater ones have bubbles, not rain).
+function themeWeathers() { return (art || SceneArt[sceneSettings.theme] || SceneArt.birds).weathers || Object.keys(SceneWeather); }
 function weatherFits(id) { return themeWeathers().includes(id); }
 // The weather jobs a switch can have in this theme (thunder only where there are storms).
 function themeWeatherJobs() {
@@ -541,6 +576,20 @@ function drawWeather(id) {
         `<div class="blowing lv4">${[[55, 30, 14], [25, 26, 18], [75, 26, 11]].map(([top, h, d], i) =>
             `<div class="mist" style="top:${top}%;height:${h}%;--d:${d}s;animation-delay:${-d * i * 0.4}s"></div>`).join('')}</div>` +
         '<div class="whiteout lv4"></div><div class="whiteout lv5"></div>';
+    // Bubbles rising, wobbling as they go (the snow's drift, upwards).
+    const bubbles = () => `<div class="snow rise">${levels([12, 22, 34, 48, 64], (level, lv) => {
+        const depth = Math.floor(Math.random() * 3);
+        const [size, up] = [[rand(.5, .9), rand(14, 18)], [rand(.9, 1.4), rand(10, 13)], [rand(1.5, 2.3), rand(7, 9)]][depth];
+        const d = up * speed(level);
+        return `<i class="d${depth}${lv}" style="left:${rand(-3, 103).toFixed(1)}%;--d:${d.toFixed(1)}s;animation-delay:${rand(-d, 0).toFixed(1)}s">` +
+            `<b style="--s:${size.toFixed(2)}vw;--x:${rand(.4, 1).toFixed(2)}vw;--w:${rand(1.5, 2.5).toFixed(1)}s;--r:20s"></b></i>`;
+    })}</div>`;
+    // Specks carried across: sand in a dusty wind, or bits drifting in a current underwater.
+    const specks = kind => `<div class="leaves ${kind}">${levels([14, 20, 30, 45, 60], (level, lv) => {
+        const d = rand(7, 10) * speed(level);
+        return `<i class="${lv}" style="top:${rand(8, 92).toFixed(1)}%;--d:${d.toFixed(1)}s;animation-delay:${rand(-d, 0).toFixed(1)}s">` +
+            `<b style="--w:${(rand(2.5, 4) * speed(level)).toFixed(1)}s"></b></i>`;
+    })}</div>`;
     // Autumn leaves drifting down, rocking and turning as they fall, like the snow.
     const fallingLeaves = () => `<div class="snow fall">${levels([10, 20, 32, 45, 60], (level, lv) => {
         const depth = Math.floor(Math.random() * 3);
@@ -573,6 +622,16 @@ function drawWeather(id) {
                 `<div class="haze high lv4"></div><div class="haze high lv5"></div></div>`],
         rainbow: ['', ''],
         leaves: ['', fallingLeaves()],
+        dust:     [`<div class="haze dusty"></div><div class="haze dusty high lv3"></div>`, specks('dust') + gusts()],
+        aurora:   [`<div class="dusk"></div><div class="aurora">${[[18, 60, 38, ''], [8, 90, 52, 'lv2'], [26, 75, 44, 'lv3'], [4, 110, 60, 'lv4'], [14, 55, 30, 'lv5']]
+                    .map(([top, d, h, lv], i) => `<i class="a${i % 3}${lv ? ' ' + lv : ''}" style="top:${top}%;height:${h}%;--d:${d}s;animation-delay:${-d * i * 0.37}s"></i>`).join('')}</div>`, ''],
+        // (each in its own <p>, which fades in at its strength while the light inside shimmers)
+        sunbeams: [`<div class="beams">${levels([4, 3, 3, 3, 3], (level, lv) =>
+                    `<p class="${lv}"><i style="left:${rand(-5, 95).toFixed(1)}%;--r:${rand(-14, 14).toFixed(0)}deg;--w:${rand(4, 10).toFixed(1)}%;--d:${rand(6, 11).toFixed(1)}s;animation-delay:${rand(-10, 0).toFixed(1)}s"></i></p>`)}</div>`, ''],
+        bubbles:  ['', bubbles()],
+        current:  ['', specks('drift') + gusts()],
+        glow:     ['', `<div class="glow">${levels([25, 30, 40, 50, 60], (level, lv) =>
+                    `<p class="${lv}"><i style="left:${rand(0, 100).toFixed(1)}%;top:${rand(5, 95).toFixed(1)}%;--s:${rand(.3, .8).toFixed(2)}vw;--d:${rand(3, 6).toFixed(1)}s;animation-delay:${rand(-6, 0).toFixed(1)}s"></i></p>`)}</div>`],
     };
     const [back, front] = parts[id] || ['', ''];
     const shown = [];
@@ -801,7 +860,8 @@ function doJob(job) {
         changeScene(ids[(ids.indexOf(art.id) + 1) % ids.length]);
     } else if (job === 'goodbye') goodbye();
     else if (job === 'clear') everyoneLeaves();
-    else if (job !== 'nothing') arrive(job);
+    else if (cast[job]) arrive(job);
+    else if (job !== 'nothing') anything();     // an animal that isn't in this scene
 }
 
 // An animal touched on screen, or its own switch pressed while it's here: it calls,
@@ -935,7 +995,7 @@ stage.addEventListener('pointerdown', e => {
 // used last time is marked, and a switch or key press starts it. A preset's link skips
 // the choice: the start screen just says the preset's name (showTapToStart).
 function showChooser() {
-    document.getElementById('start-themes').innerHTML = Object.keys(SceneArt).filter(id => themes[id]).map(id => {
+    document.getElementById('start-themes').innerHTML = Object.keys(themes).filter(id => SceneArt[id]).map(id => {
         const [icon, ...words] = themes[id].label.split(' ');
         const count = Object.keys(SceneArt[id].scenes).length;
         return `<button class="theme-btn btn-${id}" data-theme="${id}"><span class="btn-icon">${icon}</span>

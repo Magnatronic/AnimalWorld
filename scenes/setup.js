@@ -23,7 +23,8 @@ function switchRow(slot, i) {
                 <span class="sw-id"><span class="sw-name">Switch ${i + 1}</span>
                     <span class="sw-binding${slot.binding ? '' : ' unset'}">${Switches.describe(slot.binding)}</span></span>
                 <select aria-label="Job for switch ${i + 1} in this scene">
-                    <optgroup label="Animals">${Object.keys(art.animals).map(n => option(n, n)).join('')}</optgroup>
+                    <optgroup label="Animals">${Object.keys(art.animals).map(n => option(n, n)).join('')}${
+                        !cast[job] && !jobInfo(job) && job !== 'nothing' ? option(job, `${job} (not in this scene)`) : ''}</optgroup>
                     <optgroup label="Scene">${Object.entries(SCENE_JOBS).map(([value, j]) => option(value, j.label)).join('')}</optgroup>
                     <optgroup label="Weather">${themeWeatherJobs().map(value => option(value, WEATHER_JOBS[value].label)).join('')}</optgroup>
                     ${option('nothing', 'Nothing')}
@@ -44,6 +45,7 @@ function jobHint(job) {
         : ' Press again to stop it.');
     if (jobInfo(job)) return jobInfo(job).hint;
     if (job === 'nothing') return 'This switch does nothing in this scene.';
+    if (!cast[job]) return `The ${job.toLowerCase()} isn't in this scene, so here this switch brings a random animal instead.`;
     return `The ${job.toLowerCase()} comes into the scene, or calls if it's already here.`;
 }
 

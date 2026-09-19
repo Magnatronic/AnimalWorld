@@ -23,6 +23,21 @@ const SceneTracks = {
     farmyard: { label: 'Farmyard',        file: 'sounds/ambient/farmyard.mp3' },
     fields:   { label: 'Sheep bells in a field', file: 'sounds/ambient/fields.mp3' },
     duckpond: { label: 'Duck pond',       file: 'sounds/ambient/duckpond.mp3' },
+    savanna:  { label: 'Savanna',         file: 'sounds/ambient/savanna.mp3' },
+    waterhole:{ label: 'Waterhole',       file: 'sounds/ambient/waterhole.mp3' },
+    jungle:   { label: 'Rainforest',      file: 'sounds/ambient/jungle.mp3' },
+    seaice:   { label: 'Icy sea',         file: 'sounds/ambient/seaice.mp3' },
+    snowforest: { label: 'Snowy forest',  file: 'sounds/ambient/snowforest.mp3' },
+    tundra:   { label: 'Tundra wind',     file: 'sounds/ambient/tundra.mp3' },
+    seashore: { label: 'Waves on the shore', file: 'sounds/ambient/seashore.mp3' },
+    reef:     { label: 'Coral reef',      file: 'sounds/ambient/reef.mp3' },
+    kelp:     { label: 'Deep water',      file: 'sounds/ambient/kelp.mp3' },
+    fishreef: { label: 'Reef bubbles',    file: 'sounds/ambient/fishreef.mp3' },
+    tank:     { label: 'Fish tank',       file: 'sounds/ambient/tank.mp3' },
+    riverbed: { label: 'Flowing river',   file: 'sounds/ambient/riverbed.mp3' },
+    flowerbed:{ label: 'Buzzing flowers', file: 'sounds/ambient/flowerbed.mp3' },
+    logpile:  { label: 'Log pile',        file: 'sounds/ambient/logpile.mp3' },
+    vegpatch: { label: 'Veg patch',       file: 'sounds/ambient/vegpatch.mp3' },
 };
 
 // Weather: one at a time over any scene, fading in and out (drawn by scenes.js and
@@ -36,8 +51,18 @@ const SceneWeather = {
     fog:     { label: '🌫️ Fog',     hint: 'Mist rolls in, some of it drifting low in front of the animals.' },
     rainbow: { label: '🌈 Rainbow', hint: 'A rainbow fades in; stronger, it sparkles, then a second one appears above it.' },
     leaves:  { label: '🍂 Falling leaves', hint: 'Autumn leaves drift down, rocking as they fall; stronger, the trees turn golden, then orange.' },
+    dust:    { label: '💨 Dusty wind', sound: 'sounds/weather/wind.mp3', hint: 'A warm wind blows sand and dust across and the trees lean; stronger, a golden haze.' },
+    aurora:  { label: '🌌 Northern lights', hint: 'Soft ribbons of green and pink light ripple slowly across the sky; stronger, more ribbons, brighter.' },
+    sunbeams:{ label: '☀️ Sunbeams', hint: 'Beams of sunlight slant down through the water, slowly shimmering.' },
+    bubbles: { label: '🫧 Bubbles', hint: 'Bubbles wobble up through the water, near and far; more and quicker as it strengthens.' },
+    current: { label: '🌊 Current', hint: 'The water flows: bits drift past and the seaweed leans; stronger, it streams.' },
+    glow:    { label: '✨ Glow', hint: 'Tiny lights twinkle slowly in the water, as glowing plankton do (lovely with Night-light).' },
 };
 // Which of these each theme has is its `weathers` below (a jungle shouldn't have snow).
+
+// The drawing pieces below (ball, trunk, branch, cloud…), shared with the themes that have
+// their own files (scenes/art-<theme>.js), which add themselves to SceneArt.
+const SceneDraw = {};
 
 const SceneArt = (() => {
 
@@ -227,6 +252,9 @@ const SceneArt = (() => {
             ball(i % 2 ? 'f-leaf2' : 'f-leaf', x, y, r)).join('')}</g>
         </svg>`;
     }
+
+    Object.assign(SceneDraw, { shading, ball, trunk, tuft, cloud, stars, flowers, skyAndSun, branch, shine, tufts, farTree,
+        bluebells, reeds, pine, toadstools, rock, lodge, barn, farmhouse, fence, gate, haystack, roundBale, patchwork, woodland });
 
     return {
         birds: {
@@ -587,7 +615,7 @@ const SceneArt = (() => {
                         { habitat: 'hide', x: 45, y: 72, cover: 'hay' }, { habitat: 'hide', x: 18, y: 76, cover: 'hay' },
                         { habitat: 'ground', x: 28, y: 93 }, { habitat: 'ground', x: 45, y: 95 },
                         { habitat: 'ground', x: 60, y: 85 }, { habitat: 'ground', x: 68, y: 97 },
-                        { habitat: 'water', x: 76, y: 93.5 }, { habitat: 'water', x: 86, y: 92.5 },
+                        { habitat: 'water', x: 75, y: 93.5 }, { habitat: 'water', x: 85, y: 92.5 },
                     ],
                     splashes: [[73, 92], [78, 95], [82, 91], [87, 94], [91, 92]],
                 },

@@ -34,8 +34,14 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .animal .body { display: block; }
 .animal img { display: block; width: 100%; height: auto; pointer-events: none; transform-origin: 50% var(--foot, 86%);
     animation: bob calc(3.4s * var(--pace)) ease-in-out infinite alternate; }
-/* Birds on a branch or the ground breathe rather than bob, so their feet stay put */
-.animal:not(.on-water) img { animation-name: breathe; }
+/* Birds on a branch or the ground breathe rather than bob, so their feet stay put; swimmers bob slowly */
+.animal:not(.on-water):not(.on-swim) img { animation-name: breathe; }
+.animal.on-swim img { animation-duration: calc(4.5s * var(--pace)); }
+/* A spider hangs on its thread, which runs up out of the scene */
+.animal.drop::before { content: ''; position: absolute; left: 50%; bottom: 50%; width: max(1.5px, .12vw); height: 300%;
+    translate: -50% 0; background: var(--thread, rgba(255,255,255,.75)); }
+.look-line .animal.drop::before { background: #1b1b1b; }
+.look-night .animal.drop::before { background: rgba(190,210,255,.5); }
 @keyframes breathe { from { transform: none; } to { transform: scale(1.012, 1.03); } }
 /* Water birds settle into the water: cut off at the waterline (bobbing and calls lift
    them through it), with a ring round them; flying, they're whole */
@@ -62,6 +68,11 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .animal.on-hide.down .body { translate: 0 110%; }
 .animal.peek.moving { transition: filter var(--fade, 5s) ease-in-out; }
 .animal.peek.moving img { animation-name: breathe; }
+/* Things that grow where they are (coral) swell up from nothing, and shrink away to leave */
+.animal.pop .body { transform-origin: 50% var(--foot); transition: scale calc(.9s * var(--pace)) cubic-bezier(.3,1.3,.5,1); }
+.animal.pop.small .body { scale: 0; }
+.animal.pop.moving { transition: filter var(--fade, 5s) ease-in-out; }
+.animal.pop.moving img { animation-name: breathe; }
 /* Bats hang upside down under the branch, and turn the right way up to fly */
 .animal.hang .body { transition: rotate calc(.8s * var(--pace)) ease-in-out; }
 .animal.hang:not(.moving) .body { rotate: 180deg; }
@@ -167,6 +178,11 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .btn-forest { background: linear-gradient(135deg, #1b5e3b, #43a06b); }
 .btn-birds  { background: linear-gradient(135deg, #ad1457, #f06292); }
 .btn-farm   { background: linear-gradient(135deg, #6d4c41, #a1887f); }
+.btn-safari { background: linear-gradient(135deg, #b34700, #f4813a); }
+.btn-ocean  { background: linear-gradient(135deg, #005f8e, #00b4d8); }
+.btn-arctic { background: linear-gradient(135deg, #023e8a, #48cae4); }
+.btn-minibeasts { background: linear-gradient(135deg, #4a148c, #ab47bc); }
+.btn-fish   { background: linear-gradient(135deg, #00695c, #26a69a); }
 
 /* ── The adult's corner: ⚙ (hold to open), dim so it doesn't draw the eye ── */
 /* Above the start screen too, so set-up can be done before starting */
@@ -181,7 +197,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .corner-left .hold-hint { right: auto; left: 0; }
 
 /* ── Scene colours: every shape takes its fill from these, per look ── */
-.f-sky1 { stop-color: var(--sky1); } .f-sky2 { stop-color: var(--sky2); }
+.f-sky1 { stop-color: var(--sky1); } .f-sky2 { stop-color: var(--sky2); } .f-deep { fill: var(--sky2); }
 .f-sun { fill: var(--sun); } .f-moon { fill: var(--moon); } .f-cut { fill: var(--sky1); }
 .f-cloud { fill: var(--cloud); } .f-hill { fill: var(--hill); } .f-lawn { fill: var(--lawn); }
 .f-trunk { fill: var(--trunk); } .f-leaf { fill: var(--leaf); } .f-leaf2 { fill: var(--leaf2); }
@@ -208,6 +224,40 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .grass { fill: none; stroke: var(--leaf); stroke-width: 5; stroke-linecap: round; }
 .f-cap { fill: var(--cap); } .f-stalk, .f-dot { fill: var(--cloud); } .f-rock { fill: var(--rock); }
 .f-barn { fill: var(--barn); } .f-hay { fill: var(--hay); } .f-house { fill: var(--house); }
+.f-hay2 { fill: var(--hay); filter: brightness(.9); }
+.vein { fill: none; stroke: var(--shade); stroke-opacity: calc(var(--shade-a) * 1.6); stroke-width: 3; stroke-linecap: round; }
+/* Sea and underwater pieces */
+.wave { fill: none; stroke: var(--cloud); stroke-opacity: .55; stroke-width: 4; stroke-linecap: round; animation: wave calc(8s * var(--pace)) ease-in-out infinite alternate; }
+@keyframes wave { from { translate: -30px 0; } to { translate: 30px 0; } }
+.foam { fill: none; stroke: #fff; stroke-opacity: .85; stroke-width: 10; stroke-linecap: round; stroke-dasharray: 40 18; }
+.look-night .foam { stroke: #b8c8f0; stroke-opacity: .4; }
+.coral { fill: none; stroke-linecap: round; stroke-linejoin: round; } .coral.c1 { stroke: var(--flower); } .coral.c2 { stroke: var(--cap); }
+.coral-ol { fill: none; stroke: #1b1b1b; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transition: opacity var(--fade, 5s); }
+.look-line .coral-ol { opacity: 1; }
+.groove { fill: none; stroke: var(--shade); stroke-opacity: calc(var(--shade-a) * 2); stroke-width: 4; stroke-linecap: round; }
+.tentacle { fill: none; stroke: var(--cap); stroke-linecap: round; }
+.stalk { fill: none; stroke: var(--trunk); stroke-width: 9; stroke-linecap: round; }
+.gravel .g0 { fill: #e2735f; } .gravel .g1 { fill: #6fb7e0; } .gravel .g2 { fill: #f2c64a; } .gravel .g3 { fill: #8fcf8a; }
+.look-night .gravel { opacity: .35; }
+.rise-bubble { fill: rgba(255,255,255,.3); stroke: rgba(255,255,255,.85); stroke-width: 2; animation: bubble-up calc(4.8s * var(--pace)) linear infinite; }
+@keyframes bubble-up { from { translate: 0 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { translate: 0 -700px; opacity: 0; } }
+.p-bubble { fill: rgba(255,255,255,.35); stroke: #fff !important; stroke-width: 2 !important; } .p-shell { fill: #f6d7c3; }
+.p-foam { fill: none; stroke: #fff; stroke-width: 3; stroke-opacity: .8; } .p-starfish { fill: #f2a65a; }
+.look-night .p-shell { fill: #8e86a8; } .look-night .p-starfish { fill: #8a6a60; } .look-night .p-bubble { stroke: #b8c8f0 !important; }
+.f-soil { fill: var(--soil); } .f-mound { fill: var(--soil); filter: brightness(1.25) saturate(.9); } .f-log { fill: var(--hay); }
+.stem-thick { fill: none; stroke: var(--leaf); stroke-width: 16; stroke-linecap: round; }
+.stem-thin { fill: none; stroke: var(--leaf); stroke-width: 6; stroke-linecap: round; }
+.cane { fill: none; stroke: var(--trunk); stroke-width: 9; stroke-linecap: round; }
+.p-pollen { fill: #f5c542; } .p-drop { fill: rgba(200,235,255,.9); } .p-thread { fill: none; stroke: rgba(255,255,255,.8); stroke-width: 1.5; }
+.p-hole { fill: #3b2a20; fill-opacity: .7; } .p-crumb { fill: var(--soil); }
+.look-night .p-pollen { fill: #8a7a48; } .look-night .p-drop { fill: rgba(150,180,220,.6); }
+.rim { fill: none; stroke: var(--rock); stroke-width: 5; stroke-linecap: round; }
+.look-line .rim { stroke: #1b1b1b; stroke-width: 3; }
+.vine { fill: none; stroke: var(--leaf); stroke-width: 7; stroke-linecap: round; }
+.p-feather { fill: #f4f1ea; } .p-snowball { fill: #ffffff; } .p-floe { fill: #e3f1fa; }
+.look-night .p-feather, .look-night .p-snowball, .look-night .p-floe { fill: #9fb0cf; }
+.p-fruit { fill: #d2694a; } .p-print { fill: var(--shade); fill-opacity: .32; }
+.look-night .p-fruit { fill: #7a4a58; } .look-night .p-print { fill: #000; fill-opacity: .35; }
 .trim { fill: none; stroke: var(--house); stroke-width: 6; stroke-linejoin: round; }
 .straw { fill: none; stroke: var(--shade); stroke-opacity: calc(var(--shade-a) * 1.8); stroke-width: 3; stroke-linecap: round; }
 .twine { fill: none; stroke: var(--barn); stroke-width: 4; opacity: .7; }
@@ -235,6 +285,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @property --barn   { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
 @property --hay    { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
 @property --house  { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
+@property --soil   { syntax: '<color>'; inherits: true; initial-value: #0d1834; }
 @property --ring   { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --rain     { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --mist     { syntax: '<color>'; inherits: true; initial-value: transparent; }
@@ -242,7 +293,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @property --storm    { syntax: '<color>'; inherits: true; initial-value: transparent; }
 @property --lean     { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
 .stage {
-    transition-property: --sky1, --sky2, --sun, --moon, --cloud, --hill, --lawn, --trunk, --leaf, --leaf2, --pond, --flower, --cap, --rock, --barn, --hay, --house, --ring,
+    transition-property: --sky1, --sky2, --sun, --moon, --cloud, --hill, --lawn, --trunk, --leaf, --leaf2, --pond, --flower, --cap, --rock, --barn, --hay, --house, --soil, --ring,
                          --rain, --mist, --overcast, --storm, --lean;
     transition-duration: var(--fade, 5s);
     transition-timing-function: ease-in-out;
@@ -293,6 +344,72 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .scene-farm-pond.look-soft  { --sky1:#c3e4f3; --sky2:#f2f8ec; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#c4d9b6; --lawn:#aed58d; --trunk:#a0785a; --leaf:#74ad6c; --leaf2:#9ccb8c; --pond:#95cfe6; --flower:#f3b6c8; --rock:#d8c49a; --barn:#d9776a; --hay:#f0d27a; --house:#fbf2df; --ring:rgba(255,255,255,.7); }
 .scene-farm-pond.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#ea5a47; --rock:#e2c28c; --barn:#d22f27; --hay:#f1b31c; --house:#ffffff; --ring:rgba(255,255,255,.85); }
 .scene-farm-pond.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d5e96; --rock:#3d4868; --barn:#5a3550; --hay:#5e5a4a; --house:#4a5578; --ring:rgba(190,210,255,.45); }
+
+.scene-safari-savanna.look-soft  { --sky1:#a9d8ef; --sky2:#fbecc8; --sun:#ffd66e; --moon:#f3efd2; --cloud:#ffffff; --hill:#c9b9a8; --lawn:#e3c77c; --trunk:#8a6a4d; --leaf:#93b060; --leaf2:#b4c774; --pond:#9fcfd8; --flower:#f0a45a; --rock:#c98f66; --hay:#e8c066; --ring:rgba(255,255,255,.7); }
+.scene-safari-savanna.look-line  { --sky1:#92d3f5; --sky2:#fdeaa8; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b3a594; --lawn:#f1c04c; --trunk:#a57939; --leaf:#5c9e31; --leaf2:#b1cc33; --pond:#61b2e4; --flower:#f4aa41; --rock:#c96a3a; --hay:#e6a722; --ring:rgba(255,255,255,.85); }
+.scene-safari-savanna.look-night { --sky1:#0d1834; --sky2:#3a3d6b; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#2a2f50; --lawn:#3a3b4e; --trunk:#46426a; --leaf:#26434a; --leaf2:#2f4f55; --pond:#284e79; --flower:#6d5e96; --rock:#4a3d58; --hay:#4c4a52; --ring:rgba(190,210,255,.45); }
+
+.scene-safari-waterhole.look-soft  { --sky1:#b2dcf2; --sky2:#faeed2; --sun:#ffd66e; --moon:#f3efd2; --cloud:#ffffff; --hill:#cdbfa6; --lawn:#dcc682; --trunk:#8f6f52; --leaf:#88ad63; --leaf2:#a9c377; --pond:#93c9d6; --flower:#f0a45a; --rock:#b99472; --hay:#e8c066; --ring:rgba(255,255,255,.7); }
+.scene-safari-waterhole.look-line  { --sky1:#92d3f5; --sky2:#fdeaa8; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b3a594; --lawn:#f1c04c; --trunk:#a57939; --leaf:#5c9e31; --leaf2:#b1cc33; --pond:#61b2e4; --flower:#f4aa41; --rock:#a1683d; --hay:#e6a722; --ring:rgba(255,255,255,.85); }
+.scene-safari-waterhole.look-night { --sky1:#0d1834; --sky2:#3a3d6b; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#2a2f50; --lawn:#3a3b4e; --trunk:#46426a; --leaf:#26434a; --leaf2:#2f4f55; --pond:#284e79; --flower:#6d5e96; --rock:#433a50; --hay:#4c4a52; --ring:rgba(190,210,255,.45); }
+
+.scene-safari-jungle.look-soft  { --sky1:#bfe6d2; --sky2:#e6f4dc; --sun:#fff0b0; --moon:#f3efd2; --cloud:#ffffff; --hill:#a9cfa4; --lawn:#7fae68; --trunk:#7d6048; --leaf:#4f9a5a; --leaf2:#78b86f; --pond:#8fc8c8; --flower:#f28c9c; --rock:#9a8f80; --ring:rgba(255,255,255,.7); }
+.scene-safari-jungle.look-line  { --sky1:#a6e0c0; --sky2:#e3f4dc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#8ec63f; --lawn:#5c9e31; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#ea5a47; --rock:#9b9b9a; --ring:rgba(255,255,255,.85); }
+.scene-safari-jungle.look-night { --sky1:#081a1e; --sky2:#12302e; --sun:#000; --moon:#f3efd2; --cloud:#2c3f5a; --hill:#15302c; --lawn:#17302a; --trunk:#3e3a5e; --leaf:#173a33; --leaf2:#1f4a40; --pond:#1f4460; --flower:#5c5690; --rock:#343c50; --ring:rgba(190,210,255,.45); }
+
+/* Polar: --lawn is snow and --rock is ice; snowfall keeps the snow white (not the green-white of a lawn) */
+.scene-arctic-ice.look-soft  { --sky1:#b8daf0; --sky2:#eef6fb; --sun:#ffeab0; --moon:#f3efd2; --cloud:#ffffff; --hill:#c9d9e8; --lawn:#f2f7fb; --trunk:#7d6a5c; --leaf:#4f7f6a; --leaf2:#6f9a84; --pond:#7fb6d6; --flower:#c9a0dc; --rock:#cde5f3; --ring:rgba(255,255,255,.7); }
+.scene-arctic-ice.look-line  { --sky1:#92d3f5; --sky2:#e3f4fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b7c9d8; --lawn:#ffffff; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#b399c8; --rock:#bde3f7; --ring:rgba(255,255,255,.85); }
+.scene-arctic-ice.look-night { --sky1:#0a1430; --sky2:#1d3563; --sun:#000; --moon:#f3efd2; --cloud:#2e4170; --hill:#2c3d62; --lawn:#50648c; --trunk:#46426a; --leaf:#1f3d4a; --leaf2:#27505a; --pond:#1b355c; --flower:#6d5e96; --rock:#5d77a3; --ring:rgba(190,210,255,.45); }
+
+.scene-arctic-forest.look-soft  { --sky1:#c3dcee; --sky2:#f0f5f9; --sun:#ffeab0; --moon:#f3efd2; --cloud:#ffffff; --hill:#d8e4ee; --lawn:#f3f7fa; --trunk:#7d6352; --leaf:#46705f; --leaf2:#6a927f; --pond:#8fbfd8; --flower:#c9a0dc; --rock:#d4e6f1; --ring:rgba(255,255,255,.7); }
+.scene-arctic-forest.look-line  { --sky1:#a6d8f2; --sky2:#e8f4fb; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#c9d6e2; --lawn:#ffffff; --trunk:#a57939; --leaf:#2f7a3a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#b399c8; --rock:#bde3f7; --ring:rgba(255,255,255,.85); }
+.scene-arctic-forest.look-night { --sky1:#0a1430; --sky2:#1d3563; --sun:#000; --moon:#f3efd2; --cloud:#2e4170; --hill:#2c3d62; --lawn:#50648c; --trunk:#46426a; --leaf:#1b3a3f; --leaf2:#244a50; --pond:#1b355c; --flower:#6d5e96; --rock:#5d77a3; --ring:rgba(190,210,255,.45); }
+
+.scene-arctic-tundra.look-soft  { --sky1:#bcd6ee; --sky2:#f3eef2; --sun:#ffe0a8; --moon:#f3efd2; --cloud:#ffffff; --hill:#cfd9e6; --lawn:#f1f5f9; --trunk:#7d6a5c; --leaf:#8a9a78; --leaf2:#a7b394; --pond:#6fa6c9; --flower:#c9a0dc; --rock:#c9dcea; --ring:rgba(255,255,255,.7); }
+.scene-arctic-tundra.look-line  { --sky1:#92d3f5; --sky2:#f1e6f2; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b7c9d8; --lawn:#ffffff; --trunk:#a57939; --leaf:#6a8a3a; --leaf2:#b1cc33; --pond:#61b2e4; --flower:#b399c8; --rock:#bde3f7; --ring:rgba(255,255,255,.85); }
+.scene-arctic-tundra.look-night { --sky1:#081028; --sky2:#1a2d58; --sun:#000; --moon:#f3efd2; --cloud:#2e4170; --hill:#2c3d62; --lawn:#4b5f88; --trunk:#46426a; --leaf:#3a4a5a; --leaf2:#46566a; --pond:#1b355c; --flower:#6d5e96; --rock:#5a739e; --ring:rgba(190,210,255,.45); }
+.stage.scene-arctic.wx-snow:is(.wx-s2, .wx-s3, .wx-s4, .wx-s5):not(.look-night) { --lawn: #f6f9fc; --hill: #e8eff6; }
+.stage.scene-arctic.wx-snow:is(.wx-s2, .wx-s3, .wx-s4, .wx-s5).look-night { --lawn: #5a6e96; --hill: #3a4c72; }
+
+/* Ocean. Underwater: --sky1 is the water near the surface and --sky2 the deep, --lawn the sand,
+   --flower and --cap the corals, --leaf and --leaf2 the weed, --ray the light */
+.scene-ocean-shore.look-soft  { --sky1:#a9dcf4; --sky2:#eef8fb; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#9fbfa8; --lawn:#f1dfae; --trunk:#9a7a5a; --leaf:#6fa66b; --leaf2:#8fbf84; --pond:#6fbbe0; --flower:#e8735f; --cap:#f28c9c; --rock:#9aa3ab; --ring:rgba(255,255,255,.7); }
+.scene-ocean-shore.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#5c9e31; --lawn:#f7d77c; --trunk:#a57939; --leaf:#5c9e31; --leaf2:#8ec63f; --pond:#3fa2e0; --flower:#ea5a47; --cap:#e67a94; --rock:#9b9b9a; --ring:rgba(255,255,255,.85); }
+.scene-ocean-shore.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#4a4c66; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#1c3a66; --flower:#6d4a6a; --cap:#6d5e96; --rock:#3a4660; --ring:rgba(190,210,255,.45); }
+
+.scene-ocean-reef.look-soft  { --sky1:#86d4ee; --sky2:#2a86be; --sun:#fff4c0; --moon:#f3efd2; --cloud:#e8fbff; --hill:#3f8fbd; --lawn:#f0dca8; --trunk:#6b8a6a; --leaf:#3fa06e; --leaf2:#72c48c; --pond:#5bb4de; --flower:#ff8a72; --cap:#f59ac0; --rock:#8fa3b8; --ring:rgba(255,255,255,.6); --ray:rgba(255,252,220,.22); }
+.scene-ocean-reef.look-line  { --sky1:#7fd6f7; --sky2:#1f7fc4; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#2f86c4; --lawn:#f7d77c; --trunk:#5c9e31; --leaf:#3f8a2a; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#ea5a47; --cap:#e67a94; --rock:#9b9b9a; --ring:rgba(255,255,255,.85); --ray:rgba(255,250,200,.25); }
+.scene-ocean-reef.look-night { --sky1:#0e2a4a; --sky2:#050d22; --sun:#000; --moon:#f3efd2; --cloud:#3a5a8a; --hill:#0f2744; --lawn:#3a4058; --trunk:#2c4a4a; --leaf:#1a4a44; --leaf2:#23584e; --pond:#15345a; --flower:#7a4a6a; --cap:#6a4a8a; --rock:#2e3c58; --ring:rgba(190,210,255,.35); --ray:transparent; }
+
+.scene-ocean-kelp.look-soft  { --sky1:#7ec8d8; --sky2:#1f5f86; --sun:#fff4c0; --moon:#f3efd2; --cloud:#e0f7f5; --hill:#3a7f96; --lawn:#d9c79a; --trunk:#6a7a3a; --leaf:#5a8a3a; --leaf2:#86a84a; --pond:#5aa8c0; --flower:#e8735f; --cap:#f28c9c; --rock:#7a8a98; --ring:rgba(255,255,255,.6); --ray:rgba(255,252,220,.2); }
+.scene-ocean-kelp.look-line  { --sky1:#7fd0e0; --sky2:#1a6a9a; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#2f86a4; --lawn:#e2c28c; --trunk:#6a8a2a; --leaf:#5c9e31; --leaf2:#b1cc33; --pond:#61b2e4; --flower:#ea5a47; --cap:#e67a94; --rock:#9b9b9a; --ring:rgba(255,255,255,.85); --ray:rgba(255,250,200,.25); }
+.scene-ocean-kelp.look-night { --sky1:#0c2638; --sky2:#040a18; --sun:#000; --moon:#f3efd2; --cloud:#34566a; --hill:#0f2a38; --lawn:#34384a; --trunk:#2a3a2a; --leaf:#1c3a2c; --leaf2:#264a34; --pond:#12304a; --flower:#6d4a6a; --cap:#6a4a8a; --rock:#2c3a50; --ring:rgba(190,210,255,.35); --ray:transparent; }
+
+.scene-fish-reef.look-soft  { --sky1:#8ad8f0; --sky2:#2f8cc4; --sun:#fff4c0; --moon:#f3efd2; --cloud:#e8fbff; --hill:#4494c2; --lawn:#f2dfae; --trunk:#6b8a6a; --leaf:#3fa06e; --leaf2:#72c48c; --pond:#5bb4de; --flower:#ffa072; --cap:#f7a6c8; --rock:#93a8bc; --ring:rgba(255,255,255,.6); --ray:rgba(255,252,220,.22); }
+.scene-fish-reef.look-line  { --sky1:#7fd6f7; --sky2:#1f7fc4; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#2f86c4; --lawn:#f7d77c; --trunk:#5c9e31; --leaf:#3f8a2a; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#f4aa41; --cap:#e67a94; --rock:#9b9b9a; --ring:rgba(255,255,255,.85); --ray:rgba(255,250,200,.25); }
+.scene-fish-reef.look-night { --sky1:#0e2a4a; --sky2:#050d22; --sun:#000; --moon:#f3efd2; --cloud:#3a5a8a; --hill:#0f2744; --lawn:#3a4058; --trunk:#2c4a4a; --leaf:#1a4a44; --leaf2:#23584e; --pond:#15345a; --flower:#7a5a4a; --cap:#6a4a8a; --rock:#2e3c58; --ring:rgba(190,210,255,.35); --ray:transparent; }
+
+.scene-fish-tank.look-soft  { --sky1:#a8e4ea; --sky2:#5fb8cc; --sun:#ffd76a; --moon:#f3efd2; --cloud:#f0fdff; --hill:#6fbccc; --lawn:#e9e2cf; --trunk:#9a6a44; --leaf:#4fae6a; --leaf2:#86cf7a; --pond:#7fc8d8; --flower:#e8735f; --cap:#f28c9c; --rock:#b7bfc9; --ring:rgba(255,255,255,.6); --ray:rgba(255,255,255,.2); }
+.scene-fish-tank.look-line  { --sky1:#9fe6f0; --sky2:#3fb0d0; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#3fb0d0; --lawn:#f0e6c8; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#ea5a47; --cap:#e67a94; --rock:#c0c0c0; --ring:rgba(255,255,255,.85); --ray:rgba(255,255,255,.25); }
+.scene-fish-tank.look-night { --sky1:#0f2c3e; --sky2:#081826; --sun:#6a5a30; --moon:#f3efd2; --cloud:#3a5a6a; --hill:#123040; --lawn:#34384a; --trunk:#3e3448; --leaf:#1a4a44; --leaf2:#23584e; --pond:#15345a; --flower:#6d4a6a; --cap:#6a4a8a; --rock:#3a4658; --ring:rgba(190,210,255,.35); --ray:transparent; }
+
+.scene-fish-river.look-soft  { --sky1:#a9d8c8; --sky2:#3f7f78; --sun:#fff4c0; --moon:#f3efd2; --cloud:#e8fbf5; --hill:#5a8f82; --lawn:#c9b58a; --trunk:#6e5640; --leaf:#4f8f4a; --leaf2:#7fb06a; --pond:#6fa8a0; --flower:#e8a060; --cap:#d98a8a; --rock:#9a9488; --ring:rgba(255,255,255,.6); --ray:rgba(255,252,220,.2); }
+.scene-fish-river.look-line  { --sky1:#a6e0c8; --sky2:#2f8a7a; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#3f9a7a; --lawn:#d9bf7c; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#8ec63f; --pond:#61b2a4; --flower:#f4aa41; --cap:#e67a94; --rock:#9b9b9a; --ring:rgba(255,255,255,.85); --ray:rgba(255,250,200,.25); }
+.scene-fish-river.look-night { --sky1:#0e2a2a; --sky2:#051414; --sun:#000; --moon:#f3efd2; --cloud:#34566a; --hill:#0f2a28; --lawn:#34383a; --trunk:#2a2a3a; --leaf:#1c3a2c; --leaf2:#264a34; --pond:#12303a; --flower:#6d4a4a; --cap:#6a4a6a; --rock:#2c3a40; --ring:rgba(190,210,255,.35); --ray:transparent; }
+
+/* Mini beasts: close up; --soil is the earth, --hay the cut wood of the logs */
+.scene-minibeasts-flowers.look-soft  { --sky1:#b6e0f5; --sky2:#f0f8ee; --sun:#ffd65a; --moon:#f3efd2; --cloud:#ffffff; --hill:#bfdcae; --lawn:#9fd07f; --trunk:#8a5a3a; --leaf:#5fae5a; --leaf2:#86c47a; --pond:#9fd3e6; --flower:#f07a8a; --cap:#b58ae0; --rock:#b7b0a6; --soil:#9a6e4c; --hay:#e8c98a; --ring:rgba(255,255,255,.7); }
+.scene-minibeasts-flowers.look-line  { --sky1:#92d3f5; --sky2:#e8f6dc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#ea5a47; --cap:#b399c8; --rock:#9b9b9a; --soil:#a57939; --hay:#f1d08a; --ring:rgba(255,255,255,.85); }
+.scene-minibeasts-flowers.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#6a6030; --moon:#f3efd2; --cloud:#5a6a9a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d4a6a; --cap:#5c5690; --rock:#3a4660; --soil:#3a3448; --hay:#5a5448; --ring:rgba(190,210,255,.45); }
+
+.scene-minibeasts-logs.look-soft  { --sky1:#cfe6d6; --sky2:#eef4e6; --sun:#ffe9a8; --moon:#f3efd2; --cloud:#ffffff; --hill:#b8ceb0; --lawn:#8fb57a; --trunk:#6b4a33; --leaf:#4f8f5a; --leaf2:#72a86a; --pond:#9fd0dd; --flower:#c878c8; --cap:#e2735f; --rock:#a9a39a; --soil:#a4845f; --hay:#e3c692; --ring:rgba(255,255,255,.7); }
+.scene-minibeasts-logs.look-line  { --sky1:#b8e3c4; --sky2:#e3f4dc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#8ec63f; --lawn:#5c9e31; --trunk:#8a5a2a; --leaf:#3f8a2a; --leaf2:#5c9e31; --pond:#61b2e4; --flower:#b35ab3; --cap:#ea5a47; --rock:#9b9b9a; --soil:#c29a5a; --hay:#f1d08a; --ring:rgba(255,255,255,.85); }
+.scene-minibeasts-logs.look-night { --sky1:#0b1a2a; --sky2:#1d3440; --sun:#000; --moon:#f3efd2; --cloud:#2c3f5a; --hill:#1a2e33; --lawn:#1c3230; --trunk:#3e3a5e; --leaf:#1e3d3c; --leaf2:#26494a; --pond:#264a6e; --flower:#5c4a70; --cap:#6a4568; --rock:#39445c; --soil:#2e2a3a; --hay:#4e4a48; --ring:rgba(190,210,255,.45); }
+
+.scene-minibeasts-veg.look-soft  { --sky1:#b9e0f4; --sky2:#f3f8ec; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#c4d9b6; --lawn:#a8d08a; --trunk:#b08a62; --leaf:#5aa86a; --leaf2:#9ccf8a; --pond:#7fb8d8; --flower:#e8574f; --cap:#f3b6c8; --rock:#b7b0a6; --soil:#8f6446; --hay:#e8c98a; --ring:rgba(255,255,255,.7); }
+.scene-minibeasts-veg.look-line  { --sky1:#92d3f5; --sky2:#e8f6dc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#3f8a2a; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#ea5a47; --cap:#e67a94; --rock:#9b9b9a; --soil:#a57939; --hay:#f1d08a; --ring:rgba(255,255,255,.85); }
+.scene-minibeasts-veg.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d4a6a; --cap:#6d5e96; --rock:#3a4660; --soil:#3a3448; --hay:#5a5448; --ring:rgba(190,210,255,.45); }
 
 /* A scene change fades through this veil */
 .veil { position: fixed; inset: 0; z-index: 4; background: #0d1834; opacity: 0; pointer-events: none; transition: opacity .9s ease-in-out; }
@@ -408,6 +525,44 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
    strength 3, white gust streaks too. Trees and reeds lean further at each step. */
 .wx-wind.wx-s1 { --lean: 1.5deg; } .wx-wind.wx-s2 { --lean: 3deg; } .wx-wind.wx-s3 { --lean: 4.5deg; }
 .wx-wind.wx-s4 { --lean: 6.5deg; } .wx-wind.wx-s5 { --lean: 8.5deg; }
+.wx-dust.wx-s1, .wx-current.wx-s1 { --lean: 1.5deg; } .wx-dust.wx-s2, .wx-current.wx-s2 { --lean: 3deg; } .wx-dust.wx-s3, .wx-current.wx-s3 { --lean: 4.5deg; }
+.wx-dust.wx-s4, .wx-current.wx-s4 { --lean: 6.5deg; } .wx-dust.wx-s5, .wx-current.wx-s5 { --lean: 8.5deg; }
+/* Dusty wind: sand specks and a warm haze; a current underwater: pale specks drifting past */
+.leaves.dust b, .leaves.drift b { width: .55vw; aspect-ratio: 1; border-radius: 50%; animation-name: none; }
+.leaves.dust b { background: rgba(214,170,100,.8); } .leaves.drift b { background: rgba(255,255,255,.55); }
+.haze.dusty { background: linear-gradient(transparent 20%, rgba(226,184,120,.45) 130%); }
+.haze.dusty.high { background: rgba(230,196,140,.25); }
+.look-night .leaves.dust b { background: rgba(150,130,110,.6); } .look-night .haze.dusty { background: linear-gradient(transparent, rgba(90,80,70,.4)); }
+.wx-current .gusts b, .wx-dust .gusts b { opacity: .5; }
+/* Bubbles: the snow's drift, rising (no slant), as see-through rings with a shine */
+.st3 .snow.rise, .st4 .snow.rise, .st5 .snow.rise { rotate: 0deg; }
+.snow.rise i { animation-direction: reverse; }
+.snow.rise b { border-radius: 50%; background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.85) 0 14%, rgba(255,255,255,.12) 38%, rgba(255,255,255,.05) 70%);
+    border: max(1.5px, .12vw) solid rgba(255,255,255,.75); animation: waver calc(var(--w) * var(--pace)) ease-in-out infinite alternate; }
+.look-line .snow.rise b { background-image: radial-gradient(circle at 34% 30%, #fff 0 14%, rgba(255,255,255,.2) 40%); border-color: #1b1b1b; }
+.look-night .snow.rise b { border-color: rgba(190,210,255,.5); }
+/* Sunbeams: soft slanting light from the surface, shimmering slowly */
+.beams p, .glow p { position: absolute; inset: 0; margin: 0; }
+.beams i { position: absolute; top: -10%; width: var(--w); height: 90%; rotate: var(--r); transform-origin: 50% 0;
+    background: linear-gradient(rgba(255,252,220,.45), transparent); filter: blur(6px);
+    animation: shimmer calc(var(--d) * var(--pace)) ease-in-out infinite alternate; }
+.look-night .beams i { background: linear-gradient(rgba(180,200,255,.2), transparent); }
+@keyframes shimmer { from { opacity: .35; } to { opacity: 1; } }
+/* Glow: tiny lights twinkling slowly (never flashing) */
+.glow i { position: absolute; width: var(--s); aspect-ratio: 1; border-radius: 50%; background: #d9fff6;
+    box-shadow: 0 0 calc(var(--s) * 2) calc(var(--s) * .6) rgba(120,255,220,.55);
+    animation: twinkle calc(var(--d) * var(--pace)) ease-in-out infinite alternate; }
+/* Northern lights: a darker sky, and ribbons of light rippling slowly; they fade out
+   towards the horizon, like the lightning */
+.dusk { position: absolute; inset: 0; background: linear-gradient(rgba(10,20,50,.55), transparent 65%); }
+.look-night .dusk { background: linear-gradient(rgba(0,0,10,.3), transparent 65%); }
+.aurora { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(#000 30%, transparent 70%); mask-image: linear-gradient(#000 30%, transparent 70%); }
+.aurora i { position: absolute; left: -20%; width: 140%; border-radius: 50%; filter: blur(18px); opacity: .75;
+    animation: ripple-sky calc(var(--d) * var(--pace)) ease-in-out infinite alternate; }
+.aurora .a0 { background: radial-gradient(ellipse at 50% 60%, rgba(90,255,170,.8), rgba(90,255,170,0) 65%); }
+.aurora .a1 { background: radial-gradient(ellipse at 50% 60%, rgba(120,230,255,.7), rgba(120,230,255,0) 65%); }
+.aurora .a2 { background: radial-gradient(ellipse at 50% 60%, rgba(230,130,255,.6), rgba(230,130,255,0) 65%); }
+@keyframes ripple-sky { from { transform: translateX(-8%) skewX(-12deg) scaleY(.8); } to { transform: translateX(8%) skewX(12deg) scaleY(1.15); } }
 .leaves i, .gusts i { left: 0; width: 100%; height: 0; animation: blow calc(var(--d) * var(--pace)) linear infinite; }
 @keyframes blow { from { transform: translateX(-12%); } to { transform: translateX(106%); } }
 .leaves b { left: 0; width: 2.2vw; aspect-ratio: 5 / 3; border-radius: 0 100% 0 100%; border: 0 solid #1b1b1b;
@@ -476,6 +631,7 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
     .animal.moving, .animal .body { transition-duration: .01s !important; }
     /* Weather that only makes sense moving is left out; the sky, mist, rainbow and snowy ground stay */
     .rain, .snow, .leaves, .gusts, .splash, .bolt, .blowing { display: none !important; }
+    .aurora i, .beams i, .glow i { animation: none !important; }
 }
 
 /* ── Set-up: the adult's full screen, over the scene ── */
