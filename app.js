@@ -124,12 +124,13 @@ function setScanForScreen(id) {
     }
 }
 
-const CDN = 'https://cdn.jsdelivr.net/npm/openmoji@15.0.0/color/svg/';
+// Most animals are OpenMoji glyphs, bundled in openmoji/ by hexcode so the app
+// works offline. The fish theme also uses artwork in fish/ that we derived from
+// those glyphs, named by `src`.
+const OPENMOJI_DIR = 'openmoji/';
 
-// Most animals are OpenMoji glyphs fetched by hexcode. The fish theme also
-// uses artwork in fish/ that we derived from those glyphs, named by `src`.
 function imgSrc(animal) {
-    return animal.src || CDN + animal.code + '.svg';
+    return animal.src || OPENMOJI_DIR + animal.code + '.svg';
 }
 
 /* ── STATE ── */

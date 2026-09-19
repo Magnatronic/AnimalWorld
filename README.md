@@ -26,7 +26,8 @@ each computer remembers its own setup.
 - **Sound** — volume, and whether every animal's name is spoken after its sound.
 
 ## Usage
-Open `index.html` in any modern browser. An internet connection is required to load animal images.
+Open `index.html` in any modern browser. Everything it needs — pictures, sounds and font — is in this
+folder, so it works with no internet connection.
 
 Keep the whole folder together — `index.html` loads the files and folders below from alongside it.
 
@@ -40,11 +41,21 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `app.js` | The activities, sound playback and switch scanning |
 | `sounds/` | One `.mp3` per animal — see `sounds/_Adding Sounds.md` |
 | `fish/` | Artwork for the Fish theme |
+| `openmoji/` | The OpenMoji pictures the themes use, one SVG per hexcode |
+| `fonts/` | The Nunito font |
+
+To give a theme an OpenMoji animal it doesn't have yet, find its hexcode on
+[openmoji.org](https://openmoji.org), download
+`https://cdn.jsdelivr.net/npm/openmoji@15.0.0/color/svg/<HEXCODE>.svg` into `openmoji/`,
+and use the hexcode as the animal's `code` in `themes.js`.
 
 ## Hosting
 Live at: [https://Magnatronic.github.io/AnimalWorld](https://Magnatronic.github.io/AnimalWorld)
 
 ## Credits
+Font: [Nunito](https://github.com/googlefonts/nunito) by The Nunito Project Authors,
+[SIL Open Font License 1.1](fonts/OFL.txt).
+
 Animal images: [OpenMoji](https://openmoji.org/) — the open-source emoji and icon project.  
 License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 

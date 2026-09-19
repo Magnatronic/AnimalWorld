@@ -1,6 +1,6 @@
 // The themes shown on the home screen. Each animal needs:
 //   name   - the label on its card
-//   code   - an OpenMoji hexcode (the artwork is fetched from the CDN), or
+//   code   - an OpenMoji hexcode; the SVG must be in openmoji/ (see README), or
 //   src    - a path to our own artwork, as the fish theme does
 //   sound  - a file in sounds/, without the .mp3
 // Set `speakName: true` on a theme to say each name after its sound (see fish).
