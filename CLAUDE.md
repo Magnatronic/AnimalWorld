@@ -45,7 +45,14 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
   `marks`, and name them in `markWords` for set-up), "Subtle" or "Clear". Forest adds habitat `hide`
   for head-only pictures (fox, bear, wolf): the spot is the line a cover hides them from (`covers`,
   drawn 200×100 with the spot at (100, 30); a spot's `cover` picks bush, log or hay); `peek()` pops
-  them up from behind (`.behind`, clipped; `.down`/`.up`) and then forward to sit in front of it. `hang: true` (bat) turns the picture over under a branch; its
+  them up from behind (`.behind`, clipped; `.down`/`.up`) and then forward to sit in front of it. Moves: `climb` needs each of its spots to have
+  `up: [x, y]`, the foot of the trunk or stem (`climb()` runs the path with the Web Animations API);
+  `surface` rises out of the water at the spot; `pop` grows in place; `drop` comes down a thread;
+  walkers come in from the nearer edge (a spot's `from: 'l'|'r'` forces a side). A def's `src` swaps the
+  picture (recolours in scenes/pictures/). Scenes with more places than animals add copies ("Owl 2",
+  `copy: true`); Random and touches prefer the originals. `windCarries: 'snow'|'sand'` replaces the
+  wind's leaves. dev/test.js `#validate` and `#movecheck` check every scene (movecheck samples the
+  drawing so no walk crosses water). `hang: true` (bat) turns the picture over under a branch; its
   `foot` is then where it grips, near the top. Animals are z-ordered by spot y (`standAt()`).
 - **Sounds**: CC0 only (Freesound). Animal calls levelled to about −16 LUFS, background loops about
   −26 LUFS, peaks limited; credit each in `sounds/_Adding Sounds.md`. Tooling: `pip install
