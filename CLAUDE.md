@@ -21,7 +21,7 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 | `shared/switches.js` | Learning/reading switches: keys + Gamepad API. Numbered switch list for Scenes (min 5 in Scenes, max 12, id + colour); `capture()` for one-off learning (Activities' scanning switches) |
 | `shared/hold.js/.css`, `shared/fonts.css` | Hold-to-open ⚙; bundled Nunito |
 | `scenes/art.js` | Per theme: `animals` (habitat perch/ground/water, width %, facing r/l/f, move), `switchCast`, and `scenes` (each: SVG drawing, `spots`, `places`, `residents`, `track`, `splashes` = rain-ring points on its water). `SceneTracks` = background loops; `SceneWeather` = the weathers (label, hint, optional sound) |
-| `scenes/scenes.js` | Scene engine, settings (`animalScenes.settings`), jobs, `makeLooper()` crossfading loops (track and weather sounds), weather (`drawWeather`, `setWeather`, `pressWeather`, strength 1–3 as `wx-s1..3` + `.lv2/.lv3`, easing off, thunder) |
+| `scenes/scenes.js` | Scene engine, settings (`animalScenes.settings`), jobs, `makeLooper()` crossfading loops (track and weather sounds), weather (`drawWeather`, `setWeather`, `pressWeather`, strength 1–5 as `st1..5` on each weather layer + `.lv2…lv5` (stage `wx-s1..5` only for lean and snowy ground), easing off, thunder) |
 | `scenes/presets.js` | Presets (`animalScenes.presets`): ready-made list, save/update/rename/delete, `usePreset()`, `#preset=<id>` links. Jobs stored by switch number, not switch id |
 | `scenes/setup.js` | Set-up screen |
 | `openmoji/`, `fish/`, `sounds/`, `sounds/ambient/`, `sounds/weather/` | All assets are local (offline) |

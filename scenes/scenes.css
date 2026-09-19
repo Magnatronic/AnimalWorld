@@ -168,8 +168,10 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 @keyframes twinkle { from { opacity: .35; } to { opacity: 1; } }
 
 /* ── Weather: fades in and out over --fade; see "Weather" in scenes.js ──
-   Strength is wx-s1, wx-s2 or wx-s3 on the stage: things marked lv2 / lv3 fade in
-   at that strength, and the sky, haze, lean and ground follow it. */
+   Strength is st1 … st5 on each weather's own layers, so weather fading out keeps
+   the strength it had: things marked lv2 … lv5 fade in from that strength, and the
+   sky, slant and haze follow it. The stage's wx-s1 … wx-s5 sets the lean of the
+   trees and the snowy ground. */
 .look-soft, .look-line { --rain: rgba(90,125,165,.55); --mist: rgba(246,248,251,.85); --overcast: rgba(95,110,135,.38); --storm: rgba(50,60,85,.42); }
 .look-line  { --rain: rgba(55,120,190,.7); }
 .look-night { --rain: rgba(190,210,255,.5); --mist: rgba(140,160,210,.4); --overcast: rgba(4,8,22,.4); --storm: rgba(0,0,8,.4); }
@@ -178,98 +180,118 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 .wx.on { opacity: 1; }
 .wx-layer i, .wx-layer b { position: absolute; display: block; }
 .wx .fill { position: absolute; inset: 0; }
-.lv2, .lv3 { transition: opacity 3s ease-in-out; }
-.wx-s1 .lv2, .wx-s1 .lv3, .wx-s2 .lv3 { opacity: 0; }
+.lv2, .lv3, .lv4, .lv5 { transition: opacity 1.2s ease-in-out; }
+.st1 :is(.lv2, .lv3, .lv4, .lv5), .st2 :is(.lv3, .lv4, .lv5), .st3 :is(.lv4, .lv5), .st4 .lv5 { opacity: 0; }
 
-/* A greyer sky (rain, snow), darker as it gets stronger and in a storm; the sun goes pale */
+/* A greyer sky (rain, snow), darker at each step and in a storm; the sun goes pale */
 .wx-rain:not(.look-night) .f-sun, .wx-storm:not(.look-night) .f-sun,
 .wx-snow:not(.look-night) .f-sun, .wx-fog:not(.look-night) .f-sun { opacity: .3; }
-.overcast { position: absolute; inset: 0; background: linear-gradient(var(--overcast), transparent 78%); transition: opacity 3s ease-in-out; }
+.overcast { position: absolute; inset: 0; background: linear-gradient(var(--overcast), transparent 78%); transition: opacity 1.5s ease-in-out; }
 .overcast.deep { background: linear-gradient(var(--storm), transparent 90%); }
-.wx-s1 .overcast:not(.deep) { opacity: .55; }
-.wx-s2 .overcast:not(.deep) { opacity: .8; }
+.st1 .overcast:not(.deep) { opacity: .35; } .st2 .overcast:not(.deep) { opacity: .55; }
+.st3 .overcast:not(.deep) { opacity: .75; } .st4 .overcast:not(.deep) { opacity: .9; }
+/* (a storm's deep sky is there from the start; rain's only at 5) */
+.st1 .overcast.deep:not(.lv5) { opacity: .45; } .st2 .overcast.deep:not(.lv5) { opacity: .6; }
+.st3 .overcast.deep:not(.lv5) { opacity: .75; } .st4 .overcast.deep:not(.lv5) { opacity: .9; }
 
-/* Rain: each drop's track is the height of the scene, tilted a little */
-.rain { position: absolute; inset: -15% -10%; rotate: 10deg; }
+/* Rain: each drop's track is the height of the scene; stronger rain slants more,
+   and its drops are longer and faster (set per drop) */
+.rain { position: absolute; inset: -25% -15%; rotate: 8deg; transition: rotate 2s ease-in-out; }
+.st3 .rain { rotate: 11deg; } .st4 .rain { rotate: 15deg; } .st5 .rain { rotate: 19deg; }
 .rain i { top: 0; height: 100%; width: max(2px, .12vw);
-    background: linear-gradient(transparent 92%, var(--rain)); border-radius: 2px;
+    background: linear-gradient(transparent calc(100% - var(--len, 8%)), var(--rain)); border-radius: 2px;
     animation: fall calc(var(--d) * var(--pace)) linear infinite; }
 @keyframes fall { from { transform: translateY(-100%); } to { transform: translateY(10%); } }
 .splash { width: 4.5%; aspect-ratio: 4 / 1; margin: -1% 0 0 -2.25%; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,.7); animation: splash calc(1.8s * var(--pace)) ease-out infinite; }
+    border: 2px solid rgba(255,255,255,.7); animation: splash calc(1.6s * var(--pace)) ease-out infinite; }
 @keyframes splash { from { transform: scale(.15); opacity: 1; } to { transform: scale(1); opacity: 0; } }
 
-/* Snow: soft flakes at three depths (d0 far and slow, d2 near, big and quicker),
-   each drifting from side to side; heavier snow settles and whitens the ground */
-.snow { position: absolute; inset: -5% -3%; }
+/* Snow: six-armed crystals at three depths (d0 far and slow, d2 near, big and
+   quicker), turning and drifting; stronger snow slants into a blizzard, and settles
+   on the ground, which whitens a step at a time */
+.snow { position: absolute; inset: -15% -10%; rotate: 0deg; transition: rotate 2s ease-in-out; }
+.st4 .snow { rotate: 8deg; } .st5 .snow { rotate: 16deg; }
 .snow i { top: 0; height: 100%; width: 0; animation: fall calc(var(--d) * var(--pace)) linear infinite; }
-.snow b { bottom: 0; width: var(--s); height: var(--s); margin-left: calc(var(--s) / -2); border-radius: 50%;
-    background: radial-gradient(circle, #fff 38%, rgba(232,240,248,.9) 55%, rgba(255,255,255,0) 72%);
-    animation: waver calc(var(--w) * var(--pace)) ease-in-out infinite alternate; }
-.snow b.crystal { border-radius: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='rgba%2890%2C110%2C140%2C0.4%29' stroke-width='10'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3Cg stroke='white' stroke-width='5'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+.snow b { bottom: 0; width: var(--s); height: var(--s); margin-left: calc(var(--s) / -2);
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='rgba%2890%2C110%2C140%2C0.4%29' stroke-width='10'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3Cg stroke='white' stroke-width='5'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
     animation: waver calc(var(--w) * var(--pace)) ease-in-out infinite alternate, spin calc(var(--r) * var(--pace)) linear infinite; }
-.look-line .snow b.crystal { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%231b1b1b' stroke-width='10'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3Cg stroke='white' stroke-width='5'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat; border: 0; }
-@keyframes spin { to { rotate: 360deg; } }
-.snow .d0 b { opacity: .55; }
+.look-line .snow b { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%231b1b1b' stroke-width='10'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3Cg stroke='white' stroke-width='5'%3E%3Cpath transform='rotate%280%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-44M0-16l-11-11M0-16l11-11M0-31l-8-8M0-31l8-8'/%3E%3C/g%3E%3C/svg%3E"); }
+.snow .d0 b { opacity: .6; }
 .snow .d1 b { opacity: .85; }
-.look-line .snow .d1 b:not(.crystal), .look-line .snow .d2 b:not(.crystal) { background: #fff; border: 1.5px solid #1b1b1b; }
 @keyframes waver { from { transform: translateX(calc(var(--x) * -1)); } to { transform: translateX(var(--x)); } }
-.stage.wx-snow.wx-s2:not(.look-night) { --lawn: #dce8d8; --hill: #e1eae4; }
-.stage.wx-snow.wx-s3:not(.look-night) { --lawn: #f1f5f8; --hill: #eaf0f5; }
-.stage.wx-snow.wx-s2.look-night { --lawn: #30475a; --hill: #2e445c; }
-.stage.wx-snow.wx-s3.look-night { --lawn: #4b6082; --hill: #45597c; }
+@keyframes spin { to { rotate: 360deg; } }
+.stage.wx-snow.wx-s3:not(.look-night) { --lawn: #d4e3cf; --hill: #dae5de; }
+.stage.wx-snow.wx-s4:not(.look-night) { --lawn: #e6eee6; --hill: #e6edee; }
+.stage.wx-snow.wx-s5:not(.look-night) { --lawn: #f2f6f8; --hill: #edf2f6; }
+.stage.wx-snow.wx-s3.look-night { --lawn: #2c4254; --hill: #2c4258; }
+.stage.wx-snow.wx-s4.look-night { --lawn: #3a506c; --hill: #394f6c; }
+.stage.wx-snow.wx-s5.look-night { --lawn: #4b6082; --hill: #45597c; }
 
-/* Wind: leaves blown across, tumbling; each track is the width of the scene. Trees lean more as it strengthens. */
-.wx-wind.wx-s1 { --lean: 2deg; } .wx-wind.wx-s2 { --lean: 3.5deg; } .wx-wind.wx-s3 { --lean: 5deg; }
-.leaves i { left: 0; width: 100%; height: 0; animation: blow calc(var(--d) * var(--pace)) linear infinite; }
-@keyframes blow { from { transform: translateX(-6%); } to { transform: translateX(106%); } }
+/* Wind: leaves blown across, tumbling, each track the width of the scene; from
+   strength 3, white gust streaks too. Trees and reeds lean further at each step. */
+.wx-wind.wx-s1 { --lean: 1.5deg; } .wx-wind.wx-s2 { --lean: 2.5deg; } .wx-wind.wx-s3 { --lean: 3.5deg; }
+.wx-wind.wx-s4 { --lean: 5deg; } .wx-wind.wx-s5 { --lean: 6.5deg; }
+.leaves i, .gusts i { left: 0; width: 100%; height: 0; animation: blow calc(var(--d) * var(--pace)) linear infinite; }
+@keyframes blow { from { transform: translateX(-12%); } to { transform: translateX(106%); } }
 .leaves b { left: 0; width: 2.2vw; aspect-ratio: 5 / 3; border-radius: 0 100% 0 100%; border: 0 solid #1b1b1b;
     animation: tumble calc(var(--w) * var(--pace)) ease-in-out infinite; }
 .leaves b.c0 { background: var(--leaf); } .leaves b.c1 { background: var(--leaf2); } .leaves b.c2 { background: var(--flower); }
 .look-line .leaves b { border-width: 2px; }
 @keyframes tumble { 0% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4vw) rotate(200deg); } 100% { transform: translateY(0) rotate(360deg); } }
+.gusts b { left: 0; width: 15vw; height: max(3px, .25vw); border-radius: 99px; translate: -100% 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.95) 60%, transparent);
+    filter: drop-shadow(0 1px 0 rgba(60,90,110,.3)); }
+.look-night .gusts b { background: linear-gradient(90deg, transparent, rgba(190,210,255,.45) 60%, transparent); }
 
 /* Fog: a haze and wide bands of mist drifting slowly (each band repeats, so it loops
-   seamlessly), with lighter bands low down in front of the animals */
-.haze { position: absolute; inset: 0; background: linear-gradient(transparent 10%, var(--mist) 140%); opacity: .95; transition: opacity 3s ease-in-out; }
-.wx-s1 .haze { opacity: .5; } .wx-s2 .haze { opacity: .75; }
+   seamlessly); thicker at each step, with more mist low down in front of the animals */
+.haze { position: absolute; inset: 0; background: linear-gradient(transparent 10%, var(--mist) 140%); transition: opacity 1.5s ease-in-out; }
+.st1 .haze { opacity: .25; } .st2 .haze { opacity: .5; } .st3 .haze { opacity: .75; } .st4 .haze { opacity: .9; }
+/* Thick fog from 4: a veil over the whole scene behind the animals, and at 5 a lighter one in front */
+.haze.high { background: var(--mist); }
+.wx .haze.high { opacity: .4; }
+.front-fog .haze.high { opacity: .25; }
+.st1 .haze.high, .st2 .haze.high, .st3 .haze.high, .st4 .front-fog .haze.high { opacity: 0; }
 .mist { position: absolute; left: 0; width: 200%;
     background: radial-gradient(closest-side, var(--mist), transparent) 0 0 / 25% 100% repeat-x;
     animation: mist calc(var(--d) * var(--pace)) linear infinite; }
 @keyframes mist { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .front-fog { position: absolute; inset: 0; opacity: .5; }
 
-/* Rainbow: in the sky behind the scenery, fading out towards the horizon; brighter
-   as it strengthens, with a second bow at full strength; fainter at night */
-.rainbow.on { opacity: .8; }
-.look-line .rainbow.on { opacity: .9; }
-.look-night .rainbow.on { opacity: .35; }
-.rainbow .bows { transition: opacity 3s ease-in-out; }
-.wx-s1 .rainbow .bows { opacity: .55; } .wx-s2 .rainbow .bows { opacity: .8; }
-.rainbow .second { opacity: .5; }
-.wx-s1 .rainbow .second, .wx-s2 .rainbow .second { opacity: 0; }
+/* Rainbow: in the sky behind the scenery, fading out towards the horizon; brighter at
+   each step, with slow sparkles from 3 and a second bow from 4; fainter at night */
+.rainbow.on { opacity: .85; }
+.look-line .rainbow.on { opacity: .95; }
+.look-night .rainbow.on { opacity: .4; }
+.rainbow .bows { transition: opacity 1.5s ease-in-out; }
+.rainbow.st1 .bows { opacity: .3; } .rainbow.st2 .bows { opacity: .5; } .rainbow.st3 .bows { opacity: .7; } .rainbow.st4 .bows { opacity: .85; }
+.rainbow .second { opacity: .35; }
+.rainbow.st5 .second { opacity: .6; }
 .rainbow path { fill: none; }
+.rainbow .sparkle { fill: #fffbe8; stroke: none; animation: twinkle calc(3s * var(--pace)) ease-in-out infinite alternate; }
+.look-line .rainbow .sparkle { fill: #fcea2b; }
 .rb1 { stroke: #f19a8f; } .rb2 { stroke: #f7c47c; } .rb3 { stroke: #f6e48d; } .rb4 { stroke: #a9dc98; } .rb5 { stroke: #95c8ee; } .rb6 { stroke: #c0a6e6; }
 .look-line .rb1 { stroke: #ea5a47; } .look-line .rb2 { stroke: #f4aa41; } .look-line .rb3 { stroke: #fcea2b; }
 .look-line .rb4 { stroke: #5c9e31; } .look-line .rb5 { stroke: #61b2e4; } .look-line .rb6 { stroke: #b399c8; }
 
 /* Thunder: a faint, thin bolt that fades in over a quarter of a second and out over
-   a second and a half, with no flicker. It's drawn into the scene behind the hills and
-   trees, so it comes down out of the darker sky and meets the horizon. */
+   a second and a half, with no flicker; a stronger storm makes it a little thicker
+   and brighter (--peak, set in thunder()). It's drawn into the scene behind the
+   hills and trees, so it comes down out of the darker sky and meets the horizon. */
 .bolt { opacity: 0; }
 .bolt path { fill: none; stroke-linejoin: round; stroke-linecap: round; }
-.bolt .bolt-halo { stroke: rgba(255,250,225,.2); stroke-width: 16; }
-.bolt .bolt-core { stroke: rgba(255,253,240,.8); stroke-width: 4; }
+.bolt .bolt-halo { stroke: rgba(255,250,225,.2); }
+.bolt .bolt-core { stroke: rgba(255,253,240,.85); }
 .look-line .bolt .bolt-core { stroke: rgba(252,234,43,.9); }
 .bolt.strike { animation: bolt 1.9s ease-out; }
-@keyframes bolt { 0% { opacity: 0; } 14% { opacity: .85; } 28% { opacity: .75; } 100% { opacity: 0; } }
+@keyframes bolt { 0% { opacity: 0; } 14% { opacity: var(--peak, .8); } 28% { opacity: calc(var(--peak, .8) - .1); } 100% { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-    .cloud, .sway, .ring, .f-star, .ray, .animal img, .mist { animation: none !important; }
+    .cloud, .sway, .ring, .f-star, .ray, .animal img, .mist, .sparkle { animation: none !important; }
     .stage, .night-only, .day-only, .ol { transition-duration: .01s !important; }
     .animal.moving { transition-duration: .01s; }
     /* Weather that only makes sense moving is left out; the sky, mist, rainbow and snowy ground stay */
-    .rain, .snow, .leaves, .splash, .bolt { display: none !important; }
+    .rain, .snow, .leaves, .gusts, .splash, .bolt { display: none !important; }
 }
 
 /* ── Set-up: the adult's full screen, over the scene ── */

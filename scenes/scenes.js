@@ -351,17 +351,23 @@ function everyoneLeaves() {
 }
 
 /* ── Weather ── */
-// One weather at a time, at a strength of 1 to 3. Some of it is behind the animals
-// (a darker sky, mist, rings on the water; a rainbow goes into the sky itself, behind
-// the scenery) and some in front (raindrops, snowflakes, leaves, low mist). None of it
-// catches touches, so the animals can always be touched. Weather fades in and out
-// over the "Look changes" time; a change of strength fades over a few seconds.
-// Thunder is a faint lightning bolt and a distant rumble: at most one every few
-// seconds, however often it's asked for, so it can never become flashing.
+// One weather at a time, at a strength of 1 to 5. Some of it is behind the animals
+// (a darker sky, mist, rings on the water; a rainbow and lightning go into the sky
+// itself, behind the scenery) and some in front (raindrops, snowflakes, leaves, low
+// mist). None of it catches touches, so the animals can always be touched. Weather
+// fades in and out over the "Look changes" time; a change of strength shows within
+// a second or two.
+//
+// Each strength adds its own set of drops, flakes or leaves, faster than the last, so
+// stronger weather is both heavier and quicker (a drop can't change speed mid-fall
+// without jumping). Thunder is a faint lightning bolt, brighter in a stronger storm,
+// and a distant rumble: at most one every few seconds, however often it's asked for,
+// so it can never become flashing.
 //
 // Weather switches either build up (each press is a step stronger, and left alone
 // the weather eases back to the scene's own) or turn the weather on and off.
-const BASE_STRENGTH = 2;    // the scene's own weather, and weather turned on with On / off
+const MAX_STRENGTH = 5;
+const BASE_STRENGTH = 3;    // the scene's own weather, and weather turned on with On / off
 const WEATHER_JOBS = {
     ...Object.fromEntries(Object.entries(SceneWeather).map(([id, w]) => [id, { label: w.label, hint: w.hint }])),
     nextweather: { label: '🌦️ Next weather', hint: 'Fades to the next weather: clear, rain, rainbow, wind, fog, snow. (Storm only comes from its own job.)' },
@@ -380,60 +386,81 @@ function building() { return sceneSettings.weatherPress !== 'toggle'; }
 function homeWeather() { return SceneWeather[sceneSettings.weather] ? sceneSettings.weather : 'clear'; }
 
 function drawWeather(id) {
-    const n = (count, make) => Array.from({ length: count }, (_, i) => make(i)).join('');
-    // Everything has a level: level 2 and 3 things only show at that strength
-    // (.lv2, .lv3 in scenes.css), so building up fades more in.
-    const lv = (i, count) => i < count / 3 ? '' : i < count * 2 / 3 ? 'lv2' : 'lv3';
+    // For each strength 1…5, `count[level]` things made by `make(level)`. Things of
+    // level 2 and up are marked lv2…lv5 and only show from that strength (scenes.css).
+    const levels = (counts, make) => counts.map((count, k) => {
+        const lv = k ? ` lv${k + 1}` : '';
+        return Array.from({ length: count }, () => make(k + 1, lv)).join('');
+    }).join('');
+    const speed = level => 1 - (level - 1) * 0.13;           // level 5 moves about twice as fast as level 1
     // Each falling or blowing thing runs along a track the size of the scene, so
     // its motion is a transform (smooth, and cheap for the browser).
-    const rain = count => `<div class="rain">${n(count, i =>
-        `<i class="${lv(i, count)}" style="left:${rand(-5, 105).toFixed(1)}%;--d:${rand(0.7, 1.05).toFixed(2)}s;animation-delay:${rand(-2, 0).toFixed(2)}s"></i>`)}</div>`;
-    const overcast = storm => `<div class="overcast"></div><div class="overcast deep${storm ? '' : ' lv3'}"></div>`;
-    const splashes = () => ['', 'lv2', 'lv3'].map((level, k) => `<div class="fill ${level}">${(art.splashes || []).map(([x, y]) =>
-        `<i class="splash" style="left:${(x + k * 2.2).toFixed(1)}%;top:${(y - k * 0.8).toFixed(1)}%;animation-delay:${rand(-2, 0).toFixed(2)}s"></i>`).join('')}</div>`).join('');
-    // Snow falls at three depths: small, faint and slow far away; big and soft close up.
-    // Half the nearest are six-armed crystals, turning slowly as they fall.
-    const flake = i => {
-        const depth = i % 3, crystal = i % 6 === 5;
-        const [size, fall, sway] = [[rand(0.25, 0.4), rand(20, 26), 0.8], [rand(0.45, 0.7), rand(13, 17), 1.4], [rand(0.9, 1.3), rand(8, 11), 2.2]][depth];
-        return `<i class="d${depth} ${lv(i, 132)}" style="left:${rand(-3, 103).toFixed(1)}%;--d:${fall.toFixed(1)}s;animation-delay:${rand(-fall, 0).toFixed(1)}s">` +
-            `<b${crystal ? ' class="crystal"' : ''} style="--s:${(crystal ? rand(1.6, 2.4) : size).toFixed(2)}vw;--x:${sway}vw;--w:${rand(2.5, 4.5).toFixed(1)}s;--r:${rand(14, 24).toFixed(0)}s"></b></i>`;
-    };
-    const mist = ([top, h, d, level], i) =>
-        `<div class="mist ${level}" style="top:${top}%;height:${h}%;--d:${d}s;animation-delay:${-d * (0.2 + i * 0.3)}s"></div>`;
+    const rain = () => `<div class="rain">${levels([30, 40, 50, 60, 70], (level, lv) => {
+        const d = rand(1.1, 1.4) * speed(level);
+        return `<i class="${lv}" style="left:${rand(-5, 105).toFixed(1)}%;--d:${d.toFixed(2)}s;--len:${4 + level * 2}%;animation-delay:${rand(-d, 0).toFixed(2)}s"></i>`;
+    })}</div>`;
+    const overcast = storm => `<div class="overcast"></div><div class="overcast deep${storm ? '' : ' lv5'}"></div>`;
+    const splashes = () => [0, 1, 2, 3, 4].map(k => `<div class="fill${k ? ' lv' + (k + 1) : ''}">${(art.splashes || []).map(([x, y]) =>
+        `<i class="splash" style="left:${(x + (k % 2 ? 1 : -1) * k * 1.4).toFixed(1)}%;top:${(y - k * 0.5).toFixed(1)}%;animation-delay:${rand(-2, 0).toFixed(2)}s"></i>`).join('')}</div>`).join('');
+    // Snow: six-armed crystals at three depths (small, faint and slow far away; big
+    // close up), turning slowly and drifting from side to side as they fall.
+    const snow = () => `<div class="snow">${levels([22, 26, 30, 34, 38], (level, lv) => {
+        const depth = Math.floor(Math.random() * 3);
+        const [size, fall, sway] = [[rand(0.55, 0.85), rand(20, 26), 0.8], [rand(0.95, 1.4), rand(13, 17), 1.4], [rand(1.6, 2.4), rand(8, 11), 2.2]][depth];
+        const d = fall * speed(level);
+        return `<i class="d${depth}${lv}" style="left:${rand(-3, 103).toFixed(1)}%;--d:${d.toFixed(1)}s;animation-delay:${rand(-d, 0).toFixed(1)}s">` +
+            `<b style="--s:${size.toFixed(2)}vw;--x:${sway}vw;--w:${rand(2.5, 4.5).toFixed(1)}s;--r:${rand(12, 24).toFixed(0)}s"></b></i>`;
+    })}</div>`;
+    const leaves = () => `<div class="leaves">${levels([8, 10, 12, 14, 16], (level, lv) => {
+        const d = rand(9, 12) * speed(level);
+        return `<i class="${lv}" style="top:${rand(8, 80).toFixed(1)}%;--d:${d.toFixed(1)}s;animation-delay:${rand(-d, 0).toFixed(1)}s">` +
+            `<b class="c${Math.floor(Math.random() * 3)}" style="--w:${(rand(2.5, 4) * speed(level)).toFixed(1)}s"></b></i>`;
+    })}</div>`;
+    // Strong wind: white streaks whipping across, more and quicker each level from 3.
+    const gusts = () => `<div class="gusts">${levels([0, 0, 4, 6, 8], (level, lv) => {
+        const d = rand(2.2, 3) * speed(level);
+        return `<i class="${lv}" style="top:${rand(10, 75).toFixed(1)}%;--d:${d.toFixed(2)}s;animation-delay:${rand(-d * 2, 0).toFixed(2)}s"><b></b></i>`;
+    })}</div>`;
+    const mist = ([top, h, d, lv], i) =>
+        `<div class="mist${lv ? ' ' + lv : ''}" style="top:${top}%;height:${h}%;--d:${d}s;animation-delay:${-d * (0.2 + i * 0.3)}s"></div>`;
     const parts = {
-        rain:  [overcast(false) + splashes(), rain(135)],
-        storm: [overcast(true) + splashes(), rain(135)],
-        snow:  [overcast(false), `<div class="snow">${n(132, flake)}</div>`],
-        wind:  ['', `<div class="leaves">${n(36, i =>
-            `<i class="${lv(i, 36)}" style="top:${rand(8, 80).toFixed(1)}%;--d:${rand(6, 10).toFixed(1)}s;animation-delay:${rand(-10, 0).toFixed(1)}s"><b class="c${i % 3}" style="--w:${rand(2.5, 4).toFixed(1)}s"></b></i>`)}</div>`],
-        fog:   [`<div class="haze"></div>${[[20, 26, 70, ''], [42, 30, 95, ''], [60, 34, 80, '']].map(mist).join('')}`,
+        rain:  [overcast(false) + splashes(), rain()],
+        storm: [overcast(true) + splashes(), rain()],
+        snow:  [overcast(false), snow()],
+        wind:  ['', leaves() + gusts()],
+        fog:   [`<div class="haze"></div><div class="haze high lv4"></div>${[[42, 30, 95, ''], [20, 26, 70, 'lv2'], [60, 34, 80, 'lv3']].map(mist).join('')}`,
                 // Low mist in front of the animals, for depth: light, and it doesn't stop touches.
-                `<div class="front-fog">${[[66, 26, 60, ''], [50, 24, 85, 'lv2'], [78, 24, 72, 'lv3']].map(mist).join('')}</div>`],
+                `<div class="front-fog">${[[66, 26, 60, 'lv2'], [50, 24, 85, 'lv3'], [78, 24, 72, 'lv4'], [36, 30, 90, 'lv5']].map(mist).join('')}<div class="haze high lv5"></div></div>`],
         rainbow: ['', ''],
     };
     const [back, front] = parts[id] || ['', ''];
     const shown = [];
     if (id === 'rainbow') {
         // Into the scene's drawing, just after the sun and moon, so clouds, hills and trees are in front.
-        // At full strength a fainter second bow, colours the other way round, as in a real double rainbow.
+        // Stronger, a fainter second bow, colours the other way round, as in a real double rainbow.
         const bow = (r, width, order) => order.map((c, i) =>
             `<path class="rb${c}" style="stroke-width:${width}" d="M${800 - r + i * width} 740 A ${r - i * width} ${r - i * width} 0 0 1 ${800 + r - i * width} 740"/>`).join('');
         const svg = document.querySelector('#bg svg');
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('class', 'wx rainbow');
+        g.setAttribute('class', `wx rainbow st${strength}`);
         g.setAttribute('mask', 'url(#rainbow-fade)');
         g.innerHTML = `<defs><linearGradient id="rainbow-grad" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="0" y2="700">
             <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>
             <mask id="rainbow-fade"><rect width="1600" height="900" fill="url(#rainbow-grad)"/></mask></defs>
-            <g class="bows">${bow(560, 17, [1, 2, 3, 4, 5, 6])}<g class="lv3 second">${bow(700, 12, [6, 5, 4, 3, 2, 1])}</g></g>`;
+            <g class="bows">${bow(560, 17, [1, 2, 3, 4, 5, 6])}<g class="lv4 second">${bow(700, 12, [6, 5, 4, 3, 2, 1])}</g></g>
+            ${[3, 4, 5].map(level => `<g class="lv${level}">${Array.from({ length: 6 }, () => {
+                // Gentle sparkles along the bow, twinkling slowly (never flashing)
+                const angle = rand(0.15, 0.85) * Math.PI, r = rand(470, 580);
+                return `<path class="sparkle" style="animation-delay:${rand(-4, 0).toFixed(1)}s" transform="translate(${(800 - r * Math.cos(angle)).toFixed(0)} ${(740 - r * Math.sin(angle)).toFixed(0)})"
+                    d="M0 -14 Q2 -2 14 0 Q2 2 0 14 Q-2 2 -14 0 Q-2 -2 0 -14Z"/>`;
+            }).join('')}</g>`).join('')}`;
         svg.querySelector('.f-moon').parentNode.after(g);
         shown.push(g);
     }
     [[back, 'wx-back'], [front, 'wx-front']].forEach(([html, where]) => {
         if (!html) return;
         const el = document.createElement('div');
-        el.className = 'wx';
+        el.className = `wx st${strength}`;
         el.innerHTML = html;
         document.getElementById(where).appendChild(el);
         shown.push(el);
@@ -449,32 +476,34 @@ function showWeather(fade) {
         el.classList.remove('on');
         setTimeout(() => el.remove(), ms + 500);
     });
+    applyLook();                               // first, so the new weather is drawn at its own strength
     weatherShown = drawWeather(liveWeather);
     if (fade) void stage.offsetWidth;          // so the new weather fades in from nothing
     weatherShown.forEach(el => el.classList.add('on'));
-    applyLook();
     weatherSound();
 }
 
 // Rain and wind have sounds; they fade with the weather, under the background track,
-// louder as the weather gets stronger.
-function weatherSound() {
+// louder as the weather gets stronger (quickly, so a press is heard as well as seen).
+function weatherSound(seconds = Math.max(sceneSettings.fade, 2)) {
     const w = SceneWeather[liveWeather];
     const file = started && w && w.sound && sceneSettings.weatherVolume > 0 ? w.sound : null;
-    const fade = Math.max(sceneSettings.fade, 2);
-    Object.entries(weatherLoops).forEach(([f, loop]) => { if (f !== file) loop.fadeOut(fade); });
-    const volume = sceneSettings.weatherVolume * [0, 0.55, 0.8, 1][strength];
-    if (file) (weatherLoops[file] = weatherLoops[file] || makeLooper()).start(file, volume, fade);
+    Object.entries(weatherLoops).forEach(([f, loop]) => { if (f !== file) loop.fadeOut(seconds); });
+    const volume = sceneSettings.weatherVolume * [0, 0.4, 0.55, 0.7, 0.85, 1][strength];
+    if (file) (weatherLoops[file] = weatherLoops[file] || makeLooper()).start(file, volume, seconds);
 }
 
 function setWeather(id, level = BASE_STRENGTH) {
     const was = liveWeather;
     liveWeather = SceneWeather[id] ? id : 'clear';
-    strength = level;
+    strength = Math.max(1, Math.min(MAX_STRENGTH, level));
     // A new storm's first thunder comes once it has mostly faded in.
     if (liveWeather === 'storm' && was !== 'storm') nextThunder = Date.now() + Math.min(sceneSettings.fade, 8) * 1000 + 2000;
-    if (liveWeather === was) { applyLook(); weatherSound(); }
-    else showWeather(true);
+    if (liveWeather === was) {
+        weatherShown.forEach(el => { el.classList.remove('st1', 'st2', 'st3', 'st4', 'st5'); el.classList.add('st' + strength); });
+        applyLook();
+        weatherSound(1.5);
+    } else showWeather(true);
 }
 
 // A weather switch pressed, or the sky touched while that weather is here.
@@ -482,8 +511,8 @@ function pressWeather(id) {
     lastWeatherPress = Date.now();
     if (!building()) { setWeather(liveWeather === id ? 'clear' : id); return; }
     if (liveWeather !== id) { setWeather(id, 1); return; }
+    if (strength < MAX_STRENGTH) setWeather(id, strength + 1);
     if (id === 'storm') thunder();
-    if (strength < 3) setWeather(id, strength + 1);
 }
 
 // Building up: left alone, the weather eases back a step at a time to the scene's own.
@@ -498,10 +527,12 @@ setInterval(() => {
     else setWeather(home);
 }, 1000);
 
-// A faint bolt of lightning, then a rumble a moment later, as if far away.
+// A faint bolt of lightning, then a rumble a moment later, as if far away. In a
+// stronger storm the bolt is a little thicker and brighter, and the rumble louder.
 function thunder() {
     if (Date.now() - lastThunder < 6000) return;
     lastThunder = Date.now();
+    const level = liveWeather === 'storm' ? strength : BASE_STRENGTH;
     // Into the scene's drawing, just after the sun and moon, so hills and trees are in front.
     const svg = document.querySelector('#bg svg');
     let bolt = svg.querySelector('.bolt');
@@ -510,32 +541,35 @@ function thunder() {
         bolt.setAttribute('class', 'bolt');
         svg.querySelector('.f-moon').parentNode.after(bolt);
     }
-    const d = boltPath();
-    bolt.innerHTML = `<path class="bolt-halo" d="${d}"/><path class="bolt-core" d="${d}"/>`;
+    const d = boltPath(level >= 4 ? 2 : 1);
+    bolt.innerHTML = `<path class="bolt-halo" style="stroke-width:${10 + level * 3}" d="${d}"/>` +
+                     `<path class="bolt-core" style="stroke-width:${(2 + level * 0.7).toFixed(1)}" d="${d}"/>`;
+    bolt.style.setProperty('--peak', (0.5 + level * 0.09).toFixed(2));
     bolt.classList.remove('strike'); bolt.getBoundingClientRect(); bolt.classList.add('strike');
     setTimeout(() => {
         if (!(sceneSettings.weatherVolume > 0)) return;
         if (rumble) rumble.pause();
         rumble = new Audio(`sounds/weather/thunder-${1 + Math.floor(Math.random() * 3)}.mp3`);
-        rumble.volume = sceneSettings.weatherVolume;
+        rumble.volume = sceneSettings.weatherVolume * (0.5 + level * 0.1);
         rumble.play().catch(() => {});
     }, rand(900, 2400));
 }
-// A jagged line from high in the sky down behind the hills, with one short fork.
-function boltPath() {
+// A jagged line from high in the sky down behind the hills, with one or two short forks.
+function boltPath(forks) {
     const pt = (x, y) => ` ${x.toFixed(0)} ${y.toFixed(0)}`;
-    let x = rand(350, 1250), y = rand(30, 90), d = 'M' + pt(x, y), fork = '';
-    const end = rand(560, 640), side = Math.random() < 0.5 ? -1 : 1;
+    let x = rand(350, 1250), y = rand(30, 90), d = 'M' + pt(x, y), branches = '';
+    const end = rand(560, 640);
     for (let i = 0; y < end; i++) {
         x += rand(-50, 50); y += rand(35, 65);
         d += ' L' + pt(x, y);
-        if (i === 2) {
+        if (i === 2 || (forks > 1 && i === 5)) {
+            const side = Math.random() < 0.5 ? -1 : 1;
             let fx = x, fy = y;
-            fork = ' M' + pt(fx, fy);
-            for (let k = 0; k < 3; k++) { fx += side * rand(25, 60); fy += rand(30, 50); fork += ' L' + pt(fx, fy); }
+            branches += ' M' + pt(fx, fy);
+            for (let k = 0; k < 3; k++) { fx += side * rand(25, 60); fy += rand(30, 50); branches += ' L' + pt(fx, fy); }
         }
     }
-    return d + fork;
+    return d + branches;
 }
 function rand(a, b) { return a + Math.random() * (b - a); }
 
@@ -544,7 +578,7 @@ function rand(a, b) { return a + Math.random() * (b - a); }
 setInterval(() => {
     if (!started || setupOpen() || liveWeather !== 'storm' || Date.now() < nextThunder) return;
     thunder();
-    const [a, b] = [[35, 55], [35, 55], [25, 40], [20, 30]][strength];
+    const [a, b] = [null, [40, 60], [35, 50], [28, 40], [22, 32], [20, 25]][strength];
     nextThunder = Date.now() + rand(a, b) * 1000 * Math.max(1, sceneSettings.pace);
 }, 1000);
 

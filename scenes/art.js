@@ -24,10 +24,10 @@ const SceneWeather = {
     rain:    { label: '🌧️ Rain',    sound: 'sounds/weather/rain.mp3', hint: 'Rain falls, with rings on the water.' },
     storm:   { label: '⛈️ Storm',   sound: 'sounds/weather/rain.mp3',
                hint: 'Rain and a darker sky, with a faint flash of lightning and far-off thunder now and then.' },
-    snow:    { label: '❄️ Snow',    hint: 'Snow falls, near and far; when it is heavy the ground turns white.' },
-    wind:    { label: '🍃 Wind',    sound: 'sounds/weather/wind.mp3', hint: 'Leaves blow across and the trees lean.' },
+    snow:    { label: '❄️ Snow',    hint: 'Snowflakes drift down, near and far; heavy snow slants into a blizzard and whitens the ground.' },
+    wind:    { label: '🍃 Wind',    sound: 'sounds/weather/wind.mp3', hint: 'Leaves blow across and the trees lean; strong wind brings gusts.' },
     fog:     { label: '🌫️ Fog',     hint: 'Mist rolls in, some of it drifting low in front of the animals.' },
-    rainbow: { label: '🌈 Rainbow', hint: 'A rainbow fades in; at its strongest, a second one above it.' },
+    rainbow: { label: '🌈 Rainbow', hint: 'A rainbow fades in; stronger, it sparkles, then a second one appears above it.' },
 };
 
 const SceneArt = (() => {

@@ -41,7 +41,7 @@ function switchRow(slot, i) {
 
 function jobHint(job) {
     if (SceneWeather[job]) return SceneWeather[job].hint + (building()
-        ? ` Each press makes it stronger, in three steps${job === 'storm' ? ', with thunder' : ''}; left alone, it eases off.`
+        ? ` Each press makes it stronger, in five steps${job === 'storm' ? ', with thunder' : ''}; left alone, it eases off.`
         : ' Press again to stop it.');
     if (jobInfo(job)) return jobInfo(job).hint;
     if (job === 'nothing') return 'This switch does nothing in this scene.';
@@ -128,7 +128,7 @@ function renderSetup() {
                 Give switches weather jobs (Switches tab) to change it while playing.</p>
             ${optRow('Weather switches', 'weatherPress', [['build', 'Build up'], ['toggle', 'On / off']])}
             <p class="setup-note">${building()
-                ? 'Each press makes the weather stronger, in three steps, and touching the sky does the same. Left alone, it eases back a step at a time.'
+                ? "Each press makes the weather stronger, in five steps (a new weather starts at the lightest), and touching the sky does the same. Left alone, it eases back a step at a time to the scene's own weather, which sits in the middle."
                 : 'A press turns that weather on; another press turns it off.'}</p>
             ${building() ? optRow('Each step lasts', 'weatherEase', [[10, '10 seconds'], [20, '20 seconds'], [60, '1 minute']]) +
                 '<p class="setup-note">How long before the weather eases off a step, once nobody is pressing or touching the sky.</p>' : ''}

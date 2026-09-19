@@ -21,11 +21,12 @@ themes: a theme's animals and switch jobs are shared by all its scenes (`scenes/
 
 Any scene can have **weather**, one at a time, fading in and out: 🌧️ Rain (with rings on the water),
 ⛈️ Storm (rain, a darker sky, and now and then a faint bolt of lightning and far-off thunder), ❄️ Snow
-(near and far, with slowly turning crystals; heavy snow whitens the ground), 🍃 Wind (leaves blow across
-and the trees lean), 🌫️ Fog (some drifting in front of the animals) and 🌈 Rainbow (a second one at full
-strength). Rain and wind have their own quiet sounds. Weather has three strengths: by default each press
-of a weather switch, or a touch on the sky, makes it stronger, and left alone it eases back to the
-scene's own weather.
+(crystal snowflakes near and far, turning as they fall; heavy snow slants and whitens the ground), 🍃 Wind (leaves blow across,
+the trees lean, and strong wind brings gusts), 🌫️ Fog (some drifting in front of the animals) and 🌈 Rainbow (sparkles, then a second
+bow as it strengthens). Rain and wind have their own quiet sounds. Weather has five strengths, each heavier and quicker than the
+last: by default each press of a weather switch, or a touch on the sky, makes it a step stronger
+(a new weather starts at the lightest), and left alone it eases back to the scene's own weather,
+which sits in the middle. A stronger storm brings a brighter bolt and louder thunder.
 
 Hold the dimmed ⚙ in the top corner for two seconds to open **Set-up** (it works from the start
 screen too):
