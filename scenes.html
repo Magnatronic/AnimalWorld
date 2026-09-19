@@ -5,41 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Animal Scenes</title>
     <link rel="stylesheet" href="shared/fonts.css">
-    <!-- A placeholder until the scenes are built; it shares Animal World's look. -->
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 24px;
-            padding: 30px 20px;
-            font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif;
-            color: #fff;
-            text-align: center;
-            background: linear-gradient(150deg, #0f0c29, #302b63, #24243e);
-        }
-        h1 { font-size: clamp(2.4rem, 7vw, 4.5rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        p { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700; color: rgba(255,255,255,0.75); max-width: 30em; }
-        a {
-            display: inline-block;
-            padding: 16px 28px;
-            border-radius: 22px;
-            background: rgba(255,255,255,0.18);
-            border: 2px solid rgba(255,255,255,0.3);
-            color: #fff;
-            font-size: 1.3rem;
-            font-weight: 900;
-            text-decoration: none;
-        }
-        a:focus-visible { outline: 4px solid #FFD700; outline-offset: 4px; }
-    </style>
+    <link rel="stylesheet" href="shared/hold.css">
+    <link rel="stylesheet" href="scenes/scenes.css">
 </head>
 <body>
+
+<!-- ══ THE SCENE ══ -->
+<div class="stage" id="stage" aria-label="Animal scene">
+    <div id="bg"></div>
+    <div id="layer"></div>
+</div>
+<div class="labels" id="labels" hidden></div>
+
+<!-- ══ START: one tap starts the sound and goes full screen ══ -->
+<div class="start" id="start">
     <h1>🌈 Animal Scenes</h1>
-    <p>Calm, interactive animal scenes for touch screens and switches are on their way.</p>
-    <a href="index.html">← Animal World</a>
+    <p id="start-theme"></p>
+    <button class="start-btn" id="start-btn">Tap to start</button>
+    <p>Touch the animals, or press a switch.</p>
+</div>
+
+<!-- ══ THE ADULT'S CORNER: hold ⚙ for set-up ══ -->
+<div class="corner">
+    <button id="settings-btn" class="settings-btn" aria-label="Set-up — press and hold">
+        <svg class="hold-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16"/></svg>⚙
+    </button>
+    <div class="hold-hint" id="hold-hint">Hold ⚙ for set-up</div>
+</div>
+
+<!-- ══ SET-UP ══ -->
+<div class="setup" id="setup" hidden>
+    <div class="setup-box">
+        <div class="setup-head">
+            <h2>⚙ Set-up</h2>
+            <button class="setup-done" onclick="closeSetup()">✓ Done</button>
+        </div>
+        <div class="setup-body" id="setup-body"></div>
+        <div class="setup-foot">
+            <button class="setup-exit" onclick="leaveScenes()">← Animal World</button>
+        </div>
+    </div>
+</div>
+
+<script src="shared/themes.js"></script>
+<script src="shared/switches.js"></script>
+<script src="shared/hold.js"></script>
+<script src="scenes/art.js"></script>
+<script src="scenes/scenes.js"></script>
+
 </body>
 </html>

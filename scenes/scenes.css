@@ -1,0 +1,143 @@
+/* ── ANIMAL SCENES ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+html, body { height: 100%; overflow: hidden; background: #0d1834; }
+body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color: #fff; }
+
+/* The scene is drawn 16:9 and always fills the screen, trimming the edges on
+   other shapes, so spot positions (% of the scene) line up with the drawing. */
+.stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100vw, calc(100vh * 16 / 9));
+    aspect-ratio: 16 / 9;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    touch-action: manipulation;
+    cursor: pointer;
+    --pace: 1;                                  /* the Speed setting scales every timing */
+}
+.stage svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* ── Animals ── */
+/* OpenMoji art leaves ~14% empty below the feet, so sink the picture to stand on its spot */
+.animal {
+    position: absolute;
+    transform: translate(-50%, -86%);
+    cursor: pointer;
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,.18));
+}
+.animal[hidden] { display: none; }
+.animal img { display: block; width: 100%; height: auto; pointer-events: none; transform-origin: 50% 100%;
+    animation: bob calc(3.4s * var(--pace)) ease-in-out infinite alternate; }
+.animal.moving { transition: left calc(3s * var(--pace)) cubic-bezier(.45,.05,.35,1), top calc(3s * var(--pace)) cubic-bezier(.45,.05,.35,1); }
+.animal.moving img        { animation: flap .35s ease-in-out infinite alternate; }
+.animal.walk.moving img   { animation: step .45s ease-in-out infinite alternate; }
+.animal.swim.moving img   { animation: bob 1s ease-in-out infinite alternate; }
+.animal.flip img          { scale: -1 1; }
+.animal.hop img           { animation: hop .7s ease-out 1; }
+.animal.flip.hop img      { animation-name: hop-flipped; }
+@keyframes bob  { from { translate: 0 0; } to { translate: 0 -3%; } }
+@keyframes flap { from { rotate: -4deg; } to { rotate: 4deg; } }
+@keyframes step { from { translate: 0 0; rotate: -2deg; } to { translate: 0 -4%; rotate: 2deg; } }
+@keyframes hop  { 0% { translate: 0 0; scale: 1 1; } 25% { translate: 0 -22%; scale: .95 1.06; } 55% { translate: 0 0; scale: 1.06 .94; } 100% { translate: 0 0; scale: 1 1; } }
+@keyframes hop-flipped { 0% { translate: 0 0; scale: -1 1; } 25% { translate: 0 -22%; scale: -.95 1.06; } 55% { translate: 0 0; scale: -1.06 .94; } 100% { translate: 0 0; scale: -1 1; } }
+
+/* ── Things that happen: notes rising when an animal calls, ripples where touched ── */
+.note { position: absolute; pointer-events: none; font-size: 2.2vw; font-weight: 900; color: #fff;
+    text-shadow: 0 2px 6px rgba(0,0,0,.35); animation: rise calc(2.2s * var(--pace)) ease-out forwards; }
+.bubble-fx { position: absolute; pointer-events: none; border-radius: 50%; border: 2px solid rgba(255,255,255,.8);
+    background: rgba(255,255,255,.18); animation: rise calc(2.4s * var(--pace)) ease-out forwards; }
+@keyframes rise { from { opacity: 0; translate: 0 0; } 15% { opacity: 1; } to { opacity: 0; translate: 6px -8vw; } }
+.ripple { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; pointer-events: none;
+    border: 3px solid rgba(255,255,255,.75); animation: ripple 1.8s ease-out forwards; }
+.look-night .ripple { border-color: rgba(190,210,255,.6); box-shadow: 0 0 18px rgba(160,190,255,.45); }
+@keyframes ripple { to { transform: scale(14); opacity: 0; } }
+
+/* ── Switch labels: fixed to the screen, so they're never trimmed ── */
+.labels { position: fixed; left: 0; right: 0; bottom: 2.5vh; display: flex; justify-content: center; flex-wrap: wrap;
+    gap: 10px; pointer-events: none; padding: 0 90px; z-index: 5; }
+.labels[hidden] { display: none; }
+.chip { display: inline-flex; align-items: center; gap: .5em; background: rgba(20,20,40,.55); color: #fff; border-radius: 999px;
+    padding: .35em .9em .35em .4em; font-size: clamp(14px, 1.5vw, 24px); font-weight: 900; backdrop-filter: blur(3px); }
+.chip i { width: 1.4em; height: 1.4em; border-radius: 50%; display: inline-block; border: 3px solid rgba(255,255,255,.9); }
+.chip i.dark { border-color: rgba(255,255,255,.9); }
+.chip i.light { border-color: rgba(0,0,0,.45); }
+
+/* ── Start screen: the first tap starts the sound (browsers need one) and goes full screen ── */
+.start {
+    position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 22px; text-align: center; padding: 20px;
+    background: radial-gradient(ellipse at center, rgba(13,24,52,.55), rgba(13,24,52,.85));
+    cursor: pointer;
+}
+.start[hidden] { display: none; }
+.start h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,.5); }
+.start p { font-size: clamp(1.1rem, 2.4vw, 1.6rem); font-weight: 800; color: rgba(255,255,255,.85); }
+.start-btn { font: inherit; font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 900; color: #0d1834; background: #fff; border: 0;
+    border-radius: 999px; padding: 18px 44px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+
+/* ── The adult's corner: ⚙ (hold to open), dim so it doesn't draw the eye ── */
+.corner { position: fixed; top: 16px; right: 16px; z-index: 10; }
+.corner .settings-btn { opacity: .45; transition: opacity .2s; }
+.corner .settings-btn:hover, .corner .settings-btn.holding { opacity: 1; }
+.corner .hold-hint { bottom: auto; top: calc(100% + 10px); }
+
+/* ── Scene colours: every shape takes its fill from these, per look ── */
+.f-sky1 { stop-color: var(--sky1); } .f-sky2 { stop-color: var(--sky2); }
+.f-sun { fill: var(--sun); } .f-moon { fill: var(--moon); } .f-cut { fill: var(--sky1); }
+.f-cloud { fill: var(--cloud); } .f-hill { fill: var(--hill); } .f-lawn { fill: var(--lawn); }
+.f-trunk { fill: var(--trunk); } .f-leaf { fill: var(--leaf); } .f-leaf2 { fill: var(--leaf2); }
+.f-pond { fill: var(--pond); } .f-flower { fill: var(--flower); } .f-centre { fill: var(--sun); }
+.f-star { fill: #fff8d8; }
+.ring { fill: none; stroke: var(--ring); stroke-width: 3; }
+
+/* Matching outlines: the same black line OpenMoji draws with */
+.look-line .ol { stroke: #1b1b1b; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; }
+.night-only { display: none; }
+.look-night .night-only { display: inline; }
+.look-night .day-only { display: none; }
+.look-night .animal { filter: drop-shadow(0 0 10px rgba(170,200,255,.45)); }
+
+.scene-birds.look-soft  { --sky1:#b9e0f4; --sky2:#eef8fc; --sun:#ffe28f; --moon:#f3efd2; --cloud:#ffffff; --hill:#bfdcae; --lawn:#a3d08e; --trunk:#a78461; --leaf:#86bf7f; --leaf2:#a9d494; --pond:#a6d8ea; --flower:#f6b9c9; --ring:rgba(255,255,255,.7); }
+.scene-birds.look-line  { --sky1:#92d3f5; --sky2:#d9f1fc; --sun:#fcea2b; --moon:#f3efd2; --cloud:#ffffff; --hill:#b1cc33; --lawn:#8ec63f; --trunk:#a57939; --leaf:#5c9e31; --leaf2:#8ec63f; --pond:#61b2e4; --flower:#ea5a47; --ring:rgba(255,255,255,.85); }
+.scene-birds.look-night { --sky1:#0d1834; --sky2:#26406d; --sun:#000; --moon:#f3efd2; --cloud:#34477a; --hill:#1b3150; --lawn:#1f3a45; --trunk:#46426a; --leaf:#22455a; --leaf2:#2b5568; --pond:#284e79; --flower:#6d5e96; --ring:rgba(190,210,255,.45); }
+
+/* Gentle ambient motion only: slow drift, sway and twinkle; nothing flashes */
+.cloud { animation: drift calc(var(--d) * var(--pace)) linear infinite; }
+@keyframes drift { from { transform: translateX(-420px); } to { transform: translateX(1900px); } }
+.sway { transform-box: fill-box; transform-origin: 50% 100%; animation: sway calc(var(--d, 7s) * var(--pace)) ease-in-out infinite alternate; }
+@keyframes sway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+.ring { transform-box: fill-box; transform-origin: center; animation: ring calc(6s * var(--pace)) ease-out infinite; }
+@keyframes ring { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
+.f-star { animation: twinkle calc(5s * var(--pace)) ease-in-out infinite alternate; }
+@keyframes twinkle { from { opacity: .35; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .cloud, .sway, .ring, .f-star, .animal img { animation: none !important; }
+    .animal.moving { transition-duration: .01s; }
+}
+
+/* ── Set-up: the adult's full screen, over the scene ── */
+.setup {
+    position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
+    background: rgba(8, 12, 30, 0.78); padding: 16px; cursor: default;
+}
+.setup[hidden] { display: none; }
+.setup-box {
+    background: #fff; color: #222; border-radius: 28px; width: min(780px, 100%); max-height: 100%;
+    display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.setup-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 24px 14px; border-bottom: 3px solid #eee; }
+.setup-head h2 { font-size: 1.5rem; font-weight: 900; }
+.setup-done {
+    padding: 12px 26px; border: none; border-radius: 16px; background: linear-gradient(135deg, #4caf50, #81c784);
+    color: #fff; font-family: inherit; font-size: 1.15rem; font-weight: 900; cursor: pointer; border-bottom: 4px solid rgba(0,0,0,.2);
+}
+.setup-body { padding: 20px 24px; overflow-y: auto; flex: 1; display: grid; gap: 26px; align-content: start; }
+.setup-foot { padding: 14px 24px 18px; border-top: 3px solid #eee; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.setup-exit {
+    padding: 10px 18px; border: 3px solid #ddd; border-radius: 14px; background: #fff;
+    font-family: inherit; font-size: 1rem; font-weight: 800; color: #444; cursor: pointer;
+}
