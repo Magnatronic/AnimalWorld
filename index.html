@@ -128,6 +128,7 @@
         .btn-arctic     { background: linear-gradient(135deg, #023e8a, #48cae4); }
         .btn-minibeasts { background: linear-gradient(135deg, #4a148c, #ab47bc); }
         .btn-fish       { background: linear-gradient(135deg, #00695c, #26a69a); }
+        .btn-birds      { background: linear-gradient(135deg, #ad1457, #f06292); }
 
         .btn-icon  { font-size: clamp(1.8rem, 4.6vw, 2.5rem); flex-shrink: 0; }
         .btn-label { flex: 1; text-align: left; }
@@ -897,6 +898,12 @@
         .theme-fish .animal-name { color: #00564b; }
         .theme-fish .mem-front .mem-name { color: #00564b; }
         .theme-fish .fta-card-name { color: #00564b; }
+
+        .theme-birds .screen-header { background: linear-gradient(135deg, #ad1457, #f06292); }
+        .theme-birds { background: linear-gradient(170deg, #ad1457 0%, #f06292 40%, #fce4ec 100%); }
+        .theme-birds .animal-name { color: #880e4f; }
+        .theme-birds .mem-front .mem-name { color: #880e4f; }
+        .theme-birds .fta-card-name { color: #880e4f; }
     </style>
 </head>
 <body>
@@ -934,6 +941,11 @@
         <button class="theme-btn btn-fish" onclick="pickTheme('fish')">
             <span class="btn-icon">🐠</span>
             <span class="btn-label">Fish</span>
+            <span class="btn-arrow">▶</span>
+        </button>
+        <button class="theme-btn btn-birds" onclick="pickTheme('birds')">
+            <span class="btn-icon">🐦</span>
+            <span class="btn-label">Birds</span>
             <span class="btn-arrow">▶</span>
         </button>
     </div>
@@ -1537,6 +1549,29 @@
                 { name: 'Rainbow Trout', src: 'fish/rainbow-trout.svg', sound: 'bubbles' },
                 { name: 'Catfish',       src: 'fish/catfish.svg',       sound: 'bubbles' },
                 { name: 'Swordfish',     src: 'fish/swordfish.svg',     sound: 'bubbles' },
+            ]
+        },
+        birds: {
+            label: '🐦 Birds',
+            css: 'theme-birds',
+            icon: '⭐',
+            animals: [
+                { name: 'Sparrow',  code: '1F426',           sound: 'sparrow' },
+                { name: 'Crow',     code: '1F426-200D-2B1B', sound: 'crow' },
+                { name: 'Owl',      code: '1F989',           sound: 'owl' },
+                { name: 'Eagle',    code: '1F985',           sound: 'eagle' },
+                { name: 'Duck',     code: '1F986',           sound: 'duck' },
+                { name: 'Swan',     code: '1F9A2',           sound: 'swan' },
+                { name: 'Goose',    code: '1FABF',           sound: 'goose' },
+                { name: 'Pigeon',   code: 'E009',            sound: 'pigeon' },
+                { name: 'Hen',      code: '1F414',           sound: 'hen' },
+                { name: 'Rooster',  code: '1F413',           sound: 'rooster' },
+                { name: 'Chick',    code: '1F425',           sound: 'chick' },
+                { name: 'Turkey',   code: '1F983',           sound: 'turkey' },
+                { name: 'Parrot',   code: '1F99C',           sound: 'parrot' },
+                { name: 'Peacock',  code: '1F99A',           sound: 'peacock' },
+                { name: 'Flamingo', code: '1F9A9',           sound: 'flamingo' },
+                { name: 'Penguin',  code: '1F427',           sound: 'penguin' },
             ]
         }
     };

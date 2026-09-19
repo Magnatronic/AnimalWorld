@@ -100,6 +100,32 @@ name is spoken straight afterwards.
 
 ---
 
+## 🐦 Birds
+
+These are **already in this folder** — nothing to download. Each one is a CC0 recording
+from Freesound, trimmed where noted and levelled to roughly the same volume (about −16 LUFS).
+To swap one out, replace the file with anything you prefer under the same name.
+
+Owl, Eagle, Flamingo and Penguin reuse `owl.mp3`, `eagle.mp3`, `flamingo.mp3` and `penguin.mp3`
+from the other themes.
+
+| Save as | Source | Section used |
+|---------|--------|--------------|
+| `sparrow.mp3` | [Bird Chirping](https://freesound.org/s/411911/) by Dekpi | whole clip |
+| `crow.mp3` | [Hooded Crow: Cawing](https://freesound.org/s/741366/) by Mish7913 | whole clip |
+| `duck.mp3` | [duck.wav](https://freesound.org/s/187261/) by Jonnyhoff91 | 0.8–7.0 s |
+| `swan.mp3` | [Waterfowl - Black Swans, Take 3](https://freesound.org/s/861149/) by TheKingOfGeeks360 | whole clip |
+| `goose.mp3` | [Goose Honks - Multiple](https://freesound.org/s/740196/) by el_boss | whole clip |
+| `pigeon.mp3` | [Domestic Dove Coo](https://freesound.org/s/735366/) by haulaway | 0.8–5.8 s |
+| `hen.mp3` | [chicken sound - clucking.wav](https://freesound.org/s/424076/) by chanyatenn | whole clip |
+| `rooster.mp3` | [Rooster crow](https://freesound.org/s/200339/) by jsbarrett | whole clip |
+| `chick.mp3` | [Fowl - Chicken; Baby Chick, Peep](https://freesound.org/s/826677/) by TheKingOfGeeks360 | 1.4–7.4 s |
+| `turkey.mp3` | [Turkey - Gobble 3 - 96kHz.wav](https://freesound.org/s/233125/) by JarredGibb | whole clip |
+| `parrot.mp3` | [Macaw Parrot screaming in a park](https://freesound.org/s/504988/) by felix.blume | 6.0–10.5 s |
+| `peacock.mp3` | [Peacock call](https://freesound.org/s/810711/) by richwise | 1.3–7.3 s |
+
+---
+
 ## Tips
 
 - Pick sounds that are **2–8 seconds** long — short enough not to distract

@@ -9,7 +9,7 @@ An interactive animal learning app for classroom use, built as a single HTML fil
 - **Find the Animal** — listen to the animal name and tap the correct picture
 
 ## Themes
-Forest 🌲 · Safari 🌅 · Ocean 🌊 · Mini Beasts 🐛 · Polar ❄️ · Fish 🐠
+Forest 🌲 · Safari 🌅 · Ocean 🌊 · Mini Beasts 🐛 · Polar ❄️ · Fish 🐠 · Birds 🐦
 
 ## Accessibility
 Built-in switch scanning support for AAC users, with configurable speed, start delay, scan mode, and switch key settings.
