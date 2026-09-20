@@ -28,7 +28,7 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 | `scenes/setup.js` | Set-up screen |
 | `scenes/pictures/` | OpenMoji pictures recoloured for a theme (white snowy owl, red squirrel…), used through a def's `src` |
 | `openmoji/`, `fish/`, `sounds/`, `sounds/ambient/`, `sounds/weather/` | All assets are local (offline) |
-| `dev/` | Test server and walk-through (see Testing) |
+| `dev/` | Test server, scene checks (`checks.js`) and walk-through (see Testing) |
 
 localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (shared), `animalScenes.settings`, `animalScenes.presets`.
 
@@ -52,8 +52,7 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
   walkers come in from the nearer edge (a spot's `from: 'l'|'r'` forces a side). A def's `src` swaps the
   picture (recolours in scenes/pictures/). Scenes with more places than animals add copies ("Owl 2",
   `copy: true`); Random and touches prefer the originals. `windCarries: 'snow'|'sand'` replaces the
-  wind's leaves. dev/test.js `#validate` and `#movecheck` check every scene (movecheck samples the
-  drawing so no walk crosses water). `hang: true` (bat) turns the picture over under a branch; its
+  wind's leaves. `dev/checks.js` (`#validate`, `#movecheck`) checks every scene; see Testing. `hang: true` (bat) turns the picture over under a branch; its
   `foot` is then where it grips, near the top. Animals are z-ordered by spot y (`standAt()`).
 - **Sounds**: CC0 only (Freesound). Animal calls levelled to about −16 LUFS, background loops about
   −26 LUFS, peaks limited; credit each in `sounds/_Adding Sounds.md`. Tooling: `pip install
@@ -82,10 +81,12 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
   elements are added.)
 - Specific checks: write `dev/test.js` (untracked) and load `/__app` or `/__scenes`; it runs in the
   real page, so top-level `const`s like `settings`, `Switches`, `cast` are reachable.
-- Scenes: `/__scenes#validate` builds every scene of every theme (spots, marks, covers, casts, tracks,
-  weathers, presets, pictures loading) and `/__scenes#movecheck` checks how animals arrive — head-only
+- Scenes (`dev/checks.js`, loaded into `/__scenes` before test.js): `#validate` builds every scene of every theme (spots, marks, covers, casts, tracks,
+  weathers, presets, pictures loading) and `#movecheck` checks how animals arrive — head-only
   pictures pop out, climbers' spots have `up`, every place can be filled, and no walk or climb crosses
-  water (it samples the drawing with `elementsFromPoint`). Both print a `PROBLEMS:` list; keep it "none".
+  water (it samples the drawing with `elementsFromPoint`, so pass `--window-size=1600,900`). Both print
+  a `PROBLEMS:` list; keep it "none". checks.js also has `#shot=`, `#wx=`, `#midway=` and `#pics=` for
+  screenshots — its top comment lists them.
 - Command shape: `chrome --headless=new --disable-gpu --autoplay-policy=no-user-gesture-required
   --virtual-time-budget=60000 --dump-dom URL` (or `--screenshot=... --window-size=1280,720`).
 - Gotchas: with virtual time, CSS transitions/animations may not advance once the page is idle, so
