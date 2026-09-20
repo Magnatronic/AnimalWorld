@@ -13,40 +13,44 @@ animals (one button per theme, like Animal Activities' theme picker); that tap s
 and goes full screen, and a switch or key press starts the animals used last time. A preset's link skips
 the choice. Touch an animal to hear it. Touch near an
 empty place (a branch, a bush, the ground or the water) and an animal that lives there comes to that spot (if they're all
-here, the longest-staying one moves over); this can be turned off in set-up. Every touch makes a ripple. Animals fly, walk, bound or swim in to the places the scene has for them (branches, ground,
-water, or peeping over a bush); when every place of that kind is taken, the one that has been there longest leaves. A quiet
-background track plays under the calls.
+here, the longest-staying one moves over); this can be turned off in set-up. Every touch makes a ripple. Animals fly, walk, bound, climb, swim or surface into the places the scene
+has for them (branches, the ground, the water, or peeping over a bush); when every place of that kind is
+taken, the one that has been there longest leaves. A quiet background track plays under the calls.
 
-Birds has three scenes, each with its own track: 🌳 **Garden** (room for 10 birds), 🌲 **Woodland**
-(11, mostly on branches, with a stream) and 🏞️ **Lakeside** (11, mostly on the water, with a jetty).
-Forest Animals has three scenes too: 🌲 **Woodland** (room for 14), 🏞️ **Riverbank** (15, with a
-beaver's lodge) and 🍄 **Clearing** (13, with a log and a pond). The fox, bear and wolf pictures are
-only heads, so they pop up from behind a bush or log and then sit in front of it (and go back behind
-it to leave); the bat hangs upside down under its branch; the frog, otter and beaver sit in the water.
-Farm Animals has 🚜 **Farmyard** (a red barn, hay bales, a fence and a pond), 🌾 **Fields** (a
-five-bar gate, round bales and a far-off farmhouse) and 🦆 **Duck pond** (a farmhouse and a willow);
-the rooster, cat and chick sit on the fence or gate, and the hen (only a head) pops up from behind a
-hay bale.
-Safari Animals has 🌅 **Savanna** (acacias, a mountain, tall grass the lion pops up from), 💧 **Waterhole**
-(hippos, crocodiles and flamingos in the water) and 🌴 **Jungle** (gorilla, monkey, chameleon, a river).
-Ocean Animals has 🏖️ **Seashore** (seals on the rocks, crabs and turtles on the beach, dolphins, a whale's
-back and a shark's fin at sea), 🪸 **Coral reef** and 🌿 **Kelp forest**, both underwater (animals swim,
-or live on the seabed; coral grows where it's placed). Mini Beasts is close up: 🌼 **Flower bed**,
-🪵 **Log pile** and 🥬 **Veg patch**, with insects landing on flowers, crawlers on leaves, a spider letting
-itself down on a thread and a worm popping out of the soil. Polar Animals has 🧊 **Sea ice**,
-🌲 **Snowy forest** and ❄️ **Tundra** (the arctic fox and moose pop up from behind snowdrifts). Fish has
-🐠 **Coral reef**, 🐟 **Fish tank** (a castle and a treasure chest) and 🏞️ **River**.
-Animals arrive in ways that make sense: birds, bats and insects fly; climbers (squirrels, monkeys, the
+Every theme has three scenes:
+- 🐦 **Birds** — 🌳 Garden, 🌲 Woodland (mostly branches, with a stream) and 🏞️ Lakeside (mostly water,
+  with a jetty). The hen's picture is only a head, so she pops up from behind a bush.
+- 🌲 **Forest Animals** — 🌲 Woodland, 🏞️ Riverbank (a beaver's lodge) and 🍄 Clearing (a fallen log and
+  a pond). The fox, bear and wolf are only heads, so they pop up from behind a bush or log; the bat hangs
+  upside down under its branch; the frog, otter and beaver sit in the water.
+- 🚜 **Farm Animals** — 🚜 Farmyard (a red barn, hay bales, a fence and a pond), 🌾 Fields (a five-bar
+  gate and round bales) and 🦆 Duck pond. The rooster, cat and chick sit on the fence, and the hen pops
+  up from behind a hay bale.
+- 🌅 **Safari Animals** — 🌅 Savanna (acacias and tall grass the lion pops up from), 💧 Waterhole (hippos,
+  crocodiles and flamingos in the water) and 🌴 Jungle (gorilla, monkey, chameleon and a river).
+- 🌊 **Ocean Animals** — 🏖️ Seashore (seals on the rocks, crabs and turtles on the beach, a whale's back
+  and a shark's fin at sea), and 🪸 Coral reef and 🌿 Kelp forest, both underwater, where animals swim or
+  live on the seabed and coral grows where it's placed.
+- ❄️ **Polar Animals** — 🧊 Sea ice, 🌲 Snowy forest and ❄️ Tundra. The arctic fox and moose pop up from
+  behind snowdrifts, and the seal and whale surface in the water.
+- 🐛 **Mini Beasts** — close up: 🌼 Flower bed, 🪵 Log pile and 🥬 Veg patch, with insects landing on
+  flower heads, crawlers on leaves, a spider letting itself down on a thread and a worm out of the soil.
+- 🐠 **Fish** — 🐠 Coral reef, 🐟 Fish tank (a castle and a treasure chest) and 🏞️ River. Each fish
+  bubbles when it arrives or is touched.
+
+Animals arrive in ways that make sense: birds, bats and insects fly in; climbers (squirrels, monkeys, the
 leopard, snails and caterpillars, a cat onto a fence) run in along the ground and up the trunk or stem;
-swimmers surface in their pool rather than cross dry land; head-only pictures pop up from behind something.
-Where a scene has more places than animals to fill them, a second of the same animal can come. Some
-animals are recoloured to suit their theme (a white snowy owl, arctic fox and arctic hare, a red squirrel,
-a brown wild rabbit and wood mouse, a grey warthog; `scenes/pictures/`, derived from OpenMoji).
-Each scene has its own animals (no camel in the jungle), its own background track, and weather that
-suits it (in fog, animals further back fade into the mist; over snow the wind blows fine snow, on the
-beach sand, instead of leaves); set-up only offers the tracks of the animals chosen. Set-up shows how many animals each
-scene has room for, and where. `scenes/art.js` has Birds, Forest and Farm and the shared drawing
-pieces; each other theme is in `scenes/art-<theme>.js`.
+swimmers surface in their pool rather than cross dry land; walkers come in from the nearer side, never
+across water; head-only pictures pop up from behind something and then sit in front of it. Where a scene
+has more places than animals to fill them, a second of the same animal can come. Some animals are
+recoloured to suit their theme (a white snowy owl, arctic fox and arctic hare, a red squirrel, a brown
+wild rabbit and wood mouse, a grey warthog; `scenes/pictures/`).
+
+Each scene has its own animals (no camel in the jungle), its own background track, and weather that suits
+it: in fog, animals further back fade into the mist, and over snow the wind blows fine snow, on the beach
+sand, instead of leaves. Set-up only offers the tracks of the animals chosen, and shows how many animals
+each scene has room for, and where. `scenes/art.js` holds Birds, Forest and Farm and the drawing pieces
+they all share; each other theme is in `scenes/art-<theme>.js`.
 
 Any scene can have **weather**, one at a time, fading in and out; each theme (or scene) has the weathers
 that suit it. Forest and Mini Beasts have 🍂 Falling leaves (the trees turn golden, then orange); Safari
@@ -136,7 +140,8 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `scenes.html` | Animal Scenes |
 | `scenes/art.js`, `scenes/art-*.js` | Each scene's drawing, spots and how its animals behave (one file per theme after Birds, Forest and Farm) |
 | `scenes/scenes.js`, `scenes/setup.js`, `scenes/presets.js`, `scenes/scenes.css` | Animal Scenes itself, its set-up screen and presets |
-| `sounds/ambient/` | Background loops for Animal Scenes |
+| `scenes/pictures/` | Animals recoloured for a theme (a white snowy owl, a red squirrel…), used by Animal Scenes |
+| `sounds/ambient/` | Background loops for Animal Scenes, one per scene |
 | `sounds/weather/` | Rain, wind and thunder for Animal Scenes' weather |
 | `shared/hold.js`, `shared/hold.css` | The hold-to-open ⚙ button, used by both parts |
 | `dev/` | A test server and a walk-through of every theme and activity, for development (see `CLAUDE.md`) |
@@ -146,7 +151,7 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `shared/switches.js` | Learning and reading switches (keys and the Xbox Adaptive Controller), used by both parts |
 | `settings.js` | The Settings panel: defaults, saving and the Play area |
 | `app.js` | The activities, sound playback and switch scanning |
-| `sounds/` | One `.mp3` per animal — see `sounds/_Adding Sounds.md` |
+| `sounds/` | One `.mp3` per animal, plus `scene-bubbles.mp3` for fish in Animal Scenes — see `sounds/_Adding Sounds.md` |
 | `fish/` | Artwork for the Fish theme |
 | `openmoji/` | The OpenMoji pictures the themes use, one SVG per hexcode |
 | `fonts/` | The Nunito font |
@@ -167,5 +172,9 @@ Animal images: [OpenMoji](https://openmoji.org/) — the open-source emoji and i
 License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
 The fish in `fish/` are our own derivatives of OpenMoji glyphs (`1F41F` and `1F420`),
-recoloured and remarked as named species. Each file records the glyph it came from.
-Under ShareAlike they are likewise CC BY-SA 4.0.
+recoloured and remarked as named species, and the pictures in `scenes/pictures/` are OpenMoji glyphs
+recoloured to suit a theme (a white snowy owl, a red squirrel…). Each file records the glyph it came
+from. Under ShareAlike they are likewise CC BY-SA 4.0.
+
+Background loops and animal sounds: CC0 recordings from [Freesound](https://freesound.org), each
+credited in `sounds/_Adding Sounds.md`.

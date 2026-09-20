@@ -22,10 +22,11 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 | `shared/themes.js` | Every theme and animal (name, OpenMoji `code` or `src`, `sound`); `imgSrc()` |
 | `shared/switches.js` | Learning/reading switches: keys + Gamepad API. Numbered switch list for Scenes (min 5 in Scenes, max 12, id + colour); `capture()` for one-off learning (Activities' scanning switches) |
 | `shared/hold.js/.css`, `shared/fonts.css` | Hold-to-open ⚙; bundled Nunito |
-| `scenes/art.js`, `scenes/art-<theme>.js` | art.js: the drawing pieces (`SceneDraw`, shared with the other files; art-ocean.js adds the underwater ones), tracks, weathers, Birds, Forest and Farm; each other theme in its own file, loaded after art.js. Per theme: `animals` (habitat perch/ground/water/hide/swim/seabed/flower/leaf/thread, width %, facing r/l/f, move fly/walk/bound/swim/peek/pop/drop, `hang`, `sound`), `switchCast`, `weathers` (the SceneWeather ids that suit it), optional `covers`/`marks`/`markWords`, and `scenes` (each: SVG drawing, `spots`, `places`, `residents`, `track` (unique per scene), optional `cast` (the scene's animals: names, or names with changes such as a different habitat; `sceneAnimals()`), and any theme key to override it, e.g. `weathers`, `switchCast`, `marks`, `fx`, `splashes` = rain-ring points on its water). `SceneTracks` = background loops (set-up offers only the theme's, `themeTracks()`); `SceneWeather` = the weathers (label, hint, optional sound; `themeWeathers()`/`themeWeatherJobs()` filter them per theme) |
+| `scenes/art.js`, `scenes/art-<theme>.js` | art.js: the drawing pieces (`SceneDraw`, shared with the other files; art-ocean.js adds the underwater ones), tracks, weathers, Birds, Forest and Farm; each other theme in its own file, loaded after art.js. Per theme: `animals` (habitat perch/ground/water/hide/swim/seabed/flower/leaf/thread, width %, facing r/l/f, move fly/walk/bound/climb/swim/surface/peek/pop/drop, `hang`, `sound`, `src`), `switchCast`, `weathers` (the SceneWeather ids that suit it), optional `covers`/`marks`/`markWords`, and `scenes` (each: SVG drawing, `spots`, `places`, `residents`, `track` (unique per scene), optional `cast` (the scene's animals: names, or names with changes such as a different habitat; `sceneAnimals()`), and any theme key to override it, e.g. `weathers`, `switchCast`, `marks`, `fx`, `splashes` = rain-ring points on its water). `SceneTracks` = background loops (set-up offers only the theme's, `themeTracks()`); `SceneWeather` = the weathers (label, hint, optional sound; `themeWeathers()`/`themeWeatherJobs()` filter them per theme) |
 | `scenes/scenes.js` | Scene engine, settings (`animalScenes.settings`), jobs, `makeLooper()` crossfading loops (track and weather sounds), weather (`drawWeather`, `setWeather`, `pressWeather`, strength 1–5 as `st1..5` on each weather layer + `.lv2…lv5` (stage `wx-s1..5` only for lean and snowy ground), easing off, thunder) |
 | `scenes/presets.js` | Presets (`animalScenes.presets`): ready-made list, save/update/rename/delete, `usePreset()`, `#preset=<id>` links. Jobs stored by switch number, not switch id. Each belongs to its `theme`; set-up lists only `themePresets()` |
 | `scenes/setup.js` | Set-up screen |
+| `scenes/pictures/` | OpenMoji pictures recoloured for a theme (white snowy owl, red squirrel…), used through a def's `src` |
 | `openmoji/`, `fish/`, `sounds/`, `sounds/ambient/`, `sounds/weather/` | All assets are local (offline) |
 | `dev/` | Test server and walk-through (see Testing) |
 
@@ -81,6 +82,10 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
   elements are added.)
 - Specific checks: write `dev/test.js` (untracked) and load `/__app` or `/__scenes`; it runs in the
   real page, so top-level `const`s like `settings`, `Switches`, `cast` are reachable.
+- Scenes: `/__scenes#validate` builds every scene of every theme (spots, marks, covers, casts, tracks,
+  weathers, presets, pictures loading) and `/__scenes#movecheck` checks how animals arrive — head-only
+  pictures pop out, climbers' spots have `up`, every place can be filled, and no walk or climb crosses
+  water (it samples the drawing with `elementsFromPoint`). Both print a `PROBLEMS:` list; keep it "none".
 - Command shape: `chrome --headless=new --disable-gpu --autoplay-policy=no-user-gesture-required
   --virtual-time-budget=60000 --dump-dom URL` (or `--screenshot=... --window-size=1280,720`).
 - Gotchas: with virtual time, CSS transitions/animations may not advance once the page is idle, so
