@@ -904,6 +904,8 @@ body {
     color: #888;
 }
 .setting-opts { display: flex; gap: 8px; flex-wrap: wrap; }
+/* The Play area positions, in the shape of the screen they describe. */
+.setting-opts.opts-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); }
 .setting-opt {
     flex: 1;
     min-width: 72px;
@@ -1060,6 +1062,9 @@ body {
 .area-size-60 .area-preview-box { width: 60%; height: 60%; }
 .area-pos-centre .area-preview-box { left: 50%; transform: translateX(-50%); }
 .area-pos-right  .area-preview-box { left: auto; right: 0; }
+/* Middle row: off the floor, so the box is rounded all round rather than sitting on the edge. */
+.area-mid .area-preview-box { bottom: 50%; transform: translateY(50%); border-radius: 6px; }
+.area-mid.area-pos-centre .area-preview-box { transform: translate(-50%, 50%); }
 
 /* ── PLAY AREA ── */
 /* An adult can shrink the whole app into a box along the bottom of the screen
@@ -1082,6 +1087,10 @@ body.area-size-80, body.area-size-60 {
 .area-pos-left   #stage { transform-origin: bottom left; }
 .area-pos-centre #stage { transform-origin: bottom center; }
 .area-pos-right  #stage { transform-origin: bottom right; }
+/* Halfway up instead, for a projector hung so low that its bottom edge is near the floor. */
+.area-mid.area-pos-left   #stage { transform-origin: center left; }
+.area-mid.area-pos-centre #stage { transform-origin: center center; }
+.area-mid.area-pos-right  #stage { transform-origin: center right; }
 
 /* The adult controls move up out of the students' reach. */
 .area-size-80 .scan-bar, .area-size-60 .scan-bar { top: 16px; bottom: auto; }

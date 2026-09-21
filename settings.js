@@ -19,7 +19,8 @@ const DEFAULT_SETTINGS = {
     },
     area: {
         size:         100,   // % of the screen the app fills: 100, 80 or 60
-        pos:     'centre',   // where a smaller app sits: 'left' | 'centre' | 'right' along the bottom
+        pos:     'centre',   // where a smaller app sits; see AREA_POS. The three bottom names are
+                             // bare ('left'), so a setup saved before the middle row still loads.
         nav:        'top',   // Back button and title bar: 'top' | 'bottom'
     },
     wam: {
@@ -81,11 +82,25 @@ function setSetting(path, value) {
 
 // The Play area is drawn entirely by these body classes (see PLAY AREA in styles.css);
 // they drive the preview in the settings panel too.
+// Each position as [down, across]. The bottom row suits a screen at normal height; the middle
+// row is for a projector mounted so low that its bottom edge is down by the floor.
+const AREA_POS = {
+    'mid-left':   ['middle', 'left'],
+    'mid-centre': ['middle', 'centre'],
+    'mid-right':  ['middle', 'right'],
+    'left':       ['bottom', 'left'],
+    'centre':     ['bottom', 'centre'],
+    'right':      ['bottom', 'right'],
+};
+
 function applyPlayArea() {
     const { size, pos, nav } = settings.area;
-    const body = document.body;
+    const body  = document.body;
+    const small = size < 100;
+    const [down, across] = AREA_POS[pos] || AREA_POS.centre;
     [80, 60].forEach(n => body.classList.toggle('area-size-' + n, size === n));
-    ['left', 'centre', 'right'].forEach(p => body.classList.toggle('area-pos-' + p, size < 100 && pos === p));
+    ['left', 'centre', 'right'].forEach(p => body.classList.toggle('area-pos-' + p, small && across === p));
+    body.classList.toggle('area-mid', small && down === 'middle');
     body.classList.toggle('nav-bottom', nav === 'bottom');
 }
 

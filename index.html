@@ -460,7 +460,8 @@
 
         <div class="settings-pane" data-pane="area">
             <p class="setting-intro">For students who can't reach the whole screen. The app shrinks into a
-                box at the bottom, and the rest of the screen does nothing when touched.</p>
+                box, and the rest of the screen does nothing when touched. The middle row lifts the box
+                off the floor, for a projector hung very low.</p>
 
             <div class="setting-group">
                 <span class="setting-label">Size</span>
@@ -473,7 +474,10 @@
 
             <div class="setting-group" id="area-pos-group">
                 <span class="setting-label">Position</span>
-                <div class="setting-opts" data-setting="area.pos">
+                <div class="setting-opts opts-grid3" data-setting="area.pos">
+                    <button class="setting-opt" data-value="mid-left">Middle left</button>
+                    <button class="setting-opt" data-value="mid-centre">Middle centre</button>
+                    <button class="setting-opt" data-value="mid-right">Middle right</button>
                     <button class="setting-opt" data-value="left">Bottom left</button>
                     <button class="setting-opt" data-value="centre">Bottom centre</button>
                     <button class="setting-opt" data-value="right">Bottom right</button>

@@ -119,8 +119,9 @@ each computer remembers its own setup.
   keyboards) and with the Xbox Adaptive Controller; in Chrome and Edge a controller is only noticed
   after one of its buttons has been pressed on the page. Space / Enter (or any key) remain one tap
   away, Move and Select can't be the same switch, and whether scanning is on is remembered too.
-- **Play area** — shrinks the app into a box at the bottom left, centre or right of the screen,
-  for students who can't reach the top of a large touchscreen. The Back button can move to the
+- **Play area** — shrinks the app into a box for students who can't reach the whole of a large
+  touchscreen, in any of six places: bottom left, centre or right, or the same three halfway up,
+  which lifts the box off the floor on a projector hung very low. The Back button can move to the
   bottom, and the Switch and ⚙ buttons move up out of reach.
 - **Games** — Whack-a-Mole hole count (4, 6 or 9), how many animals a Relaxed round has, and
   how long the timed levels last.
