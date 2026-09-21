@@ -80,6 +80,33 @@ The site works without any sounds — missing sounds are silently skipped.
 | `shrimp.mp3` | https://freesound.org/search/?q=shrimp+snapping&f=license%3A%22Creative+Commons+0%22&s=score+desc |
 | `pufferfish.mp3` | https://freesound.org/search/?q=pufferfish+underwater&f=license%3A%22Creative+Commons+0%22&s=score+desc |
 
+### Already here: seven bubbles
+
+Clownfish, coral, jellyfish, octopus, pufferfish, shrimp and squid make no call anyone can
+record, and all seven were playing the same wave sound. Each now has its own bubble instead,
+all from one CC0 recording — [Bubbles 001](https://freesound.org/s/539823/) by ristooooo1, the
+same one the Fish theme uses — but no two alike: a different stretch of the bubbling, played at
+a different speed (so a different pitch) and cut to a different length, biggest animal lowest
+and longest. Each is mono, faded in and out, levelled to about −16.5 LUFS with its peaks
+limited, like the other calls.
+
+| Save as | Pitch | Length |
+|---------|-------|--------|
+| `octopus.mp3` | 0.82× | 2.4 s |
+| `squid.mp3` | 0.88× | 2.2 s |
+| `pufferfish.mp3` | 0.94× | 2.0 s |
+| `coral.mp3` | 1.0× | 2.2 s |
+| `jellyfish.mp3` | 1.06× | 1.8 s |
+| `clownfish.mp3` | 1.12× | 1.6 s |
+| `shrimp.mp3` | 1.22× | 1.3 s |
+
+To make them again, or to add another: take `scene-bubbles.mp3` through ffmpeg
+`asetrate=44100*<pitch>,aresample=44100`, trim a few tenths of a second in (a different place
+for each), fade in 0.05 s and out 0.5 s, then `volume` to −16.5 LUFS with
+`alimiter=limit=0.79:level=false` (without `level=false` the limiter puts the loudness back).
+
+Dolphin, whale, seal, shark, crab, lobster and turtle have real recordings and keep them.
+
 ---
 
 ## 🐠 Fish
