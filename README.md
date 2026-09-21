@@ -145,6 +145,23 @@ pictures, sounds and the font — is in this folder.
 To put it one tap away on a classroom machine, drag `index.html` (or `scenes.html`, or a preset's
 `scenes.html#preset=<name>` link) to the desktop to make a shortcut.
 
+### What has to travel with it
+Unzipping keeps everything together, so this only matters if you are copying files by hand. These are
+what the two pages load; leave one out and its pictures or sounds go missing:
+
+| Keep | What would be lost |
+|------|--------------------|
+| `index.html`, `scenes.html`, `app.js`, `settings.js`, `styles.css` | the app itself |
+| `shared/` | the themes and their animals, the font, switches, the hold-to-open ⚙ |
+| `scenes/` | Animal Scenes, and the recoloured animals both halves use |
+| `sounds/` | every animal's call, and Scenes' background and weather sounds |
+| `openmoji/` | most of the animal pictures |
+| `fish/` | the Fish theme's artwork |
+| `fonts/` | Nunito — the app still works, in a plainer typeface |
+
+`dev/` is only for working on the app; a classroom copy doesn't need it. Keep `LICENSE` with it if you
+pass it on.
+
 Settings, presets and learned switches are saved in that browser on that computer, so each machine
 keeps its own setup — nothing is sent anywhere, and there is no account to sign in to.
 
