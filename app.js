@@ -505,12 +505,15 @@ function hideWin() {
 
 /* ══ WHACK-A-MOLE ══ */
 // Relaxed has no clock and no auto-hide: each animal waits to be tapped.
+// showMs is how long an animal waits to be tapped: the students need far longer than a
+// reaction-speed game would give, so these are roughly double what they were, and the stars
+// come down to match (a slower round has fewer animals in it to tap).
 const WAM_CONFIGS = {
     relaxed: { simultaneous: 1, relaxed: true },
-    starter: { simultaneous: 1, showMs: 3500, tickMs: 2000, stars: [5, 10, 16] },
-    easy:    { simultaneous: 1, showMs: 2500, tickMs: 1500, stars: [8, 14, 20] },
-    medium:  { simultaneous: 2, showMs: 2000, tickMs: 1100, stars: [12, 20, 28] },
-    hard:    { simultaneous: 3, showMs: 1500, tickMs:  750, stars: [16, 26, 36] },
+    starter: { simultaneous: 1, showMs: 8000, tickMs: 2000, stars: [2,  3,  5] },
+    easy:    { simultaneous: 1, showMs: 5500, tickMs: 1500, stars: [3,  5,  7] },
+    medium:  { simultaneous: 2, showMs: 4000, tickMs: 1100, stars: [5,  9, 13] },
+    hard:    { simultaneous: 3, showMs: 3000, tickMs:  750, stars: [7, 12, 17] },
 };
 
 // Grid shape for each hole count the Games settings offer.

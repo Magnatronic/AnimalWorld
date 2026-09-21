@@ -557,7 +557,10 @@ body {
     cursor: pointer;
     box-shadow: inset 0 6px 20px rgba(0,0,0,0.25);
     transition: transform 0.08s;
-    clip-path: ellipse(50% 50% at 50% 50%);
+    /* A rounded square, not an oval: it wastes no corners, so the animal can be bigger.
+       overflow keeps the animal hidden below the hole until it slides up. */
+    border-radius: clamp(18px, 3.5vmin, 42px);
+    overflow: hidden;
     min-height: 0;
     /* size queries so image can use cqh (container height) */
     container-type: size;
@@ -596,8 +599,8 @@ body {
 }
 
 .wam-animal-img {
-    /* min() of height and width keeps image proportionate in any oval shape */
-    height: min(55cqh, 55cqw);
+    /* min() of height and width keeps the image proportionate in any hole shape */
+    height: min(70cqh, 70cqw);
     width: auto;
     max-width: 85%;
     object-fit: contain;
