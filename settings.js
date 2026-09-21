@@ -259,4 +259,4 @@ document.getElementById('settings-panel').addEventListener('click', e => {
 
 applyPlayArea();
 
-holdToOpen(document.getElementById('settings-btn'), document.getElementById('hold-hint'), openSettings);
+openOnTap(document.getElementById('settings-btn'), openSettings);

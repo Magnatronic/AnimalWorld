@@ -1094,7 +1094,6 @@ body.area-size-80, body.area-size-60 {
 
 /* The adult controls move up out of the students' reach. */
 .area-size-80 .scan-bar, .area-size-60 .scan-bar { top: 16px; bottom: auto; }
-.area-size-80 .hold-hint, .area-size-60 .hold-hint { bottom: auto; top: calc(100% + 10px); }
 .area-size-80 .credit, .area-size-60 .credit { top: 6px; bottom: auto; }
 /* Full size with the bar at the bottom: sit in the empty middle of that bar, clear of the cards */
 body.nav-bottom:not(.area-size-80):not(.area-size-60) .credit { left: 50%; transform: translateX(-50%); }

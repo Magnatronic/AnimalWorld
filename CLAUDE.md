@@ -9,11 +9,11 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 
 ## Two parts
 - **Animal Activities** — `index.html`, `styles.css`, `settings.js`, `app.js`. Front page → theme
-  picker → Explore, Memory, Whack-a-Mole, Find the Animal. Settings panel (hold ⚙ 2 s): Scanning,
+  picker → Explore, Memory, Whack-a-Mole, Find the Animal. Settings panel (tap ⚙): Scanning,
   Play area, Games, Sound.
 - **Animal Scenes** — `scenes.html`, `scenes/`. A calm full-screen scene; touch and switches bring
   animals in. Opens on a choice of animals (theme buttons, `showChooser()`; a preset link shows
-  `showTapToStart()` instead); set-up's "Choose animals" and holding ← (top left, while playing) return there. Set-up (hold ⚙ 2 s): Presets,
+  `showTapToStart()` instead); set-up's "Choose animals" and tapping ← (top left, while playing) return there. Set-up (tap ⚙): Presets,
   Scene, Weather, Switches, Sound tabs.
 
 ## Where things live
@@ -21,7 +21,7 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 |---|---|
 | `shared/themes.js` | Every theme and animal (name, OpenMoji `code` or `src`, `sound`); `imgSrc()` |
 | `shared/switches.js` | Learning/reading switches: keys + Gamepad API. Numbered switch list for Scenes (min 5 in Scenes, max 12, id + colour); `capture()` for one-off learning (Activities' scanning switches) |
-| `shared/hold.js/.css`, `shared/fonts.css` | Hold-to-open ⚙; bundled Nunito |
+| `shared/hold.js/.css`, `shared/fonts.css` | The adult's ⚙/← buttons (plain tap) and no long-press menu; bundled Nunito |
 | `scenes/art.js`, `scenes/art-<theme>.js` | art.js: the drawing pieces (`SceneDraw`, shared with the other files; art-ocean.js adds the underwater ones), tracks, weathers, Birds, Forest and Farm; each other theme in its own file, loaded after art.js. Per theme: `animals` (habitat perch/ground/water/hide/swim/seabed/flower/leaf/thread, width %, facing r/l/f, move fly/walk/bound/climb/swim/surface/peek/pop/drop, `hang`, `turn`, `sound`, `src`), `switchCast`, `weathers` (the SceneWeather ids that suit it), optional `covers`/`marks`/`markWords`, and `scenes` (each: SVG drawing, `spots`, `places`, `residents`, `track` (unique per scene), optional `cast` (the scene's animals: names, or names with changes such as a different habitat; `sceneAnimals()`), and any theme key to override it, e.g. `weathers`, `switchCast`, `marks`, `fx`, `splashes` = rain-ring points on its water). `SceneTracks` = background loops (set-up offers only the theme's, `themeTracks()`); `SceneWeather` = the weathers (label, hint, optional sound; `themeWeathers()`/`themeWeatherJobs()` filter them per theme) |
 | `scenes/scenes.js` | Scene engine, settings (`animalScenes.settings`), jobs, `makeLooper()` crossfading loops (track and weather sounds), weather (`drawWeather`, `setWeather`, `pressWeather`, strength 1–5 as `st1..5` on each weather layer + `.lv2…lv5` (stage `wx-s1..5` only for lean and snowy ground), easing off, thunder) |
 | `scenes/presets.js` | Presets (`animalScenes.presets`): ready-made list, save/update/rename/delete, `usePreset()`, `#preset=<id>` links. Jobs stored by switch number, not switch id. Each belongs to its `theme`; set-up lists only `themePresets()` |

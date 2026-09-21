@@ -67,8 +67,8 @@ which sits in the middle. A strong storm brings bigger, brighter bolts every few
 seconds (never two within a second, and set-up can switch lightning off), a blizzard frosts the trees
 and freezes the pond, and thick fog becomes a near white-out.
 
-While a scene plays, hold the dimmed **←** in the top-left corner for two seconds to go back to the
-choice of animals. Hold the dimmed ⚙ in the top-right corner for two seconds to open **Set-up** (it
+While a scene plays, tap the dimmed **←** in the top-left corner to go back to the
+choice of animals. Tap the dimmed ⚙ in the top-right corner to open **Set-up** (it
 works from the start screen too):
 - **Presets** — saved set-ups (scene, look, speed, weather, switch jobs). Each set of animals has its
   own, and set-up shows only those for the animals chosen. Ready-made for Birds: 🌳 Calm garden,
@@ -107,9 +107,8 @@ works from the start screen too):
 Forest 🌲 · Safari 🌅 · Ocean 🌊 · Mini Beasts 🐛 · Polar ❄️ · Fish 🐠 · Birds 🐦 · Farm 🚜
 
 ## Settings
-Press and hold the ⚙ button (bottom right) for two seconds to open Settings. A quick tap only
-shows a reminder, so students can't open it by accident. Changes are saved in the browser, so
-each computer remembers its own setup.
+Tap the ⚙ button (bottom right) to open Settings. It is small, dim and cornered to keep it out of
+the students' way. Changes are saved in the browser, so each computer remembers its own setup.
 
 - **Scanning** — switch scanning for AAC users. Three modes: **Auto** (the highlight moves on its
   own), **Press to Start**, and **Two Switches** (one switch moves the highlight, the other chooses,
@@ -152,7 +151,7 @@ what the two pages load; leave one out and its pictures or sounds go missing:
 | Keep | What would be lost |
 |------|--------------------|
 | `index.html`, `scenes.html`, `app.js`, `settings.js`, `styles.css` | the app itself |
-| `shared/` | the themes and their animals, the font, switches, the hold-to-open ⚙ |
+| `shared/` | the themes and their animals, the font, switches, the ⚙ button |
 | `scenes/` | Animal Scenes, and the recoloured animals both halves use |
 | `sounds/` | every animal's call, and Scenes' background and weather sounds |
 | `openmoji/` | most of the animal pictures |
@@ -179,7 +178,7 @@ come with the computer and work anywhere. Everything else is unaffected.
 | `scenes/pictures/` | Animals recoloured for a theme (a white snowy owl, a red squirrel…), used by both parts |
 | `sounds/ambient/` | Background loops for Animal Scenes, one per scene |
 | `sounds/weather/` | Rain, wind and thunder for Animal Scenes' weather |
-| `shared/hold.js`, `shared/hold.css` | The hold-to-open ⚙ button, used by both parts |
+| `shared/hold.js`, `shared/hold.css` | The adult's ⚙ and ← buttons, and turning off the browser's long-press menu |
 | `dev/` | A test server and a walk-through of every theme and activity, for development (see `CLAUDE.md`) |
 | `styles.css` | Animal Activities' styling, including each theme's colours |
 | `shared/themes.js` | The themes and their animals, used by both parts — start here to add or change a theme |

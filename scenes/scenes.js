@@ -1183,8 +1183,8 @@ function leaveScenes() {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     location.href = 'index.html';
 }
-holdToOpen(document.getElementById('settings-btn'), document.getElementById('hold-hint'), openSetup);
-holdToOpen(document.getElementById('back-btn'), document.getElementById('back-hint'), chooseAnimals);
+openOnTap(document.getElementById('settings-btn'), openSetup);
+openOnTap(document.getElementById('back-btn'), chooseAnimals);
 
 while (Switches.slots.length < SCENE_SWITCHES_MIN) Switches.add();
 liveWeather = homeWeather();

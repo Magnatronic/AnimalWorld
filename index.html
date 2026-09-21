@@ -599,11 +599,8 @@
 <!-- ══ SWITCH ACCESS BAR ══ -->
 <div class="scan-bar">
     <button id="scan-toggle" class="scan-toggle" onclick="toggleScanMode()">♿ Switch: OFF</button>
-    <!-- Opens on a two-second hold so a passing tap from a student does nothing. -->
-    <button id="settings-btn" class="settings-btn" aria-label="Settings — press and hold">
-        <svg class="hold-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16"/></svg>⚙
-    </button>
-    <div class="hold-hint" id="hold-hint">Hold ⚙ to open settings</div>
+    <!-- The adult's: a plain tap opens Settings; small, dim and cornered to stay out of the way. -->
+    <button id="settings-btn" class="settings-btn" aria-label="Settings">⚙</button>
 </div>
 <script src="shared/themes.js"></script>
 <script src="shared/switches.js"></script>

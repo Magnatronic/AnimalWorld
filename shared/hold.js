@@ -1,10 +1,10 @@
-/* ── HOLD TO OPEN ── */
-// The ⚙ button opens settings only after a two-second hold, with a ring filling as
-// it's held, so a passing tap from a student just shows a reminder. Shared by
-// Animal Activities and Animal Scenes; styles are in shared/hold.css.
-// This file also turns off the browser's own long-press menu, for the same reason:
-// holding is a thing students do here (see below).
-const HOLD_TO_OPEN_MS = 2000;
+/* ── THE ADULT'S BUTTONS ── */
+// The ⚙ (settings / set-up) and Animal Scenes' ← open on a plain tap. They used to
+// need a two-second hold so a student couldn't open them by accident; the owner asked
+// for taps instead, so the buttons stay dim and out of the way rather than slow to open.
+// Shared by Animal Activities and Animal Scenes; styles are in shared/hold.css.
+// This file also turns off the browser's own long-press menu — holding is still a thing
+// students do on the projector, and the menu it pops up is theirs to get stuck behind.
 
 // A long press on a touchscreen normally pops up the browser's menu ("open link",
 // "save image"…). On the projector that happens by accident, over the top of the
@@ -15,25 +15,9 @@ document.addEventListener('contextmenu', e => {
     e.preventDefault();
 });
 
-function holdToOpen(btn, hint, open) {
-    let timer = null, hintTimer = null;
-    btn.addEventListener('pointerdown', e => {
+function openOnTap(btn, open) {
+    btn.addEventListener('click', e => {
         e.preventDefault();
-        btn.classList.add('holding');
-        timer = setTimeout(() => {
-            timer = null;
-            btn.classList.remove('holding');
-            open();
-        }, HOLD_TO_OPEN_MS);
+        open();
     });
-    const cancel = () => {
-        if (!timer) return;
-        clearTimeout(timer);
-        timer = null;
-        btn.classList.remove('holding');
-        hint.classList.add('visible');
-        clearTimeout(hintTimer);
-        hintTimer = setTimeout(() => hint.classList.remove('visible'), 2000);
-    };
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => btn.addEventListener(t, cancel));
 }

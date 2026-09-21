@@ -1,5 +1,5 @@
 /* The ⚙ settings button, shared by Animal Activities and Animal Scenes. */
-/* Settings button: opens on a hold, with a ring that fills while held */
+/* Settings button: a plain tap opens it; dim, small and cornered so it stays the adult's. */
 .settings-btn {
     position: relative;
     width: 48px;
@@ -11,42 +11,6 @@
     font-size: 1.4rem;
     line-height: 1;
     cursor: pointer;
-    touch-action: none;
+    touch-action: manipulation;
     -webkit-touch-callout: none;
 }
-.hold-ring {
-    position: absolute;
-    inset: -6px;
-    width: calc(100% + 12px);
-    height: calc(100% + 12px);
-    transform: rotate(-90deg);
-    pointer-events: none;
-}
-.hold-ring circle {
-    fill: none;
-    stroke: #FFD700;
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-dasharray: 100.6;
-    stroke-dashoffset: 100.6;
-}
-.settings-btn.holding .hold-ring circle {
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 2s linear;
-}
-.hold-hint {
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 10px);
-    white-space: nowrap;
-    background: rgba(0,0,0,0.8);
-    color: #fff;
-    font-weight: 800;
-    font-size: 0.9rem;
-    padding: 8px 14px;
-    border-radius: 12px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-}
-.hold-hint.visible { opacity: 1; }
