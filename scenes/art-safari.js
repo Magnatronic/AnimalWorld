@@ -58,7 +58,7 @@ SceneArt.safari = (() => {
             Gorilla:   { habitat: 'ground', w: 10,  face: 'l', foot: 88 },
             Camel:     { habitat: 'ground', w: 13,  face: 'l', foot: 84.3 },
             Warthog:   { habitat: 'ground', w: 10,  face: 'l', foot: 80.8, src: 'scenes/pictures/warthog.svg' },
-            Scorpion:  { habitat: 'ground', w: 5.5, face: 'f', foot: 85.3 },
+            Scorpion:  { habitat: 'ground', w: 5.5, face: 'l', foot: 50, turn: -90 },
         },
         switchCast: ['Lion', 'Elephant', 'Giraffe', 'Zebra', 'Monkey', 'Hippo'],
         weathers: ['rain', 'storm', 'wind', 'dust', 'fog', 'rainbow'],     // no snow on the savanna

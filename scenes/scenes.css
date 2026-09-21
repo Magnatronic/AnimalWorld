@@ -83,6 +83,14 @@ body { font-family: 'Nunito', 'Arial Rounded MT Bold', Arial, sans-serif; color:
 /* Bats hang upside down under the branch, and turn the right way up to fly */
 .animal.hang .body { transition: rotate calc(.8s * var(--pace)) ease-in-out; }
 .animal.hang:not(.moving) .body { rotate: 180deg; }
+/* Pictures drawn from above with the head at the top (the ant and beetle) are turned to face
+   the way they go (`turn` in art.js: the angle facing left), and turn the other way instead of
+   being mirrored — seen from above there is no near side to mirror. Their `foot` is 50, the
+   middle of the picture, which is what the turn goes round. */
+.animal.turn .body { rotate: var(--turn, 0deg); transition: rotate calc(.6s * var(--pace)) ease-in-out; }
+.animal.turn.flip .body { rotate: calc(var(--turn, 0deg) * -1); }
+.animal.turn.flip img { scale: none; }
+.animal.turn.flip.hop img { animation-name: hop; }
 
 /* Empty places (see PLACE_ART in scenes.js): a nest, seeds or a lily pad, fading as an
    animal heads there. Subtle is just that; Clear adds a warm glow, a gentle swell and a

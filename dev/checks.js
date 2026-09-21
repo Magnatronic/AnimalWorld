@@ -212,6 +212,7 @@
             Object.entries(art.animals).forEach(([n, d]) => {
                 const move = d.move || art.move;
                 if (HEADS.includes(n) && !['peek', 'surface'].includes(move)) bad(where, 'head-only', n, 'moves by', move);
+                if (d.turn && d.face === 'f') bad(where, n, 'is turned but faces front, so it never turns round');
                 if (move === 'fly') (fliers[theme] = fliers[theme] || new Set()).add(n);
                 if (move === 'climb') spots.filter(s => s.habitat === d.habitat).forEach(s => { if (!s.up) bad(where, n, 'climbs but spot has no up', s.x, s.y); });
             });

@@ -269,6 +269,7 @@ const SceneArt = (() => {
             // Every animal in the Birds theme: where it lives, its width (% of the scene),
             // which way its picture faces (r, l or f for front), how far down its picture
             // its feet are (%; for water birds, where the waterline crosses it), and how it arrives.
+            // (A picture drawn from above, head up, also has a `turn`: see the mini beasts.)
             animals: {
                 Sparrow:  { habitat: 'perch',  w: 9,    face: 'r', foot: 78 },
                 Crow:     { habitat: 'perch',  w: 10,   face: 'r', foot: 78 },

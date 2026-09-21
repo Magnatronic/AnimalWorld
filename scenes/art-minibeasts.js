@@ -2,7 +2,10 @@
 // See art.js for how a theme is laid out. Drawn close up, so flowers and leaves are huge:
 // flying minibeasts land on the flower heads (`flower`), crawlers sit on leaves (`leaf`) or the
 // ground, the spider lets itself down on a thread (`thread`, move 'drop'), and the worm pops up
-// out of the soil (`hide`, cover 'soil').
+// out of the soil (`hide`, cover 'soil'). The crawlers on the ground (ant, beetle, cockroach,
+// scorpion) are drawn from above with their heads at the top, so they carry `turn: -90`: the
+// picture is turned to face the way it goes rather than mirrored, and its `foot` is 50, the
+// middle of the picture, which the turn goes round (scenes.css: .animal.turn).
 (() => {
     const { ball, trunk, cloud, skyAndSun, rock, toadstools, tufts } = SceneDraw;
 
@@ -89,11 +92,11 @@
             Snail:       { habitat: 'leaf',   w: 8,   face: 'r', foot: 78.5, move: 'climb' },
             Spider:      { habitat: 'thread', w: 7,   face: 'f', foot: 50,   move: 'drop' },
             Worm:        { habitat: 'hide',   w: 7,   face: 'l', foot: 72.5, move: 'peek' },
-            Ant:         { habitat: 'ground', w: 5,   face: 'f', foot: 85.5 },
+            Ant:         { habitat: 'ground', w: 5,   face: 'l', foot: 50, turn: -90 },
             Cricket:     { habitat: 'ground', w: 8,   face: 'l', foot: 83.3, move: 'bound' },
-            Beetle:      { habitat: 'ground', w: 5.5, face: 'f', foot: 86.8 },
-            Cockroach:   { habitat: 'ground', w: 5.5, face: 'f', foot: 86.3 },
-            Scorpion:    { habitat: 'ground', w: 6,   face: 'f', foot: 85.3 },
+            Beetle:      { habitat: 'ground', w: 5.5, face: 'l', foot: 50, turn: -90 },
+            Cockroach:   { habitat: 'ground', w: 5.5, face: 'l', foot: 50, turn: -90 },
+            Scorpion:    { habitat: 'ground', w: 6,   face: 'l', foot: 50, turn: -90 },
         },
         switchCast: ['Bee', 'Butterfly', 'Ladybird', 'Caterpillar', 'Spider', 'Snail'],
         weathers: ['rain', 'wind', 'leaves', 'fog', 'rainbow'],     // no snow or storms for the minibeasts
