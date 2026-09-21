@@ -53,7 +53,10 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
   picture (recolours in scenes/pictures/). Scenes with more places than animals add copies ("Owl 2",
   `copy: true`); Random and touches prefer the originals. `windCarries: 'snow'|'sand'` replaces the
   wind's leaves. `dev/checks.js` (`#validate`, `#movecheck`) checks every scene; see Testing. `hang: true` (bat) turns the picture over under a branch; its
-  `foot` is then where it grips, near the top. Animals are z-ordered by spot y (`standAt()`).
+  `foot` is then where it grips, near the top.
+  A journey cut short by the next press ends cleanly (`journey()`/`ending()` in scenes.js: each
+  journey holds a token, and stale timers, transitions and paths do nothing), and `a.at` is the
+  place an animal is heading for from the moment it sets off. Animals are z-ordered by spot y (`standAt()`).
 - **Sounds**: CC0 only (Freesound). Animal calls levelled to about −16 LUFS, background loops about
   −26 LUFS, peaks limited; credit each in `sounds/_Adding Sounds.md`. Tooling: `pip install
   imageio-ffmpeg` gives an ffmpeg binary; pass `-nostdin` when looping over a heredoc.

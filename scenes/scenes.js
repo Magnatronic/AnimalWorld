@@ -176,9 +176,10 @@ function buildScene() {
     cast = {};
     const addAnimal = (name, def, animal, base) => {
         const el = document.createElement('div');
-        el.className = `animal ${def.move || art.move} on-${def.habitat}${def.hang ? ' hang' : ''}`;
+        el.className = `animal ${def.move || art.move} on-${def.habitat}${def.hang ? ' hang' : ''}${def.turn ? ' turn' : ''}`;
         el.style.width = def.w + '%';
         el.style.setProperty('--foot', (def.foot || 86) + '%');
+        if (def.turn) el.style.setProperty('--turn', def.turn + 'deg');
         el.hidden = true;
         // Water birds sit in the water: a ring where they meet it, and the picture cut off below.
         el.innerHTML = (def.habitat === 'water' ? '<i class="wake"></i>' : '') +
@@ -186,7 +187,8 @@ function buildScene() {
         el.querySelector('img').style.animationDelay = (-Math.random() * 3).toFixed(2) + 's';
         el.addEventListener('pointerdown', e => { e.stopPropagation(); if (started && accept('call')) touched(name); });
         layer.appendChild(el);
-        cast[name] = { el, def, sound: def.sound || animal.sound, spot: null, at: null, arrivedAt: 0, calledAt: 0, leaving: false, copy: name !== base };
+        cast[name] = { el, def, sound: def.sound || animal.sound, spot: null, at: null, arrivedAt: 0, calledAt: 0,
+            leaving: false, copy: name !== base, trip: 0, anim: null };
     };
     Object.entries(art.animals).forEach(([name, def]) => {
         const animal = themeAnimals.find(a => a.name === name);
@@ -280,6 +282,7 @@ function freeSpot(habitat) {
 // Put an animal straight onto a spot, no journey (residents at the start).
 function settle(name, spot) {
     const a = cast[name];
+    journey(a);                          // anything still in flight for this animal stops here
     spot.animal = name;
     a.spot = spot;
     a.arrivedAt = a.calledAt = Date.now();
@@ -322,19 +325,48 @@ function leave(name) {
     travel(a, null, false, () => { if (a.leaving) { a.el.hidden = true; a.leaving = false; } });
 }
 
+// Where an animal is on screen now, as scene %. Part-way through a journey that isn't what its
+// own style says: that is already the place it is heading for.
+function nowAt(el) {
+    const style = getComputedStyle(el), w = stage.clientWidth, h = stage.clientHeight;
+    const pc = (v, of) => v.endsWith('%') || !of ? parseFloat(v) : parseFloat(v) / of * 100;
+    const here = { x: pc(style.left, w), y: pc(style.top, h) };
+    return isNaN(here.x) || isNaN(here.y) ? { x: parseFloat(el.style.left), y: parseFloat(el.style.top) } : here;
+}
+
+// Every journey takes the next token, and whatever the one before it left behind — a timer, a
+// transition ending, a path animation — asks `live()` first and does nothing once it has been
+// overtaken. Without that, a press part-way through a journey let the old one end the new one's
+// transition (the animal jumping straight to its spot) and write the wrong place into `a.at`.
+function journey(a) {
+    const trip = a.trip = (a.trip || 0) + 1;
+    return () => a.trip === trip;
+}
+// The end of a journey: it happens once, and not at all if another journey has begun since.
+function ending(a, live, classes, done) {
+    let finished = false;
+    return () => {
+        if (finished || !live()) return;
+        finished = true;
+        a.el.classList.remove(...classes);
+        done();
+    };
+}
+
 // Fly, walk, bound or swim between the edge of the scene and a spot, facing the way it goes.
 function travel(a, spot, coming, done) {
     const move = a.def.move || art.move;
     const el = a.el;
     markPlaces();                                  // a place's glow fades as someone heads for it
-    const arrived = done;
-    done = () => { a.at = spot; arrived(); };
-    if (move === 'peek') { peek(a, spot, coming, done); return; }
-    if (move === 'pop') { pop(a, spot, coming, done); return; }
-    if (move === 'surface') { surface(a, spot, coming, done); return; }
-    if (move === 'climb' && ((spot && spot.up) || (a.at && a.at.up))) { climb(a, spot, coming, done); return; }
+    const from = a.at;                             // where it sets out from (a climber paths from there)
+    a.at = spot;                                   // where it is heading counts as where it is at once
+    const live = journey(a);                       // and this is now the animal's only live journey
+    if (move === 'peek') { peek(a, spot, coming, done, live); return; }
+    if (move === 'pop') { pop(a, spot, coming, done, live); return; }
+    if (move === 'surface') { surface(a, spot, coming, done, live); return; }
+    if (move === 'climb' && ((spot && spot.up) || (from && from.up))) { climb(a, spot, coming, done, live, from); return; }
     if (spot) standAt(a, spot);
-    const here = { x: parseFloat(el.style.left), y: parseFloat(el.style.top) };
+    const here = nowAt(el);
     const drop = move === 'drop';                  // a spider lets itself down on its thread, and climbs back up
     const target = spot || (drop ? { x: here.x, y: -30 } : { x: here.x > 50 ? 112 : -12, y: move === 'fly' ? 4 : here.y });
     if (coming) {
@@ -353,13 +385,7 @@ function travel(a, spot, coming, done) {
     el.classList.add('moving');
     el.style.left = target.x + '%';
     el.style.top  = target.y + '%';
-    let finished = false;
-    const finish = () => {
-        if (finished) return;
-        finished = true;
-        el.classList.remove('moving');
-        done();
-    };
+    const finish = ending(a, live, ['moving'], done);
     el.addEventListener('transitionend', function once(e) {
         if (e.propertyName !== 'left') return;
         el.removeEventListener('transitionend', once);
@@ -370,10 +396,10 @@ function travel(a, spot, coming, done) {
 
 // Swimmers that surface: they rise up out of the water at their spot (so they needn't cross
 // land to get there), and dive to leave or to move to another spot.
-function surface(a, spot, coming, done) {
+function surface(a, spot, coming, done, live) {
     const el = a.el, ms = 1100 * sceneSettings.pace;
     el.classList.add('moving');
-    const finish = () => { el.classList.remove('moving'); done(); };
+    const finish = ending(a, live, ['moving'], done);
     const rise = () => {
         el.style.left = spot.x + '%';
         el.style.top = spot.y + '%';
@@ -385,14 +411,18 @@ function surface(a, spot, coming, done) {
     };
     el.classList.add('down');
     if (coming) { rise(); return; }
-    setTimeout(spot ? rise : finish, ms);
+    setTimeout(() => { if (live()) (spot ? rise : finish)(); }, ms);
 }
 
 // Climbers (squirrels, monkeys, a cat onto a fence, a snail up a stem) come in along the
 // ground to the foot of their tree or stem (the spot's `up`: [x, y]), climb it, then go
 // along the branch; they leave the same way, by the nearer edge.
-function climb(a, spot, coming, done) {
-    const el = a.el, from = coming ? null : a.at;
+function climb(a, spot, coming, done, live, cameFrom) {
+    const el = a.el, from = coming ? null : cameFrom;
+    // A path the animal is already on ends here, and it sets out again from where it has got
+    // to rather than from wherever that path was going to finish.
+    const midway = a.anim && a.anim.playState === 'running' ? nowAt(el) : null;
+    if (a.anim) { a.anim.cancel(); a.anim = null; }
     const pts = [];
     if (from && from.up) pts.push({ x: from.up[0], y: from.y }, { x: from.up[0], y: from.up[1] });
     if (spot && spot.up) {
@@ -407,7 +437,7 @@ function climb(a, spot, coming, done) {
         const last = pts[pts.length - 1];
         pts.push({ x: last.x < 50 ? -12 : 112, y: last.y });
     }
-    const start = { x: parseFloat(el.style.left), y: parseFloat(el.style.top) };
+    const start = (!coming && midway) || nowAt(el);
     const all = [start, ...pts];
     const legs = all.slice(1).map((p, i) => Math.hypot((p.x - all[i].x) * 1.6, (p.y - all[i].y) * .9));
     const total = legs.reduce((m, n) => m + n, 0) || 1;
@@ -419,20 +449,14 @@ function climb(a, spot, coming, done) {
     let at = 0;
     legs.forEach((len, i) => {
         const dx = all[i + 1].x - all[i].x;
-        if (Math.abs(dx) > .5) setTimeout(() => el.classList.toggle('flip', a.def.face !== 'f' && a.def.face !== (dx > 0 ? 'r' : 'l')), at / total * ms);
+        if (Math.abs(dx) > .5) setTimeout(() => { if (live()) el.classList.toggle('flip', a.def.face !== 'f' && a.def.face !== (dx > 0 ? 'r' : 'l')); }, at / total * ms);
         at += len;
     });
-    const anim = el.animate(frames, { duration: ms, easing: 'ease-in-out' });
+    const anim = a.anim = el.animate(frames, { duration: ms, easing: 'ease-in-out' });
     const end = all[all.length - 1];
     el.style.left = end.x + '%';
     el.style.top = end.y + '%';
-    let finished = false;
-    const finish = () => {
-        if (finished) return;
-        finished = true;
-        el.classList.remove('moving', 'pathing');
-        done();
-    };
+    const finish = ending(a, live, ['moving', 'pathing'], done);
     anim.onfinish = finish;
     setTimeout(finish, ms + 400);
 }
@@ -440,10 +464,10 @@ function climb(a, spot, coming, done) {
 // Peeping animals pop up from behind their bush or log, then come forward to sit in
 // front of it (scenes.css: .behind, .down, .up). To leave, or to move to another bush,
 // they go back up over it, behind it, and down out of sight.
-function peek(a, spot, coming, done) {
+function peek(a, spot, coming, done, live) {
     const el = a.el, ms = 800 * sceneSettings.pace;
     el.classList.add('moving');
-    const finish = () => { el.classList.remove('moving'); done(); };
+    const finish = ending(a, live, ['moving'], done);
     const rise = () => {
         el.style.left = spot.x + '%';
         el.style.top = spot.y + '%';
@@ -452,6 +476,7 @@ function peek(a, spot, coming, done) {
         el.classList.remove('down');
         el.classList.add('up');                        // up from behind, clear of the top…
         setTimeout(() => {
+            if (!live()) return;
             el.classList.remove('behind', 'up');       // …then forward, in front of it
             setTimeout(finish, ms);
         }, ms);
@@ -459,18 +484,19 @@ function peek(a, spot, coming, done) {
     if (coming) { el.classList.add('behind', 'down'); rise(); return; }
     el.classList.add('up');
     setTimeout(() => {
+        if (!live()) return;
         el.classList.add('behind', 'down');
         el.classList.remove('up');
-        setTimeout(spot ? rise : finish, ms);
+        setTimeout(() => { if (live()) (spot ? rise : finish)(); }, ms);
     }, ms);
 }
 
 // Things that grow where they are (coral): they swell up from nothing at their spot, and
 // shrink away to leave (or to move, growing again at the new spot).
-function pop(a, spot, coming, done) {
+function pop(a, spot, coming, done, live) {
     const el = a.el, ms = 900 * sceneSettings.pace;
     el.classList.add('moving');
-    const finish = () => { el.classList.remove('moving'); done(); };
+    const finish = ending(a, live, ['moving'], done);
     const grow = () => {
         el.style.left = spot.x + '%';
         el.style.top = spot.y + '%';
@@ -481,7 +507,7 @@ function pop(a, spot, coming, done) {
     };
     if (coming) { el.classList.add('small'); grow(); return; }
     el.classList.add('small');
-    setTimeout(spot ? grow : finish, ms);
+    setTimeout(() => { if (live()) (spot ? grow : finish)(); }, ms);
 }
 
 // An animal calls: its sound, a hop, and notes (or bubbles) rising.
