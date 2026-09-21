@@ -48,7 +48,7 @@ SceneArt.safari = (() => {
             Leopard:   { habitat: 'perch',  w: 12,  face: 'l', foot: 78.5, move: 'climb' },
             Chameleon: { habitat: 'perch',  w: 8,   face: 'l', foot: 75.3, move: 'climb' },
             Lion:      { habitat: 'hide',   w: 8.5, face: 'f', foot: 95.5, move: 'peek' },
-            Hippo:     { habitat: 'water',  w: 13,  face: 'r', foot: 56,   move: 'surface' },
+            Hippo:     { habitat: 'water',  w: 13,  face: 'r', foot: 70,   move: 'surface' },
             Crocodile: { habitat: 'water',  w: 13,  face: 'r', foot: 66,   move: 'surface' },
             Flamingo:  { habitat: 'water',  w: 8,   face: 'l', foot: 80,   move: 'fly' },
             Elephant:  { habitat: 'ground', w: 16,  face: 'l', foot: 82.3 },
@@ -103,13 +103,13 @@ SceneArt.safari = (() => {
                   ${tufts([[300, 700], [520, 860], [760, 720], [880, 880], [140, 820], [620, 780], [940, 780]])}
                   ${acacia(250, 910, 1.3)}
                   ${trunk('M1398 910 L1406 560 L1426 560 L1436 910Z')}
-                  ${branch(1410, 600, 1180, 566, 16)}
+                  ${branch(1410, 600, 1120, 558, 16)}
                   <g class="sway" style="--d:12s"><ellipse class="f-leaf ol" cx="1420" cy="548" rx="200" ry="40"/><ellipse class="f-leaf2 ol" cx="1400" cy="528" rx="150" ry="30"/><ellipse class="shade-belly" cx="1420" cy="548" rx="200" ry="40"/></g>
                 </svg>`,
                 spots: [
-                    { habitat: 'perch', x: 19, y: 46.6, up: [15.6, 90] }, { habitat: 'perch', x: 26, y: 48.3, up: [15.6, 90] },
-                    { habitat: 'perch', x: 76, y: 64.4, up: [88.5, 84] }, { habitat: 'perch', x: 82, y: 65.3, up: [88.5, 84] },
-                    { habitat: 'hide', x: 44, y: 72, cover: 'grass' }, { habitat: 'hide', x: 63, y: 71, cover: 'grass' },
+                    { habitat: 'perch', x: 15, y: 46.2, up: [15.6, 90] }, { habitat: 'perch', x: 27, y: 48.8, up: [15.6, 90] },
+                    { habitat: 'perch', x: 74, y: 63, up: [88.5, 84] }, { habitat: 'perch', x: 83.5, y: 65.5, up: [88.5, 84] },
+                    { habitat: 'hide', x: 44, y: 72, cover: 'grass' }, { habitat: 'hide', x: 68, y: 71.5, cover: 'grass' },
                     { habitat: 'ground', x: 17, y: 94 }, { habitat: 'ground', x: 31, y: 85 }, { habitat: 'ground', x: 48, y: 95 },
                     { habitat: 'ground', x: 56, y: 83 },
                     { habitat: 'water', x: 73, y: 94 }, { habitat: 'water', x: 85, y: 92.5 },
@@ -139,13 +139,13 @@ SceneArt.safari = (() => {
                   ${palm(1440, 910, -40, 1)}${palm(1540, 900, 30, .8)}
                   ${tufts([[260, 640], [1320, 650], [1460, 870], [180, 880], [420, 890]])}
                   ${trunk('M120 910 L150 360 Q162 330 176 360 L206 910Z')}
-                  ${branch(170, 420, 470, 370)}${branch(162, 560, 380, 530, 16)}
+                  ${branch(170, 420, 520, 358)}${branch(162, 560, 400, 527, 16)}
                   ${branch(150, 380, 60, 330, 14)}
                 </svg>`,
                 spots: [
-                    { habitat: 'perch', x: 20, y: 43.9, up: [10.2, 88] }, { habitat: 'perch', x: 26, y: 42.1, up: [10.2, 88] }, { habitat: 'perch', x: 18, y: 60.3, up: [10.2, 88] },
+                    { habitat: 'perch', x: 17.5, y: 44.6, up: [10.2, 88] }, { habitat: 'perch', x: 27.5, y: 41.4, up: [10.2, 88] }, { habitat: 'perch', x: 19, y: 59.7, up: [10.2, 88] },
                     { habitat: 'hide', x: 45, y: 63, cover: 'grass' }, { habitat: 'hide', x: 68, y: 63, cover: 'rock' },
-                    { habitat: 'ground', x: 30, y: 70 }, { habitat: 'ground', x: 16, y: 95 }, { habitat: 'ground', x: 83, y: 80 },
+                    { habitat: 'ground', x: 34, y: 70 }, { habitat: 'ground', x: 19.5, y: 95 }, { habitat: 'ground', x: 83, y: 80 },
                     { habitat: 'ground', x: 80, y: 97 },
                     { habitat: 'water', x: 36, y: 84 }, { habitat: 'water', x: 52, y: 89 }, { habitat: 'water', x: 64, y: 81 },
                 ],

@@ -253,3 +253,107 @@
     out.push('errors: ' + (errors.length ? errors.join('; ') : 'none'));
     document.body.insertAdjacentHTML('beforeend', `<pre id="result">${out.join('\n')}</pre>`);
 })();
+
+/* #spacecheck  how much room the spots leave. It puts every animal on every spot its habitat
+   allows and measures the picture there, so it sees the crowded pairings a random filling
+   would only sometimes show. Reports animals whose pictures would overlap, pictures reaching
+   outside the scene, and water animals left with little above the waterline.
+   Rectangles round whole pictures would call animals overlapping that only share empty space,
+   so it measures each picture's ink (getBBox on the SVG) inside its box. */
+(() => {
+    if (location.hash !== '#spacecheck') return;
+    const out = [], problems = [];
+    const bad = (...a) => problems.push(a.join(' '));
+    const OVERLAP = 0.1;                         // ink in common, as a share of the smaller animal
+    const ABOVE = 0.5;                           // least of a water animal that should stay above the line
+    const ink = {};
+
+    const measure = src => fetch(src).then(r => r.text()).then(t => {
+        const svg = document.importNode(new DOMParser().parseFromString(t, 'image/svg+xml').documentElement, true);
+        svg.setAttribute('style', 'position:absolute;left:-9999px;top:0;width:300px;height:300px');
+        document.body.appendChild(svg);
+        const b = svg.getBBox(), v = svg.viewBox.baseVal;
+        const vb = v && v.width ? v : { x: 0, y: 0, width: 100, height: 100 };
+        svg.remove();
+        ink[src] = { x: (b.x - vb.x) / vb.width, y: (b.y - vb.y) / vb.height, w: b.width / vb.width, h: b.height / vb.height };
+    });
+
+    // The ink an animal shows where it stands, in screen pixels. Water animals and surfacing
+    // ones are cut off at the waterline (--foot down the picture); turned pictures (the ant)
+    // are taken whole, since the ink is measured before the turn.
+    const shown = a => {
+        const img = a.el.querySelector('img'), r = img.getBoundingClientRect();
+        const k = a.def.turn || a.def.hang ? { x: 0, y: 0, w: 1, h: 1 } : ink[img.getAttribute('src')];
+        if (!k || !r.height) return null;
+        const x = a.el.classList.contains('flip') ? 1 - k.x - k.w : k.x;
+        const box = { l: r.left + x * r.width, t: r.top + k.y * r.height, r: r.left + (x + k.w) * r.width, b: r.top + (k.y + k.h) * r.height };
+        box.line = r.top + (a.def.foot || 86) / 100 * r.height;      // the waterline, for water animals
+        box.ink = k.h * r.height;
+        if (a.def.habitat === 'water') box.b = Math.min(box.b, box.line);
+        return box;
+    };
+    const area = b => Math.max(0, b.r - b.l) * Math.max(0, b.b - b.t);
+    const both = (p, q) => area({ l: Math.max(p.l, q.l), t: Math.max(p.t, q.t), r: Math.min(p.r, q.r), b: Math.min(p.b, q.b) });
+    const at = s => `(${s.x}, ${s.y})`;
+
+    const srcs = new Set();
+    for (const theme of Object.keys(SceneArt))
+        for (const sc of Object.values(SceneArt[theme].scenes))
+            for (const [n, d] of Object.entries(sceneAnimals(SceneArt[theme], sc)))
+                srcs.add(d.src || imgSrc(themes[theme].animals.find(a => a.name === n) || {}));
+
+    (async () => {
+        await Promise.all([...srcs].map(measure));
+        for (const theme of Object.keys(SceneArt)) {
+            for (const sc of Object.keys(SceneArt[theme].scenes)) {
+                sceneSettings.theme = theme; sceneSettings.scenes[theme] = sc;
+                buildScene(); start();
+                document.getElementById('start').hidden = true;
+                Object.keys(cast).forEach(n => { const a = cast[n]; if (a.spot) { a.spot.animal = null; a.spot = null; a.el.hidden = true; } });
+                // a picture that hasn't decoded has no height, so nothing would ever look crowded
+                await Promise.all([...layer.querySelectorAll('img')].map(i => i.decode().catch(() => {})));
+                const where = `${theme}/${sc}:`, stageBox = stage.getBoundingClientRect();
+                const placed = [];
+                for (const spot of spots) {
+                    for (const name of Object.keys(cast)) {
+                        if (cast[name].def.habitat !== spot.habitat) continue;
+                        settle(name, spot);
+                        document.getAnimations().forEach(an => { if (an.transitionProperty) an.finish(); else an.cancel(); });
+                        const box = shown(cast[name]);
+                        cast[name].spot = null; spot.animal = null; cast[name].el.hidden = true;
+                        if (box) placed.push({ name, spot, box, def: cast[name].def });
+                    }
+                }
+                // each animal, wherever it can stand: off the edge of the scene, or sunk too deep
+                const seen = new Set();
+                placed.forEach(p => {
+                    const over = Math.max(stageBox.left - p.box.l, p.box.r - stageBox.right, stageBox.top - p.box.t, p.box.b - stageBox.bottom);
+                    if (over > stageBox.width * 0.005) bad(where, p.name, 'at', at(p.spot), 'reaches', (over / stageBox.width * 100).toFixed(1) + '% outside the scene');
+                    if (p.def.habitat === 'water' && !seen.has(p.name)) {
+                        seen.add(p.name);
+                        const dry = (Math.min(p.box.b, p.box.line) - p.box.t) / p.box.ink;
+                        if (dry < ABOVE) bad(where, p.name, 'shows only', Math.round(dry * 100) + '% above the waterline (foot', (p.def.foot || 86) + ')');
+                    }
+                });
+                // the worst pairing each pair of spots could hold
+                let worst = ['nothing', 0];
+                const pairs = [];
+                for (let i = 0; i < placed.length; i++) for (let j = i + 1; j < placed.length; j++) {
+                    const p = placed[i], q = placed[j];
+                    if (p.spot === q.spot || p.name === q.name) continue;
+                    const share = both(p.box, q.box) / Math.min(area(p.box), area(q.box));
+                    if (share > worst[1]) worst = [`${p.name}+${q.name}`, share];
+                    if (share > OVERLAP) pairs.push({ key: at(p.spot) + at(q.spot), share, p, q });
+                }
+                const best = {};
+                pairs.forEach(x => { if (!best[x.key] || x.share > best[x.key].share) best[x.key] = x; });
+                Object.values(best).sort((a, b) => b.share - a.share).forEach(x =>
+                    bad(where, 'spots', at(x.p.spot), 'and', at(x.q.spot), 'are close:', x.p.name, 'and', x.q.name,
+                        'share', Math.round(x.share * 100) + '% of the smaller one'));
+                out.push(`${where} ${spots.length} spots, ${placed.length} placings, closest ${worst[0]} ${Math.round(worst[1] * 100)}%`);
+            }
+        }
+        out.push('PROBLEMS: ' + (problems.length ? '\n  ' + problems.join('\n  ') : 'none'));
+        document.body.insertAdjacentHTML('beforeend', `<pre id="result">${out.join('\n')}</pre>`);
+    })();
+})();
