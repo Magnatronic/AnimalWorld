@@ -140,7 +140,7 @@ Keep the whole folder together — `index.html` loads the files and folders belo
 | `scenes.html` | Animal Scenes |
 | `scenes/art.js`, `scenes/art-*.js` | Each scene's drawing, spots and how its animals behave (one file per theme after Birds, Forest and Farm) |
 | `scenes/scenes.js`, `scenes/setup.js`, `scenes/presets.js`, `scenes/scenes.css` | Animal Scenes itself, its set-up screen and presets |
-| `scenes/pictures/` | Animals recoloured for a theme (a white snowy owl, a red squirrel…), used by Animal Scenes |
+| `scenes/pictures/` | Animals recoloured for a theme (a white snowy owl, a red squirrel…), used by both parts |
 | `sounds/ambient/` | Background loops for Animal Scenes, one per scene |
 | `sounds/weather/` | Rain, wind and thunder for Animal Scenes' weather |
 | `shared/hold.js`, `shared/hold.css` | The hold-to-open ⚙ button, used by both parts |

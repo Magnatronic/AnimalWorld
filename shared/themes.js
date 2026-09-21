@@ -28,17 +28,17 @@ const themes = {
             { name: 'Bear',      code: '1F43B', sound: 'bear' },
             { name: 'Wolf',      code: '1F43A', sound: 'wolf' },
             { name: 'Badger',    code: '1F9A1', sound: 'badger' },
-            { name: 'Squirrel',  code: '1F43F', sound: 'squirrel' },
+            { name: 'Squirrel',  src: 'scenes/pictures/red-squirrel.svg', sound: 'squirrel' },
             { name: 'Deer',      code: '1F98C', sound: 'deer' },
             { name: 'Hedgehog',  code: '1F994', sound: 'hedgehog' },
-            { name: 'Rabbit',    code: '1F407', sound: 'rabbit' },
+            { name: 'Rabbit',    src: 'scenes/pictures/wild-rabbit.svg',  sound: 'rabbit' },
             { name: 'Frog',      code: '1F438', sound: 'frog' },
             { name: 'Wild Boar', code: '1F417', sound: 'boar' },
             { name: 'Bat',       code: '1F987', sound: 'bat' },
             { name: 'Snake',     code: '1F40D', sound: 'snake' },
             { name: 'Beaver',    code: '1F9AB', sound: 'beaver' },
             { name: 'Otter',     code: '1F9A6', sound: 'otter' },
-            { name: 'Mouse',     code: '1F401', sound: 'mouse' },
+            { name: 'Mouse',     src: 'scenes/pictures/wood-mouse.svg',   sound: 'mouse' },
         ]
     },
     safari: {
@@ -60,7 +60,7 @@ const themes = {
             { name: 'Chameleon', code: '1F98E', sound: 'chameleon' },
             { name: 'Camel',     code: '1F42A', sound: 'camel' },
             { name: 'Scorpion',  code: '1F982', sound: 'scorpion' },
-            { name: 'Warthog',   code: '1F417', sound: 'warthog' },
+            { name: 'Warthog',   src: 'scenes/pictures/warthog.svg', sound: 'warthog' },
             { name: 'Eagle',     code: '1F985', sound: 'eagle' },
         ]
     },
@@ -98,9 +98,9 @@ const themes = {
             { name: 'Whale',       code: '1F40B', sound: 'whale' },
             { name: 'Moose',       code: '1FACE', sound: 'moose' },
             { name: 'Reindeer',    code: '1F98C', sound: 'reindeer' },
-            { name: 'Arctic Fox',  code: '1F98A', sound: 'arctic-fox' },
-            { name: 'Snowy Owl',   code: '1F989', sound: 'snowy-owl' },
-            { name: 'Arctic Hare', code: '1F407', sound: 'arctic-hare' },
+            { name: 'Arctic Fox',  src: 'scenes/pictures/arctic-fox.svg',  sound: 'arctic-fox' },
+            { name: 'Snowy Owl',   src: 'scenes/pictures/snowy-owl.svg',   sound: 'snowy-owl' },
+            { name: 'Arctic Hare', src: 'scenes/pictures/arctic-hare.svg', sound: 'arctic-hare' },
         ]
     },
     minibeasts: {

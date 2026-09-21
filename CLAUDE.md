@@ -26,14 +26,15 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 | `scenes/scenes.js` | Scene engine, settings (`animalScenes.settings`), jobs, `makeLooper()` crossfading loops (track and weather sounds), weather (`drawWeather`, `setWeather`, `pressWeather`, strength 1–5 as `st1..5` on each weather layer + `.lv2…lv5` (stage `wx-s1..5` only for lean and snowy ground), easing off, thunder) |
 | `scenes/presets.js` | Presets (`animalScenes.presets`): ready-made list, save/update/rename/delete, `usePreset()`, `#preset=<id>` links. Jobs stored by switch number, not switch id. Each belongs to its `theme`; set-up lists only `themePresets()` |
 | `scenes/setup.js` | Set-up screen |
-| `scenes/pictures/` | OpenMoji pictures recoloured for a theme (white snowy owl, red squirrel…), used through a def's `src` |
+| `scenes/pictures/` | OpenMoji pictures recoloured for a theme (white snowy owl, red squirrel…), used through a def's `src` in Scenes and an animal's `src` in `shared/themes.js` |
 | `openmoji/`, `fish/`, `sounds/`, `sounds/ambient/`, `sounds/weather/` | All assets are local (offline) |
 | `dev/` | Test server, scene checks (`checks.js`) and walk-through (see Testing) |
 
 localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (shared), `animalScenes.settings`, `animalScenes.presets`.
 
 ## Adding things
-- **A theme's animal**: add to `shared/themes.js`; download its SVG to `openmoji/` (see README).
+- **A theme's animal**: add to `shared/themes.js`; download its SVG to `openmoji/` (see README),
+  or give it `src` instead of `code` if it has its own artwork (the fish, the recoloured pictures).
 - **A scene theme**: add `scenes/art-<theme>.js` setting `SceneArt.<theme>` (animals + scenes) and a script tag in scenes.html, CSS
   palettes `.scene-<theme>-<scene>.look-soft|line|night` in `scenes/scenes.css`, and a track in
   `sounds/ambient/`. Birds is the template. Scenes are 1600×900; keep spots within x 15–85% (squarer
