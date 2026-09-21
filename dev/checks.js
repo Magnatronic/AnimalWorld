@@ -265,7 +265,8 @@
     const out = [], problems = [];
     const bad = (...a) => problems.push(a.join(' '));
     const OVERLAP = 0.1;                         // ink in common, as a share of the smaller animal
-    const ABOVE = 0.5;                           // least of a water animal that should stay above the line
+    const ABOVE = 0.3;                           // least of a water animal that should show (a whale's
+                                                 // spout and a shark's fin are meant to be all there is)
     const ink = {};
 
     const measure = src => fetch(src).then(r => r.text()).then(t => {

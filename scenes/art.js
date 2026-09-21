@@ -384,8 +384,8 @@ const SceneArt = (() => {
                     spots: [
                         { habitat: 'perch', x: 62.5, y: 60 },   { habitat: 'perch', x: 71, y: 65.6 }, { habitat: 'perch', x: 80, y: 65.6 },
                         { habitat: 'hide', x: 30, y: 78, cover: 'bush' },
-                        { habitat: 'ground', x: 17, y: 81 },    { habitat: 'ground', x: 26, y: 88 },  { habitat: 'ground', x: 37, y: 95 },
-                        { habitat: 'water', x: 31, y: 73 },     { habitat: 'water', x: 44, y: 82 },   { habitat: 'water', x: 54, y: 92 },
+                        { habitat: 'ground', x: 17, y: 81 },    { habitat: 'ground', x: 37, y: 95 },
+                        { habitat: 'water', x: 38, y: 72 },     { habitat: 'water', x: 44, y: 82 },   { habitat: 'water', x: 54, y: 92 },
                         { habitat: 'water', x: 57, y: 70 },     { habitat: 'water', x: 72, y: 88 },
                     ],
                     splashes: [[37.5, 66.7], [43.8, 71], [53, 77.8], [68.8, 73.3], [59.4, 91], [81, 86.7]],
@@ -406,7 +406,7 @@ const SceneArt = (() => {
             animals: {
                 Owl:        { habitat: 'perch',  w: 8.5, face: 'f', foot: 86,   move: 'fly' },
                 Squirrel:   { habitat: 'perch',  w: 8,   face: 'l', foot: 88.5, move: 'climb', src: 'scenes/pictures/red-squirrel.svg' },
-                Bat:        { habitat: 'perch',  w: 9,   face: 'f', foot: 4,    move: 'fly', hang: true },
+                Bat:        { habitat: 'perch',  w: 8,   face: 'f', foot: 4,    move: 'fly', hang: true },
                 Fox:        { habitat: 'hide',   w: 7,   face: 'f', foot: 94,   move: 'peek' },
                 Bear:       { habitat: 'hide',   w: 7.8, face: 'f', foot: 87,   move: 'peek' },
                 Wolf:       { habitat: 'hide',   w: 7,   face: 'f', foot: 94,   move: 'peek' },
@@ -456,12 +456,12 @@ const SceneArt = (() => {
                     svg: () => woodland(toadstools([[560, 815, 1], [120, 872, .8], [650, 752, .9], [420, 885, 1.1]]) +
                         rock(1500, 800, 60, 26) + rock(760, 870, 44, 20)),
                     spots: [
-                        { habitat: 'perch', x: 27,   y: 45.2, up: [14, 80] }, { habitat: 'perch', x: 36.5, y: 42.2, up: [14, 80] },
-                        { habitat: 'perch', x: 24,   y: 24.6, up: [14, 80] }, { habitat: 'perch', x: 49,   y: 35.9, up: [64, 80] },
+                        { habitat: 'perch', x: 30, y: 44.2, up: [14, 80] }, { habitat: 'perch', x: 38.5, y: 41.7, up: [14, 80] },
+                        { habitat: 'perch', x: 21,   y: 25.6, up: [14, 80] }, { habitat: 'perch', x: 49,   y: 35.9, up: [64, 80] },
                         { habitat: 'perch', x: 76,   y: 52.8, up: [66, 80] }, { habitat: 'perch', x: 81,   y: 27.1, up: [91.5, 79] },
-                        { habitat: 'hide', x: 44, y: 71 }, { habitat: 'hide', x: 62, y: 70 },
-                        { habitat: 'ground', x: 20, y: 90 }, { habitat: 'ground', x: 32, y: 84 },
-                        { habitat: 'ground', x: 47, y: 92 }, { habitat: 'ground', x: 59, y: 87, from: 'l' },
+                        { habitat: 'hide', x: 43, y: 71 }, { habitat: 'hide', x: 61, y: 70 },
+                        { habitat: 'ground', x: 20, y: 90 }, { habitat: 'ground', x: 34, y: 84 },
+                        { habitat: 'ground', x: 52, y: 92, from: 'l' }, { habitat: 'ground', x: 70, y: 87, from: 'l' },
                         { habitat: 'water', x: 72.5, y: 94 }, { habitat: 'water', x: 84, y: 92.5 },
                     ],
                     splashes: [[56, 97.5], [65.5, 94.5], [74, 96], [84.5, 92.5], [92.5, 90]],
@@ -492,20 +492,20 @@ const SceneArt = (() => {
                       ${flowers([[430, 860], [700, 890], [960, 850], [1220, 885]])}
                       ${toadstools([[160, 880, .9], [1390, 895, .8]])}
                       ${trunk('M110 910 L140 -10 L210 -10 L230 910Z')}
-                      ${branch(200, 300, 520, 250)}${branch(205, 480, 450, 450, 18)}
+                      ${branch(200, 300, 520, 250)}${branch(205, 520, 450, 492, 18)}
                       ${trunk('M1460 910 L1478 -10 L1530 -10 L1545 910Z')}
                       ${branch(1465, 380, 1180, 345)}
                       <g class="sway" style="--d:12s">${[[40, 40, 140], [220, -20, 130], [360, 30, 100], [1420, 20, 120], [1570, -10, 140], [1610, 150, 90]].map(([x, y, r], i) =>
                         ball(i % 2 ? 'f-leaf2' : 'f-leaf', x, y, r)).join('')}</g>
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 22, y: 30.7, up: [10.6, 90] }, { habitat: 'perch', x: 29, y: 28.75, up: [10.6, 90] },
-                        { habitat: 'perch', x: 24, y: 50.9, up: [10.6, 90] },
+                        { habitat: 'perch', x: 26, y: 29.6, up: [10.6, 90] }, { habitat: 'perch', x: 31.5, y: 28.1, up: [10.6, 90] },
+                        { habitat: 'perch', x: 20, y: 56.3, up: [10.6, 90] },
                         { habitat: 'perch', x: 76, y: 38.8, up: [93.5, 90] }, { habitat: 'perch', x: 82, y: 40.1, up: [93.5, 90] },
                         { habitat: 'hide', x: 38, y: 60 }, { habitat: 'hide', x: 54, y: 61 }, { habitat: 'hide', x: 70, y: 59.5 },
-                        { habitat: 'water', x: 36, y: 80 }, { habitat: 'water', x: 52, y: 81 }, { habitat: 'water', x: 67, y: 79.5 },
-                        { habitat: 'ground', x: 20, y: 95 }, { habitat: 'ground', x: 40, y: 96 },
-                        { habitat: 'ground', x: 62, y: 95 }, { habitat: 'ground', x: 80, y: 96 },
+                        { habitat: 'water', x: 32, y: 80 }, { habitat: 'water', x: 50, y: 81 }, { habitat: 'water', x: 70, y: 79.5 },
+                        { habitat: 'ground', x: 22, y: 95 }, { habitat: 'ground', x: 41, y: 96 },
+                        { habitat: 'ground', x: 60, y: 95 }, { habitat: 'ground', x: 79, y: 96 },
                     ],
                     splashes: [[28, 77], [40, 82], [47, 76], [58, 83], [64, 77.5], [76, 84], [90, 80]],
                 },
@@ -534,19 +534,19 @@ const SceneArt = (() => {
                       ${toadstools([[380, 694, .9], [410, 704, .65], [860, 800, .9], [380, 880, 1.1]])}
                       ${rock(1560, 700, 70, 30)}
                       ${trunk('M110 910 L140 250 L215 250 L240 910Z')}
-                      ${branch(205, 430, 470, 370)}${branch(195, 580, 400, 555, 16)}
+                      ${branch(205, 430, 540, 360)}${branch(195, 580, 400, 555, 16)}
                       <g class="sway" style="--d:10s">${ball('f-leaf', 80, 230, 130)}${ball('f-leaf2', 220, 170, 115)}${ball('f-leaf', 330, 250, 95)}${ball('f-leaf2', 20, 80, 110)}${ball('f-leaf', 170, 50, 100)}</g>
                       ${trunk('M1455 910 L1470 -10 L1520 -10 L1535 910Z')}
-                      ${branch(1462, 330, 1200, 300, 18)}
+                      ${branch(1462, 330, 1130, 292, 18)}
                       <g class="sway" style="--d:12s">${ball('f-leaf2', 1380, -20, 110)}${ball('f-leaf', 1510, 20, 130)}${ball('f-leaf2', 1610, 140, 100)}</g>
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 20, y: 44.9, up: [11, 88] }, { habitat: 'perch', x: 26.25, y: 42.4, up: [11, 88] },
-                        { habitat: 'perch', x: 21, y: 62.5, up: [11, 88] },
-                        { habitat: 'perch', x: 78, y: 33.9, up: [93.4, 88] }, { habitat: 'perch', x: 84, y: 35.2, up: [93.4, 88] },
+                        { habitat: 'perch', x: 24, y: 43.6, up: [11, 88] }, { habitat: 'perch', x: 30.5, y: 41.2, up: [11, 88] },
+                        { habitat: 'perch', x: 72, y: 33.6, up: [93.4, 88] }, { habitat: 'perch', x: 78, y: 34.9, up: [93.4, 88] },
+                        { habitat: 'perch', x: 84, y: 36.2, up: [93.4, 88] },
                         { habitat: 'hide', x: 44, y: 73, cover: 'log' }, { habitat: 'hide', x: 80, y: 69 },
                         { habitat: 'ground', x: 17, y: 92 }, { habitat: 'ground', x: 31, y: 84 },
-                        { habitat: 'ground', x: 46, y: 93 }, { habitat: 'ground', x: 59, y: 83, from: 'l' },
+                        { habitat: 'ground', x: 53, y: 93, from: 'l' }, { habitat: 'ground', x: 63, y: 82, from: 'l' },
                         { habitat: 'water', x: 66, y: 89 }, { habitat: 'water', x: 79, y: 88.5 },
                     ],
                     splashes: [[63, 88], [68, 92], [73, 86], [77, 91], [83, 88]],
@@ -625,8 +625,8 @@ const SceneArt = (() => {
                         { habitat: 'perch', x: 74.5, y: 66.7, up: [74.5, 79] }, { habitat: 'perch', x: 82, y: 66.7, up: [82, 79] },
                         { habitat: 'hide', x: 45, y: 72, cover: 'hay' }, { habitat: 'hide', x: 18, y: 76, cover: 'hay' },
                         { habitat: 'ground', x: 28, y: 93 }, { habitat: 'ground', x: 45, y: 95 },
-                        { habitat: 'ground', x: 60, y: 85 }, { habitat: 'ground', x: 68, y: 97 },
-                        { habitat: 'water', x: 75, y: 93.5 }, { habitat: 'water', x: 85, y: 92.5 },
+                        { habitat: 'ground', x: 57, y: 85 }, { habitat: 'ground', x: 66, y: 97 },
+                        { habitat: 'water', x: 78, y: 93.5 }, { habitat: 'water', x: 85, y: 92.5 },
                     ],
                     splashes: [[73, 92], [78, 95], [82, 91], [87, 94], [91, 92]],
                 },
@@ -656,8 +656,8 @@ const SceneArt = (() => {
                       ${flowers([[250, 820], [520, 880], [760, 800], [960, 760], [1040, 880]])}
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 18, y: 68, up: [18, 80] }, { habitat: 'perch', x: 24, y: 68, up: [24, 80] }, { habitat: 'perch', x: 31, y: 68, up: [31, 80] },
-                        { habitat: 'hide', x: 58, y: 71, cover: 'hay' }, { habitat: 'hide', x: 72, y: 68, cover: 'hay' },
+                        { habitat: 'perch', x: 16, y: 68, up: [16, 80] }, { habitat: 'perch', x: 24, y: 68, up: [24, 80] }, { habitat: 'perch', x: 32, y: 68, up: [32, 80] },
+                        { habitat: 'hide', x: 55, y: 71, cover: 'hay' }, { habitat: 'hide', x: 72, y: 68, cover: 'hay' },
                         { habitat: 'ground', x: 17, y: 94 }, { habitat: 'ground', x: 32, y: 86 }, { habitat: 'ground', x: 44, y: 95 },
                         { habitat: 'ground', x: 45, y: 78 }, { habitat: 'ground', x: 60, y: 90, from: 'l' },
                         { habitat: 'water', x: 74, y: 95 }, { habitat: 'water', x: 83, y: 94 },
@@ -691,10 +691,10 @@ const SceneArt = (() => {
                       ${flowers([[330, 690], [1380, 760], [1500, 880], [250, 860]])}
                     </svg>`,
                     spots: [
-                        { habitat: 'perch', x: 17, y: 63.8, up: [17, 75] }, { habitat: 'perch', x: 24, y: 63.8, up: [24, 75] },
+                        { habitat: 'perch', x: 16, y: 63.8, up: [16, 75] }, { habitat: 'perch', x: 26, y: 63.8, up: [26, 75] },
                         { habitat: 'hide', x: 84, y: 75, cover: 'hay' },
                         { habitat: 'ground', x: 36, y: 70 }, { habitat: 'ground', x: 55, y: 69 },
-                        { habitat: 'ground', x: 18, y: 93 }, { habitat: 'ground', x: 83, y: 95 },
+                        { habitat: 'ground', x: 18, y: 93 }, { habitat: 'ground', x: 79, y: 96 },
                         { habitat: 'water', x: 38, y: 84 }, { habitat: 'water', x: 52, y: 92 },
                         { habitat: 'water', x: 64, y: 81 },
                     ],

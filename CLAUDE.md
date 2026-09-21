@@ -38,7 +38,10 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
 - **A scene theme**: add `scenes/art-<theme>.js` setting `SceneArt.<theme>` (animals + scenes) and a script tag in scenes.html, CSS
   palettes `.scene-<theme>-<scene>.look-soft|line|night` in `scenes/scenes.css`, and a track in
   `sounds/ambient/`. Birds is the template. Scenes are 1600×900; keep spots within x 15–85% (squarer
-  screens trim the sides). OpenMoji pictures have different empty space under the feet: give each
+  screens trim the sides). Two spots want about 9% between them, or one animal stands across the
+  other; on stacked branches, that or about 28% of height, since a hanging bat reaches a long way
+  down. Keep ground spots that far from a `hide` spot too, or a body ends up across a peeping head.
+  OpenMoji pictures have different empty space under the feet: give each
   animal a `foot` (% down its picture where the feet are; for water birds, the waterline, below which
   it's cut off while sitting). Measure it by drawing the SVG to a canvas and finding the lowest opaque
   row. Light and shade in drawings: `ball()`, `trunk()`, `branch()` and the `shade-*`/`light-*`
@@ -88,10 +91,12 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
 - Specific checks: write `dev/test.js` (untracked) and load `/__app` or `/__scenes`; it runs in the
   real page, so top-level `const`s like `settings`, `Switches`, `cast` are reachable.
 - Scenes (`dev/checks.js`, loaded into `/__scenes` before test.js): `#validate` builds every scene of every theme (spots, marks, covers, casts, tracks,
-  weathers, presets, pictures loading) and `#movecheck` checks how animals arrive — head-only
+  weathers, presets, pictures loading), `#movecheck` checks how animals arrive — head-only
   pictures pop out, climbers' spots have `up`, every place can be filled, and no walk or climb crosses
-  water (it samples the drawing with `elementsFromPoint`, so pass `--window-size=1600,900`). Both print
-  a `PROBLEMS:` list; keep it "none". checks.js also has `#shot=`, `#wx=`, `#midway=` and `#pics=` for
+  water (it samples the drawing with `elementsFromPoint`, so pass `--window-size=1600,900`) — and
+  `#spacecheck` checks the room the spots leave: it puts every animal on every spot its habitat allows
+  and measures the ink of the picture there, so it finds pairings a random filling would only sometimes
+  show. All three print a `PROBLEMS:` list; keep it "none". checks.js also has `#shot=`, `#wx=`, `#midway=` and `#pics=` for
   screenshots — its top comment lists them.
 - Command shape: `chrome --headless=new --disable-gpu --autoplay-policy=no-user-gesture-required
   --virtual-time-budget=60000 --dump-dom URL` (or `--screenshot=... --window-size=1280,720`).

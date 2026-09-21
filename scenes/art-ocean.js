@@ -189,7 +189,7 @@
                     { habitat: 'swim', x: 22, y: 30 }, { habitat: 'swim', x: 40, y: 46 }, { habitat: 'swim', x: 54, y: 26 },
                     { habitat: 'swim', x: 64, y: 52 }, { habitat: 'swim', x: 79, y: 32 }, { habitat: 'swim', x: 30, y: 62 },
                     { habitat: 'swim', x: 82, y: 60 },
-                    { habitat: 'seabed', x: 36, y: 92 }, { habitat: 'seabed', x: 50, y: 95 }, { habitat: 'seabed', x: 62, y: 91 },
+                    { habitat: 'seabed', x: 36, y: 92 }, { habitat: 'seabed', x: 50, y: 93 }, { habitat: 'seabed', x: 62, y: 91 },
                     { habitat: 'seabed', x: 76, y: 94 },
                 ],
                 splashes: [],

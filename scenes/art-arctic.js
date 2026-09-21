@@ -160,9 +160,9 @@ SceneArt.arctic = (() => {
                 </svg>`,
                 spots: [
                     { habitat: 'perch', x: 18, y: 61.9 }, { habitat: 'perch', x: 23.5, y: 62.2 },
-                    { habitat: 'hide', x: 44, y: 72, cover: 'drift' }, { habitat: 'hide', x: 84, y: 71, cover: 'drift' },
+                    { habitat: 'hide', x: 38, y: 73, cover: 'drift' }, { habitat: 'hide', x: 84, y: 71, cover: 'drift' },
                     { habitat: 'water', x: 66, y: 92 }, { habitat: 'water', x: 76, y: 93 },
-                    { habitat: 'ground', x: 30, y: 90 }, { habitat: 'ground', x: 50, y: 86 }, { habitat: 'ground', x: 58, y: 72 },
+                    { habitat: 'ground', x: 30, y: 90 }, { habitat: 'ground', x: 50, y: 86 }, { habitat: 'ground', x: 63, y: 72 },
                     { habitat: 'ground', x: 16, y: 95 },
                 ],
                 splashes: [[66, 91], [72, 93], [76, 91]],
