@@ -193,7 +193,7 @@ calls). The app crossfades each loop into itself, so the join isn't heard.
 | `ambient/farmyard.mp3` | [farm_chicken_rooster_sheep_210410_0061](https://freesound.org/s/567523/) by titi2 (CC0) | 0.5–74.5 s (Farm Animals' Farmyard) |
 | `ambient/fields.mp3` | [Small sheep bells, cows and some birds singing in a field](https://freesound.org/s/136248/) by felix.blume (CC0) | 0.5–119.5 s (Farm Animals' Fields) |
 | `ambient/duckpond.mp3` | [pond, ducks](https://freesound.org/s/254683/) by monotraum (CC0) | 0.5–83.5 s (Farm Animals' Duck pond) |
-| `ambient/savanna.mp3` | [Veld ambience](https://freesound.org/s/408516/) by PasekaM (CC0) | from 0.5 s, up to 150 s (Safari's Savanna) |
+| `ambient/savanna.mp3` | [A quiet field in summer](https://freesound.org/s/722042/) by richwise (CC0) | 0.5–150.5 s (Safari's Savanna): a recorder left in tall brown grass, insects and a soft breeze. Sub-bass rolled off below 70 Hz and the top gently softened, then levelled like the rest. It replaced a veld recording with people and traffic in it |
 | `ambient/waterhole.mp3` | [Tarangire national Park Tanzania, birds and animals](https://freesound.org/s/718412/) by chechemtungi (CC0) | from 0.5 s, up to 150 s (Safari's Waterhole) |
 | `ambient/jungle.mp3` | [Birdsong In Northern NSW Hinterland](https://freesound.org/s/812609/) by Alex_hears_things (CC0) | from 0.5 s, up to 150 s (Safari's Jungle) |
 | `ambient/seaice.mp3` | [Water moving under ice, lake ambience in a windy forest](https://freesound.org/s/790541/) by vhio (CC0) | from 0.5 s, up to 150 s (Polar's Sea ice) |
@@ -209,7 +209,13 @@ calls). The app crossfades each loop into itself, so the join isn't heard.
 | `ambient/logpile.mp3` | [mountain forest ambience](https://freesound.org/s/398233/) by chromakei (CC0) | from 0.5 s, up to 150 s (Mini Beasts' Log pile) |
 | `ambient/vegpatch.mp3` | [Bees Crickets Insects Birds](https://freesound.org/s/536338/) by mpuffenbarger (CC0) | from 0.5 s, up to 150 s (Mini Beasts' Veg patch) |
 
-The newer tracks were taken from Freesound's high-quality previews. The quietest recordings (Waterhole,
+The newer tracks were taken from Freesound's high-quality previews. They were gone through in
+September 2026 after the Savanna one turned out to have people and traffic in it: each was measured
+(loudness, how steady it is, how much sits below 150 Hz) and its spectrogram looked over for the
+tell-tale bands of an engine or the stacked harmonics of a voice. Only Savanna had to be replaced.
+The Farmyard, Fields and Duck pond recordings do have animal calls in them — a cockerel, sheep, a
+cow, ducks — which suit those scenes; Waterhole is quiet and has a few soft thumps of wind on the
+microphone. The quietest recordings (Waterhole,
 Sea ice, Snowy forest) are levelled a little lower, about −30 LUFS, with a gentle hiss filter, rather than
 boosting their background noise. Each is mixed down to mono (like the others). The farm recordings are also gently compressed
 (ffmpeg `acompressor`, then `loudnorm` to −26 LUFS), so a moo or a crow never jumps out. Every
