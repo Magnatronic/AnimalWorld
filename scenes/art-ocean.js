@@ -105,7 +105,7 @@
             Squid:      { habitat: 'swim',   w: 7,   face: 'f', foot: 55 },
             Pufferfish: { habitat: 'swim',   w: 7.5, face: 'l', foot: 55 },
             Crab:       { habitat: 'seabed', w: 7,   face: 'f', foot: 77.5, move: 'walk' },
-            Lobster:    { habitat: 'seabed', w: 7,   face: 'f', foot: 90.3, move: 'walk' },
+            Lobster:    { habitat: 'seabed', w: 7,   face: 'l', foot: 50,   move: 'walk', turn: -90 },   // drawn from above, head up
             Octopus:    { habitat: 'seabed', w: 9,   face: 'f', foot: 81,   move: 'walk' },
             Shrimp:     { habitat: 'seabed', w: 6,   face: 'l', foot: 89.5, move: 'walk' },
             Coral:      { habitat: 'seabed', w: 8,   face: 'f', foot: 90.5, move: 'pop' },
