@@ -44,7 +44,8 @@ swimmers surface in their pool rather than cross dry land; walkers come in from 
 across water; head-only pictures pop up from behind something and then sit in front of it. Where a scene
 has more places than animals to fill them, a second of the same animal can come. Some animals are
 recoloured to suit their theme (a white snowy owl, arctic fox and arctic hare, a red squirrel, a brown
-wild rabbit and wood mouse, a grey warthog; `scenes/pictures/`).
+wild rabbit and wood mouse, a grey warthog; `scenes/pictures/`). Animal Activities shows those same
+pictures, so an animal looks the same in both halves.
 
 Each scene has its own animals (no camel in the jungle), its own background track, and weather that suits
 it: in fog, animals further back fade into the mist, and over snow the wind blows fine snow, on the beach

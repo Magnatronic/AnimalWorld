@@ -56,7 +56,7 @@ localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (
   walkers come in from the nearer edge (a spot's `from: 'l'|'r'` forces a side). A def's `src` swaps the
   picture (recolours in scenes/pictures/). Scenes with more places than animals add copies ("Owl 2",
   `copy: true`); Random and touches prefer the originals. `windCarries: 'snow'|'sand'` replaces the
-  wind's leaves. `dev/checks.js` (`#validate`, `#movecheck`) checks every scene; see Testing. `hang: true` (bat) turns the picture over under a branch; its
+  wind's leaves. `dev/checks.js` (`#validate`, `#movecheck`, `#spacecheck`) checks every scene; see Testing. `hang: true` (bat) turns the picture over under a branch; its
   `foot` is then where it grips, near the top. `turn: -90` (the ant and the other top-down crawlers)
   turns the picture to face the way it goes, and turns it the other way instead of mirroring it;
   give those a side to face (`face: 'l'`) and `foot: 50`, the middle, which the turn goes round.
