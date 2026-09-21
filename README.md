@@ -128,11 +128,28 @@ each computer remembers its own setup.
   which one, its speed and its pitch, with a button to test it. The voices on offer depend on the
   browser; Microsoft Edge has the most lifelike ("Natural") ones, which need the internet.
 
-## Usage
-Open `index.html` in any modern browser. Everything it needs — pictures, sounds and font — is in this
-folder, so it works with no internet connection.
+## Running it offline
+Animal World needs no internet connection, no installation and no web server. Everything it uses —
+pictures, sounds and the font — is in this folder.
 
-Keep the whole folder together — `index.html` loads the files and folders below from alongside it.
+1. **Get the folder.** On [the GitHub page](https://github.com/Magnatronic/AnimalWorld), choose
+   **Code ▸ Download ZIP** (or `git clone https://github.com/Magnatronic/AnimalWorld.git`).
+2. **Unzip it** somewhere the computer keeps — a Documents folder, or a USB stick to carry between
+   rooms. Keep the whole folder together: `index.html` loads everything else from alongside it, so
+   `index.html` on its own opens to a blank screen.
+3. **Double-click `index.html`** for the front page and Animal Activities, or `scenes.html` to go
+   straight to Animal Scenes. Any modern browser will do — Chrome, Edge or Firefox.
+4. **Press F11** for full screen. Animal Scenes goes full screen by itself once the animals are chosen.
+
+To put it one tap away on a classroom machine, drag `index.html` (or `scenes.html`, or a preset's
+`scenes.html#preset=<name>` link) to the desktop to make a shortcut.
+
+Settings, presets and learned switches are saved in that browser on that computer, so each machine
+keeps its own setup — nothing is sent anywhere, and there is no account to sign in to.
+
+One thing does want the internet: Microsoft Edge's most lifelike ("Natural") voices, if spoken animal
+names are turned on in Settings ▸ Sound. Offline, pick one of the other voices in that list — those
+come with the computer and work anywhere. Everything else is unaffected.
 
 ## Files
 | Path | What it holds |
@@ -164,6 +181,15 @@ and use the hexcode as the animal's `code` in `shared/themes.js`.
 
 ## Hosting
 Live at: [https://Magnatronic.github.io/AnimalWorld](https://Magnatronic.github.io/AnimalWorld)
+
+## Licence
+Animal World's own code — see [LICENSE](LICENSE). Use it, change it, pass it on, at no cost; keep the
+copyright notice with it. No warranty of any kind.
+
+A personal project, maintained in my own time. Happy to answer questions about setting it up, but
+there is no support commitment attached.
+
+The artwork, sounds and font that come with it are other people's work and keep their own terms:
 
 ## Credits
 Font: [Nunito](https://github.com/googlefonts/nunito) by The Nunito Project Authors,
