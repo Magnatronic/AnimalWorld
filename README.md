@@ -74,7 +74,11 @@ works from the start screen too):
   own, and set-up shows only those for the animals chosen. Ready-made for Birds: 🌳 Calm garden,
   🌦️ Weather play, 🦉 Night owls and 🏞️ Busy lake; for Forest Animals: 🦊 Peek-a-boo, 🦫 Riverbank and
   🦇 Forest at night; for Farm Animals: 🚜 Busy farmyard, 🌾 In the fields and 🦆 Rainy duck pond; and three
-  for each of the other themes. Use one, save the set-up as a new preset,
+  for each of the other themes. Every theme also has a 🌦️ Weather play, made for the room's switches:
+  the colours match the weather where the theme has it (red ⛈️ storm, yellow 🌈 rainbow, green 🍃 wind,
+  blue 🌧️ rain, white ❄️ snow or 🌫️ fog), themes without those use their own (Polar's northern lights,
+  the Fish tank's sunbeams, 🌦️ Next weather on red), and the single switch is 🌗 Day / night.
+  Use one, save the set-up as a new preset,
   save changes into a preset, rename or delete (deleted ready-made ones can be brought back). Each has
   a link, `scenes.html#preset=<name>`, that opens straight into it — handy as a desktop shortcut.
 - **Scene** — which scene, the look (Soft flat, Matching outlines, Night-light), speed, whether touching an
