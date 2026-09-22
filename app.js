@@ -115,25 +115,27 @@ function scanSwitchPressed() {
     }
 }
 
-// Does a press match a scanning switch setting: a word ('space', 'enter', 'any') or
-// a switch learned in the Scanning tab?
-function scanMatches(choice, input, spaceOrEnter) {
+// Does a press match the scanning switch for this role ('select', 'move' or 'pick'): a word
+// ('space', 'enter', 'any') or a switch learned in the Scanning tab? Space and Enter also
+// take the room's switch for the role (ROOM_SCAN in settings.js).
+function scanMatches(role, input) {
+    const choice = settings.scan[role];
     if (choice === 'any') return true;
     if (typeof choice === 'object') return Switches.sameBinding(choice, input);
-    if (input.type !== 'key') return false;
+    if (input.type === 'pad') return input.button === ROOM_SCAN[role].button;
     if (choice === 'enter') return input.code === 'Enter';
-    return input.code === 'Space' || (spaceOrEnter && input.code === 'Enter');
+    return input.code === 'Space' || (role === 'select' && input.code === 'Enter');
 }
 
 // Work out what a press does in scanning, and do it. Returns whether it was a scanning press.
 function scanInput(input) {
     const s = settings.scan;
     if (s.mode === 'two') {
-        if (scanMatches(s.move, input, false)) { stepScan(); return true; }
-        if (scanMatches(s.pick, input, false)) { scanSwitchPressed(); return true; }
+        if (scanMatches('move', input)) { stepScan(); return true; }
+        if (scanMatches('pick', input)) { scanSwitchPressed(); return true; }
         return false;
     }
-    if (!scanMatches(s.select, input, true)) return false;
+    if (!scanMatches('select', input)) return false;
     scanSwitchPressed();
     return true;
 }

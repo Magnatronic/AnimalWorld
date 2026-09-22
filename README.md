@@ -126,6 +126,8 @@ the students' way. Changes are saved in the browser, so each computer remembers 
   keyboards) and with the Xbox Adaptive Controller; in Chrome and Edge a controller is only noticed
   after one of its buttons has been pressed on the page. Space / Enter (or any key) remain one tap
   away, Move and Select can't be the same switch, and whether scanning is on is remembered too.
+  Space and Enter also take the sensory room's SimplyWorks switches, with nothing to learn: the
+  single white switch for one-switch scanning, and for two switches yellow to move and green to choose.
 - **Play area** — shrinks the app into a box for students who can't reach the whole of a large
   touchscreen, in any of six places: bottom left, centre or right, or the same three halfway up,
   which lifts the box off the floor on a projector hung very low. The Back button can move to the

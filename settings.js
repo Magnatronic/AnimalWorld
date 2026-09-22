@@ -115,11 +115,17 @@ function parseSettingValue(v) {
 // ── Scanning switches: learned right here, in the Scanning tab ──
 const SCAN_WORDS = { space: 'Space', enter: 'Enter', any: 'Any key or switch' };
 const SCAN_ROLE  = { move: 'Move', pick: 'Select' };
+// Space and Enter also take one of the sensory room's switches (shared/switches.js), so
+// scanning works there without learning, and keyboard-style switches still work elsewhere:
+// the single white switch for one-switch scanning; with two, yellow moves and green chooses.
+const ROOM_SCAN = { select: Switches.ROOM[5], move: Switches.ROOM[1], pick: Switches.ROOM[2] };
+const ROOM_SCAN_NAME = { select: 'the single white switch', move: 'the yellow switch', pick: 'the green switch' };
 
 function scanSwitchName(key) {
     const v = settings.scan[key];
     if (typeof v === 'object') return Switches.describe(v);
-    return v === 'space' && key === 'select' ? 'Space / Enter' : SCAN_WORDS[v];
+    if (v === 'any') return SCAN_WORDS.any;
+    return (v === 'space' && key === 'select' ? 'Space / Enter' : SCAN_WORDS[v]) + ', or ' + ROOM_SCAN_NAME[key];
 }
 
 // What a setting presses, as a binding, so it can be compared (null for "any").
@@ -131,9 +137,13 @@ function scanBinding(value) {
 // With two switches, Move and Select must be different. Returns a warning, or ''.
 function scanClash(key, value) {
     if (key === 'select') return '';
-    const other = key === 'move' ? 'pick' : 'move';
-    return Switches.sameBinding(scanBinding(value), scanBinding(settings.scan[other]))
-        ? `That's already the ${SCAN_ROLE[other]} switch. Choose a different one.` : '';
+    const other = key === 'move' ? 'pick' : 'move', otherValue = settings.scan[other];
+    // Space and Enter carry a room switch each, so a learned switch can clash with one.
+    const room = (v, role) => typeof v === 'string' && v !== 'any' ? { type: 'pad', button: ROOM_SCAN[role].button } : null;
+    const same = Switches.sameBinding(scanBinding(value), scanBinding(otherValue))
+        || Switches.sameBinding(scanBinding(value), room(otherValue, other))
+        || Switches.sameBinding(room(value, key), scanBinding(otherValue));
+    return same ? `That's already the ${SCAN_ROLE[other]} switch. Choose a different one.` : '';
 }
 
 function renderScanSwitches() {

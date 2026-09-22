@@ -224,6 +224,7 @@ const Switches = (() => {
     return {
         MAX,
         PALETTE,
+        ROOM,                                        // the sensory room's switches: { colour, button }
         colourHex: name => (PALETTE.find(p => p.name === name) || PALETTE[0]).hex,
         slots,                                       // the numbered switches, in order
         byId,
