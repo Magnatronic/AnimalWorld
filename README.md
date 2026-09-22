@@ -88,6 +88,10 @@ works from the start screen too):
   bring in a particular animal, 🎲 Random, 🌗 Day / night, 🎨 Next look, 🗺️ Next scene, 👋 Goodbye
   (the longest-staying animal leaves), 🌙 Everyone leaves, a weather, 🌦️ Next weather, ⚡ Thunder, or
   nothing. Five switches are always ready to learn.
+  The sensory room's switches are already set up on a computer that hasn't learned any: its
+  SimplyWorks receiver shows up as a controller, and the five-switch box (red, yellow, green, blue,
+  white = controller buttons 12–16) and the single white switch (button 18) are switches 1–6. In
+  every ready-made preset the single switch is 🎲 Random. "Use the room's switches" puts them back.
   Switch labels in those colours can be shown along the top of the screen. A wait between presses (1, 2 or 3
   seconds, or "When finished": until an animal has arrived or a change has faded in) stops a flurry of
   presses setting everything off at once. Keys and buttons that

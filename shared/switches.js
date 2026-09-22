@@ -33,8 +33,23 @@ const Switches = (() => {
     const NEXT_COLOURS = ['red', 'yellow', 'green', 'blue', 'purple', 'orange', 'pink', 'white', 'black', 'turquoise', 'lightblue', 'lightgreen'];
     const isColour = c => PALETTE.some(p => p.name === c);
 
+    // The switches in the sensory room, through its SimplyWorks receiver (which shows up as a
+    // controller): the five-switch box, in the order of the buttons it sends, then the single
+    // white switch. A computer with no switches learned starts with these, so they work at once;
+    // set-up can put them back ("Use the room's switches").
+    const ROOM = [
+        { colour: 'red',    button: 12 },
+        { colour: 'yellow', button: 13 },
+        { colour: 'green',  button: 14 },
+        { colour: 'blue',   button: 15 },
+        { colour: 'white',  button: 16 },
+        { colour: 'white',  button: 18 },   // the single switch
+    ];
+    const roomSlots = () => ROOM.map(r => ({ id: newId(), binding: { type: 'pad', button: r.button }, colour: r.colour }));
+
     // Each slot: { id, binding: null | { type: 'key', code } | { type: 'pad', button }, colour }
     const slots = load();
+    save();                       // so the room's switches keep their ids, which jobs are saved against
     const pressListeners = [], releaseListeners = [], anyListeners = [];
     let learning = null;          // { finish } while waiting for a press to capture
     let padDown  = [];            // which controller buttons were down at the last check
@@ -55,7 +70,8 @@ const Switches = (() => {
                 });
             });
         } catch (e) { /* private window or blocked storage: no switches yet */ }
-        return list;
+        // Nothing learned yet (not even the empty ones Scenes adds): the room's switches.
+        return list.some(s => s.binding) ? list : roomSlots();
     }
     function save() {
         try { localStorage.setItem(KEY, JSON.stringify(slots)); } catch (e) {}
@@ -93,6 +109,13 @@ const Switches = (() => {
         const slot = byId(id);
         if (slot) { slot.binding = null; save(); }
     }
+    // Back to the room's switches. Keeps the ids of the first ones, so their jobs stay.
+    function useRoom() {
+        const fresh = roomSlots();
+        fresh.forEach((f, i) => { if (slots[i]) f.id = slots[i].id; });
+        slots.splice(0, slots.length, ...fresh);
+        save();
+    }
 
     // Wait for the next key or controller button and return what it sends.
     // Resolves with the binding, or null if cancelled (Escape) or timed out.
@@ -124,11 +147,12 @@ const Switches = (() => {
         return binding;
     }
 
-    // A name an adult will recognise: "Key 1", "Space", "Controller button A".
+    // A name an adult will recognise: "Key 1", "Space", "Controller button 0 (A)". Buttons
+    // are numbered from 0, as controller testing websites show them.
     const PAD_NAMES = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'View', 'Menu', 'Left stick', 'Right stick', 'D-pad up', 'D-pad down', 'D-pad left', 'D-pad right', 'Xbox'];
     function describe(binding) {
         if (!binding) return 'Not set';
-        if (binding.type === 'pad') return 'Controller button ' + (PAD_NAMES[binding.button] || binding.button + 1);
+        if (binding.type === 'pad') return `Controller button ${binding.button}` + (PAD_NAMES[binding.button] ? ` (${PAD_NAMES[binding.button]})` : '');
         const c = binding.code;
         if (/^Key[A-Z]$/.test(c))    return 'Key ' + c.slice(3);
         if (/^Digit\d$/.test(c))     return 'Key ' + c.slice(5);
@@ -204,6 +228,7 @@ const Switches = (() => {
         remove,
         setColour,
         clear,
+        useRoom,
         capture,
         learn,
         cancelLearn,

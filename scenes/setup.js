@@ -188,9 +188,12 @@ function renderSetup() {
                 Other keys: any key or button that isn't a numbered switch.</p>
             <div class="sw-list">${Switches.slots.map(switchRow).join('') || '<p class="setup-note">No switches yet.</p>'}</div>
             <button class="sw-add"${full ? ' disabled' : ''}>${full ? `Twelve switches is the most` : '+ Add a switch'}</button>
+            <button class="sw-room">Use the room's switches</button>
             <p class="setup-note">Tap <strong>Learn</strong>, then press the switch. Works with SimplyWorks and Bluetooth
                 switches, keyboards and the Xbox Adaptive Controller (press one of its buttons once first).
-                Tap the coloured circle to match the real switch's colour.</p>
+                Tap the coloured circle to match the real switch's colour.
+                <strong>Use the room's switches</strong> sets up the sensory room's SimplyWorks switches without learning them:
+                the box's red, yellow, green, blue and white, then the single white switch.</p>
         </section>`,
         sound: `
         <section>
@@ -300,6 +303,21 @@ document.getElementById('setup-body').addEventListener('click', e => {
         const slot = Switches.add();
         renderSetup();
         if (slot) learnInSetup(document.querySelector(`.sw[data-id="${slot.id}"]`));
+        return;
+    }
+
+    const room = e.target.closest('.sw-room');
+    if (room) {
+        // Two taps, as it replaces the switches learned here.
+        if (!room.classList.contains('confirm')) {
+            room.classList.add('confirm');
+            room.textContent = 'Replace these switches?';
+            setTimeout(() => { if (room.isConnected) { room.classList.remove('confirm'); room.textContent = "Use the room's switches"; } }, 3000);
+            return;
+        }
+        Switches.useRoom();
+        renderSetup();
+        renderLabels();
         return;
     }
 
