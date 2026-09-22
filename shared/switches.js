@@ -45,7 +45,10 @@ const Switches = (() => {
         { colour: 'white',  button: 16 },
         { colour: 'white',  button: 18 },   // the single switch
     ];
-    const roomSlots = () => ROOM.map(r => ({ id: newId(), binding: { type: 'pad', button: r.button }, colour: r.colour }));
+    // The room's switches, keeping the ids of any switches already here, so their jobs stay.
+    const roomSlots = (old = []) => ROOM.map((r, i) => ({ id: old[i] ? old[i].id : newId(), binding: { type: 'pad', button: r.button }, colour: r.colour }));
+    // Set once the room's switches have replaced what was here, so switches learned after that are kept.
+    const ROOM_KEY = 'animalWorld.roomSwitches';
 
     // Each slot: { id, binding: null | { type: 'key', code } | { type: 'pad', button }, colour }
     const slots = load();
@@ -70,8 +73,10 @@ const Switches = (() => {
                 });
             });
         } catch (e) { /* private window or blocked storage: no switches yet */ }
-        // Nothing learned yet (not even the empty ones Scenes adds): the room's switches.
-        return list.some(s => s.binding) ? list : roomSlots();
+        // The first time, the room's switches replace any learned before they were built in.
+        let placed = false;
+        try { placed = localStorage.getItem(ROOM_KEY) === '1'; localStorage.setItem(ROOM_KEY, '1'); } catch (e) {}
+        return placed && list.some(s => s.binding) ? list : roomSlots(list);
     }
     function save() {
         try { localStorage.setItem(KEY, JSON.stringify(slots)); } catch (e) {}
@@ -109,11 +114,9 @@ const Switches = (() => {
         const slot = byId(id);
         if (slot) { slot.binding = null; save(); }
     }
-    // Back to the room's switches. Keeps the ids of the first ones, so their jobs stay.
+    // Back to the room's switches.
     function useRoom() {
-        const fresh = roomSlots();
-        fresh.forEach((f, i) => { if (slots[i]) f.id = slots[i].id; });
-        slots.splice(0, slots.length, ...fresh);
+        slots.splice(0, slots.length, ...roomSlots(slots));
         save();
     }
 
