@@ -10,8 +10,9 @@ The front page offers two parts:
 ## Animal Scenes
 A full-screen scene drawn in code, so it fills any screen shape and works offline. It opens on a choice of
 animals (one button per theme, like Animal Activities' theme picker); that tap starts the sound
-and goes full screen, and a switch or key press starts the animals used last time. A preset's link skips
-the choice. Touch an animal to hear it. Touch near an
+and goes full screen, and a key press (or a keystroke switch) starts the animals used last time. Switches
+that come in as a controller, like the sensory room's, can't start it — browsers only allow sound after a
+tap or a key — so tap the screen first; after that they work. A preset's link skips the choice. Touch an animal to hear it. Touch near an
 empty place (a branch, a bush, the ground or the water) and an animal that lives there comes to that spot (if they're all
 here, the longest-staying one moves over); this can be turned off in set-up. Every touch makes a ripple. Animals fly, walk, bound, climb, swim or surface into the places the scene
 has for them (branches, the ground, the water, or peeping over a bush); when every place of that kind is

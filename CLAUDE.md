@@ -2,7 +2,9 @@
 
 Animal World is used by a therapist and teachers with students with additional needs, often on a
 large touch projector in a sensory room, with switches (Pretorian SimplyWorks SEND-6, Bluetooth
-switches, Xbox Adaptive Controller). Plain HTML, CSS and JavaScript: no build step, no framework,
+switches, Xbox Adaptive Controller). The room's own SimplyWorks receiver shows up as a controller
+(Gamepad API buttons 12–16 and 18; see `ROOM` in `shared/switches.js`), so a press can't start sound:
+the adult taps first. Plain HTML, CSS and JavaScript: no build step, no framework,
 no packages. It must keep working offline and when opened by double-clicking `index.html`, so use
 classic `<script>` tags (not ES modules) and relative paths. Live at
 https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
@@ -30,7 +32,7 @@ https://Magnatronic.github.io/AnimalWorld (GitHub Pages serves `main`).
 | `openmoji/`, `fish/`, `sounds/`, `sounds/ambient/`, `sounds/weather/` | All assets are local (offline) |
 | `dev/` | Test server, scene checks (`checks.js`) and walk-through (see Testing) |
 
-localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (shared), `animalScenes.settings`, `animalScenes.presets`.
+localStorage keys: `animalWorld.settings` (Activities), `animalWorld.switches` (shared), `animalWorld.roomSwitches` (set once the room's switches have replaced learned ones), `animalScenes.settings`, `animalScenes.presets`, `animalScenes.presetsVersion` (which ready-made presets a saved list has been offered).
 
 ## Adding things
 - **A theme's animal**: add to `shared/themes.js`; download its SVG to `openmoji/` (see README),
